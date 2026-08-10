@@ -361,12 +361,20 @@ button, input, textarea { font: inherit; }
 
 @media (max-width: 900px) {
   .cursor-brush { display:none; }
+  .cursor-brush.is-touching { display:grid; }
   .brush-instruction { right:14px; bottom:5.2rem; }
   .underlay-orb { width:112px; }
   .hero-meta { top:76px; }
   .orb-beta { left:24%; }
   .dialog-gallery { grid-template-columns:1fr; }
   .dialog-gallery button, .dialog-gallery button:only-child { grid-column:auto; min-height:210px; }
+}
+
+@media (pointer: coarse), (hover: none) {
+  .brush-canvas { pointer-events:auto; touch-action:none; }
+  .cursor-brush.is-touching {
+    width:72px; height:72px; opacity:.86; transition:none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

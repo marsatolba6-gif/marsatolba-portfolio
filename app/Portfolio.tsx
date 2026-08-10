@@ -345,6 +345,7 @@ export default function Portfolio() {
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let last: { x: number; y: number; time: number } | null = null;
     let touchActive = false;
+    let activePointerId: number | null = null;
     let frame = 0;
 
     const resetCanvas = () => {
@@ -390,6 +391,8 @@ export default function Portfolio() {
     };
 
     const move = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && activePointerId !== event.pointerId) return;
+      if (event.pointerType !== "mouse" && touchActive) event.preventDefault();
       const rect = hero.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
@@ -401,7 +404,7 @@ export default function Portfolio() {
       cursor.classList.toggle("is-action", Boolean(action));
       cursor.classList.toggle("is-text", Boolean(text));
       if (label) label.textContent = action ? (target?.matches("input,textarea,select") ? "WRITE" : "OPEN") : text ? "READ" : "BRUSH";
-      cursor.style.opacity = event.pointerType === "mouse" ? "1" : "0";
+      cursor.style.opacity = event.pointerType === "mouse" ? "1" : touchActive ? ".86" : "0";
       cursor.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0) translate(-50%,-50%)`;
       if (action) {
         cursor.style.width = "58px";
@@ -438,24 +441,36 @@ export default function Portfolio() {
     };
 
     const pointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse" || !event.isPrimary) return;
+      event.preventDefault();
       touchActive = true;
+      activePointerId = event.pointerId;
+      cursor.classList.add("is-touching");
+      canvas.setPointerCapture(event.pointerId);
       move(event);
     };
-    const pointerUp = () => {
+    const pointerUp = (event: PointerEvent) => {
+      if (activePointerId !== event.pointerId) return;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
       touchActive = false;
+      activePointerId = null;
+      cursor.classList.remove("is-touching");
+      cursor.style.opacity = "0";
       last = null;
     };
     resetCanvas();
     window.addEventListener("resize", resetCanvas);
-    window.addEventListener("pointermove", move, { passive: true });
-    window.addEventListener("pointerdown", pointerDown, { passive: true });
+    window.addEventListener("pointermove", move, { passive: false });
+    canvas.addEventListener("pointerdown", pointerDown, { passive: false });
     window.addEventListener("pointerup", pointerUp, { passive: true });
+    window.addEventListener("pointercancel", pointerUp, { passive: true });
     return () => {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("resize", resetCanvas);
       window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerdown", pointerDown);
+      canvas.removeEventListener("pointerdown", pointerDown);
       window.removeEventListener("pointerup", pointerUp);
+      window.removeEventListener("pointercancel", pointerUp);
     };
   }, []);
 
@@ -502,7 +517,7 @@ export default function Portfolio() {
             <span className="underlay-note">CONNECTED SYSTEMS / HUMAN CLARITY</span>
           </div>
           <canvas ref={canvasRef} className="brush-canvas" aria-hidden="true" />
-          <div className="brush-instruction" aria-hidden="true"><span>MOVE TO REVEAL</span><i /></div>
+          <div className="brush-instruction" aria-hidden="true"><span>DRAG TO REVEAL</span><i /></div>
           <div className="hero-meta">
             <p>AI with purpose.<br />Automation that works.<br />Systems built to be understood.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>
