@@ -116,6 +116,8 @@ function SystemArt({ num }: { num: string }) {
 }
 
 const EMAIL = "marsatolba6@gmail.com";
+const INTRO_PROGRESS_DURATION_MS = 4800;
+const INTRO_VISIBLE_DURATION_MS = 5000;
 
 function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -227,12 +229,12 @@ export default function Portfolio() {
     const started = performance.now();
     let animation = 0;
     const update = (now: number) => {
-      const progress = Math.min(100, Math.round(((now - started) / 920) * 100));
+      const progress = Math.min(100, Math.round(((now - started) / INTRO_PROGRESS_DURATION_MS) * 100));
       setLoadingProgress(progress);
       if (progress < 100) animation = requestAnimationFrame(update);
     };
     animation = requestAnimationFrame(update);
-    const timer = window.setTimeout(() => setIntroVisible(false), 1080);
+    const timer = window.setTimeout(() => setIntroVisible(false), INTRO_VISIBLE_DURATION_MS);
     return () => {
       cancelAnimationFrame(animation);
       window.clearTimeout(timer);
