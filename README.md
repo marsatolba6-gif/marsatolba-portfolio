@@ -1,49 +1,31 @@
-# Automate with Mars — Editorial Portfolio Redesign
+# Automate with Mars
 
-A dependency-free portfolio redesign for **Mars Atolba — AI & Automation Specialist**.
+Portfolio of Mars Atolba, an AI & Automation Specialist focused on AI workflows, n8n automation, GoHighLevel systems, APIs, webhooks, and connected business systems.
 
-This build translates the visual rhythm of the supplied screen recording into an original portfolio system: oversized typography, black/white editorial transitions, sparse layouts, motion-led sections, cinematic project presentation, and a large typographic footer — while keeping Mars's own content, projects, experience, stack, and branding.
-
-## Included
-- Responsive single-page portfolio
-- Intro/loading transition
-- Light/dark section contrast
-- Oversized editorial typography
-- Scroll reveal and parallax motion
-- Project case-study modal
-- GHL portfolio screenshots
-- Resume PDF
-- Mobile layouts
-- Reduced-motion accessibility support
-- Vercel-ready static files
-
-## Run locally
-No dependencies are required.
+## Local development
 
 ```bash
-python -m http.server 8000
+npm ci
+npm run dev:vercel
 ```
 
-Then open `http://localhost:8000`.
+Open `http://localhost:3000`.
 
-## Deploy to Vercel
-Import this repository into Vercel. Framework preset can be **Other** and no build command is required.
+## Production build
 
-## Push to GitHub
 ```bash
-git init
-git add .
-git commit -m "Editorial portfolio redesign"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPO.git
-git push -u origin main
+npm run build:vercel
 ```
 
-## Main files
-- `index.html` — content and page structure
-- `styles.css` — visual system, layout, motion, responsive behavior
-- `app.js` — project data, interactions, modal, menu, theme switching
-- `assets/` — portfolio screenshots and resume
+The repository includes `vercel.json`, so Vercel uses the dedicated Next.js production build while preserving the original project workflow.
 
-## Content note
-The GoHighLevel Lead Conversion System is described as an **independent / client-ready demo**, not as paid client work.
+## Deployment
+
+The `main` branch is intended to be connected to Vercel. A push to `main` creates a production deployment for the portfolio.
+
+## Contact
+
+- Email: marsatolba6@gmail.com
+- Website: https://automatewithmars.vercel.app
+
+Elevate. Automate. Excel.
