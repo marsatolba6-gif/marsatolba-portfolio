@@ -94,8 +94,8 @@ const projects: Project[] = [
     category: "BUSINESS SYSTEMS",
     scope: "GOHIGHLEVEL IMPLEMENTATION",
     layout: "landscape",
-    image: "/assets/ghl-landing-page-1.png",
-    gallery: ["/assets/ghl-landing-page-1.png", "/assets/ghl-landing-page-2.png"],
+    image: "/assets/ghl-landing-page-1.webp",
+    gallery: ["/assets/ghl-landing-page-1.webp", "/assets/ghl-landing-page-2.png"],
     problem: "A landing page is most useful when lead capture connects directly with the business systems behind it.",
     system: "Branded GoHighLevel landing pages and funnel structures connected to forms, calendars, CRM records, and workflow automations where applicable.",
     value: "Connects customer-facing lead capture with the operational workflow that follows.",
@@ -607,7 +607,7 @@ export default function Portfolio() {
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               <a href="mailto:marsatolba6@gmail.com"><span>EMAIL</span>marsatolba6@gmail.com ↗</a>
-              <a href="https://automatewithmars.vercel.app" target="_blank" rel="noreferrer"><span>WEBSITE</span>automatewithmars.vercel.app ↗</a>
+              <a href="https://automateiv.vercel.app" target="_blank" rel="noreferrer"><span>WEBSITE</span>automateiv.vercel.app ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer">VIEW RESUME ↗</a></div>
             </aside>
