@@ -8,11 +8,11 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL("https://automateiv.vercel.app"),
   title: "Automate with Mars — Premium Portfolio",
-  description: "Mars Atolba — AI & Automation Specialist building AI workflows, n8n automations, GoHighLevel systems, APIs, and connected business systems.",
+  description: "Mars Atolba — AI Automation Specialist building AI workflows, n8n automations, GoHighLevel systems, APIs, and connected business systems.",
   authors: [{ name: "Mars Atolba" }],
   alternates: { canonical: "https://automateiv.vercel.app/" },
   openGraph: {
-    title: "Mars Atolba — AI & Automation Specialist",
+    title: "Mars Atolba — AI Automation Specialist",
     description: "AI workflows, automation, GoHighLevel, APIs, and business systems.",
     type: "website",
     url: "https://automateiv.vercel.app/",
