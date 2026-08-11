@@ -163,14 +163,32 @@ function ScanStage({ project, src, index, onExpand }: { project: Project; src: s
     touchPointer.current = null;
   };
 
+  const revealCenter = () => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    stage.style.setProperty("--scan-x", "50%");
+    stage.style.setProperty("--scan-y", "50%");
+    stage.classList.add("is-scanning");
+    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
+    restoreTimer.current = window.setTimeout(() => stage.classList.remove("is-scanning"), 1800);
+  };
+
   return (
     <article
       ref={stageRef}
       className="scan-stage"
+      tabIndex={0}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      onFocus={revealCenter}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          revealCenter();
+        }
+      }}
       aria-label={`${project.name} system scan ${index + 1}`}
     >
       <div className="scan-image-layer">
@@ -209,6 +227,8 @@ const INTRO_PROGRESS_DURATION_MS = 3400;
 const INTRO_COLLAPSE_PAUSE_MS = 250;
 const INTRO_EXIT_DELAY_MS = 1180;
 const INTRO_ROTATION_TERMS = ["AUTOMATION", "GHL", "n8n", "WORKFLOWS"];
+const ABOUT_ROLE_LINES = ["AN AI & AUTOMATION", "SPECIALIST."];
+const ABOUT_PRELUDE_WORD = "FOUNDATIONS";
 const BRUSH_TRAIL_HOLD_MS = 1550;
 const BRUSH_TRAIL_FADE_MS = 1150;
 const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
@@ -292,13 +312,37 @@ export default function Portfolio() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingWordStep, setLoadingWordStep] = useState(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [previewProject, setPreviewProject] = useState<Project>(projects[0]);
+  const [workPreviewVisible, setWorkPreviewVisible] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [headerDark, setHeaderDark] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
+  const manifestoRef = useRef<HTMLElement>(null);
+  const signatureFlowRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const openProject = (project: Project) => {
+    setPreviewProject(project);
+    setWorkPreviewVisible(false);
+    setActiveProject(project);
+  };
+
+  const closeProject = () => {
+    setLightbox(null);
+    setActiveProject(null);
+  };
+
+  const showAdjacentProject = (direction: -1 | 1) => {
+    if (!activeProject) return;
+    const currentIndex = projects.findIndex((project) => project.num === activeProject.num);
+    const nextProject = projects[(currentIndex + direction + projects.length) % projects.length];
+    setPreviewProject(nextProject);
+    setActiveProject(nextProject);
+    window.requestAnimationFrame(() => document.querySelector<HTMLElement>(".project-dialog")?.scrollTo({ top: 0, behavior: "auto" }));
+  };
 
   const navigateFromMenu = (href: string) => {
     setMenuOpen(false);
@@ -354,16 +398,73 @@ export default function Portfolio() {
   }, []);
 
   useEffect(() => {
-    const media = [...document.querySelectorAll<HTMLElement>(".project-media")];
+    const flow = signatureFlowRef.current;
+    if (!flow) return;
+    const stage = flow.querySelector<HTMLElement>(".about-prelude-stage");
+    const letters = [...flow.querySelectorAll<HTMLElement>(".about-prelude-char")];
+    const signature = flow.querySelector<HTMLElement>(".about-signature-preview");
+    const signatureLine = flow.querySelector<HTMLElement>(".about-signature-line");
+    const quote = flow.querySelector<HTMLElement>(".about-quote-preview");
+    const scrollCue = flow.querySelector<HTMLElement>(".about-prelude-scroll");
+    if (!stage || !signature || !signatureLine || !quote || !scrollCue) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frame = 0;
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const update = () => {
+      const rect = flow.getBoundingClientRect();
+      const travel = Math.max(1, rect.height - window.innerHeight);
+      const progress = reduced ? 1 : clamp(-rect.top / travel);
+      const gather = clamp(progress / 0.34);
+      const signatureReveal = clamp((progress - 0.24) / 0.25);
+      const quoteReveal = clamp((progress - 0.52) / 0.24);
+      const handoff = clamp((progress - 0.88) / 0.1);
+
+      letters.forEach((letter) => {
+        const x = Number(letter.dataset.x ?? 0) * (1 - gather);
+        const y = Number(letter.dataset.y ?? 0) * (1 - gather);
+        const rotate = Number(letter.dataset.rotate ?? 0) * (1 - gather);
+        letter.style.transform = `translate3d(${x}vw, ${y}vh, 0) rotate(${rotate}deg)`;
+        letter.style.opacity = String(0.12 + gather * 0.88);
+      });
+      signature.style.opacity = String(signatureReveal);
+      signature.style.transform = `translate3d(-50%, ${(1 - signatureReveal) * 42}px, 0) rotate(-4deg)`;
+      signatureLine.style.transform = `scaleX(${signatureReveal})`;
+      quote.style.opacity = String(quoteReveal);
+      quote.style.transform = `translate3d(-50%, ${(1 - quoteReveal) * 34}px, 0)`;
+      scrollCue.style.opacity = String(1 - clamp(progress / 0.15));
+      stage.style.opacity = String(1 - handoff);
+      frame = 0;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const section = manifestoRef.current;
+    if (!section) return;
+    const editorialHead = section.querySelector<HTMLElement>(".about-editorial-head");
+    if (!editorialHead) return;
+    const letters = [...section.querySelectorAll<HTMLElement>(".about-motion-char")];
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
     const update = () => {
+      const rect = editorialHead.getBoundingClientRect();
       const viewport = window.innerHeight;
-      media.forEach((item) => {
-        const card = item.closest<HTMLElement>(".project-card");
-        if (!card) return;
-        const rect = card.getBoundingClientRect();
-        const progress = Math.min(1, Math.max(0, (viewport * 0.78 - rect.top) / (rect.height + viewport * 0.22)));
-        item.style.setProperty("--media-scale", String(1 - progress * 0.12));
+      const progress = reduced ? 1 : Math.min(1, Math.max(0, (viewport * 0.92 - rect.top) / (viewport * 0.72)));
+      letters.forEach((letter) => {
+        const from = Number(letter.dataset.from ?? 0);
+        letter.style.transform = `translate3d(${from * (1 - progress)}vw, 0, 0)`;
+        letter.style.opacity = String(0.16 + progress * 0.84);
       });
       frame = 0;
     };
@@ -717,21 +818,74 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="about" className="manifesto theme-light" data-theme="light">
-          <div className="manifesto-graphic" aria-hidden="true">
-            <svg viewBox="0 0 620 620"><path d="M310 120 C470 120 520 260 430 310 C520 380 440 510 310 500 C170 500 95 380 190 310 C95 245 155 120 310 120Z" /><path d="M185 310H435M310 120V500" /></svg>
-            <div className="map-core"><strong>MARS</strong><span>SYSTEM MAP</span></div>
-            <span className="map-node map-a">PROCESS</span><span className="map-node map-b">LOGIC</span><span className="map-node map-c">TOOLS</span><span className="map-node map-d">OUTCOME</span>
+        <section ref={manifestoRef} id="about" className="manifesto about-editorial theme-light" data-theme="light">
+          <div ref={signatureFlowRef} className="about-prelude" aria-label="Temporary signature and quote preview">
+            <div className="about-prelude-stage">
+              <div className="about-prelude-meta">
+                <span>01 / PERSONAL FOUNDATION</span>
+                <span>EXAMPLE / AWAITING YOUR SIGNATURE + WORDS</span>
+              </div>
+              <p className="about-prelude-word" aria-hidden="true">
+                {[...ABOUT_PRELUDE_WORD].map((character, index) => {
+                  const direction = index % 2 === 0 ? -1 : 1;
+                  const x = direction * (18 + (index % 4) * 7);
+                  const y = ((index % 3) - 1) * (12 + (index % 2) * 8);
+                  const rotate = direction * (5 + (index % 3) * 4);
+                  return <span className="about-prelude-char" data-x={x} data-y={y} data-rotate={rotate} key={`${character}-${index}`}>{character}</span>;
+                })}
+              </p>
+              <div className="about-signature-preview">
+                <span>PLACEHOLDER SIGNATURE</span>
+                <strong>Mars Atolba</strong>
+                <i className="about-signature-line" aria-hidden="true" />
+              </div>
+              <blockquote className="about-quote-preview">
+                <span>TEMPORARY WORDS / USING EXISTING COPY</span>
+                <p>AI with purpose. Automation that works. Systems built to be understood.</p>
+              </blockquote>
+              <span className="about-prelude-scroll">SCROLL TO REVEAL ↓</span>
+            </div>
           </div>
-          <div className="manifesto-copy reveal">
-            <p className="eyebrow">01 / INTRODUCTION</p>
-            <h2>I build systems<br /><span>that make work move.</span></h2>
+
+          <div className="about-editorial-head">
+            <p className="about-parenthetical">( ABOUT ME. )</p>
+            <h2 className="about-role" aria-label="An AI and Automation Specialist.">
+              {ABOUT_ROLE_LINES.map((line) => (
+                <span className="about-role-line" key={line} aria-hidden="true">
+                  {[...line].map((character, index) => {
+                    const midpoint = (line.length - 1) / 2;
+                    const distance = 10 + Math.abs(index - midpoint) * 1.25;
+                    const direction = index < midpoint ? -1 : 1;
+                    return <span className={`about-motion-char${character === " " ? " is-space" : ""}`} data-from={direction * distance} key={`${line}-${index}`}>{character === " " ? "\u00A0" : character}</span>;
+                  })}
+                </span>
+              ))}
+            </h2>
+            <div className="about-role-footer"><p>MARS, FROM OPERATIONS TO SYSTEMS</p><span>+</span></div>
           </div>
-          <div className="manifesto-grid reveal">
-            <p className="manifesto-note">OPERATIONS → AUTOMATION</p>
-            <div className="manifesto-body">
-              <p>I&apos;m Mars Atolba, an AI & Automation Specialist with a background in operations and customer support. I turn repetitive work, scattered information, and manual handoffs into clear, connected workflows.</p>
-              <p>I start with the process, then choose the right mix of n8n, AI, GoHighLevel, APIs, and business tools—so the result is practical, reliable, and easy to maintain.</p>
+
+          <div className="about-story-grid">
+            {[
+              ["MY FOUNDATION", "Operations and customer support taught me customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving."],
+              ["MY GROWTH", "Independent projects moved my work into n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, and structured outputs."],
+              ["MY WORK", "Today I design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes."],
+            ].map(([title, copy], index) => (
+              <article className="about-story reveal" key={title}>
+                <header><span>{String(index + 1).padStart(2, "0")}</span><h3>{title} +</h3></header>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="about-belief">
+            <h3 className="reveal">I START WITH<br />THE PROCESS.</h3>
+            <div className="about-belief-body">
+              <div className="manifesto-graphic" aria-hidden="true">
+                <svg viewBox="0 0 620 620"><path d="M310 120 C470 120 520 260 430 310 C520 380 440 510 310 500 C170 500 95 380 190 310 C95 245 155 120 310 120Z" /><path d="M185 310H435M310 120V500" /></svg>
+                <div className="map-core"><strong>MARS</strong><span>SYSTEM MAP</span></div>
+                <span className="map-node map-a">PROCESS</span><span className="map-node map-b">LOGIC</span><span className="map-node map-c">TOOLS</span><span className="map-node map-d">OUTCOME</span>
+              </div>
+              <p className="reveal">I choose the right mix of n8n, AI, GoHighLevel, APIs, and business tools—so the result is practical, reliable, and easy to maintain.</p>
             </div>
           </div>
         </section>
@@ -741,34 +895,56 @@ export default function Portfolio() {
             <div><p className="eyebrow inverse">02 / SELECTED WORK</p><h2>WORKS</h2><p className="muted-light">Where automation becomes operational.</p></div>
             <p className="work-index">05 SYSTEMS<br />AI / CRM / AUTOMATION</p>
           </div>
-          <div className="projects">
-            {projects.map((project) => (
-              <article key={project.num} className={`project-card reveal is-${project.layout}`} role="button" tabIndex={0} aria-label={`Open project: ${project.name}`} onClick={() => setActiveProject(project)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setActiveProject(project); } }}>
-                <div className="project-media">
-                  {project.image ? <img src={project.image} alt={`${project.name} workflow screenshot`} loading="lazy" /> : <SystemArt num={project.num} />}
+          <div className="work-browser reveal">
+            <div className="work-browser-bar"><span>MARS / WORK INDEX</span><span>SELECT A SYSTEM</span><span>01—05</span></div>
+            <div className="work-browser-layout" onMouseLeave={() => setWorkPreviewVisible(false)}>
+              <div className="work-list" aria-label="Selected systems">
+                {projects.map((project) => (
+                  <button
+                    key={project.num}
+                    type="button"
+                    className={`work-list-row${workPreviewVisible && previewProject.num === project.num ? " is-active" : ""}`}
+                    aria-label={`Open project: ${project.name}`}
+                    onMouseEnter={() => { setPreviewProject(project); setWorkPreviewVisible(true); }}
+                    onFocus={() => { setPreviewProject(project); setWorkPreviewVisible(true); }}
+                    onBlur={() => setWorkPreviewVisible(false)}
+                    onClick={() => openProject(project)}
+                  >
+                    <span className="work-list-num">{project.num}</span>
+                    <span className="work-list-title"><strong>{project.name}</strong><em>{project.category}</em></span>
+                    <span className="work-list-scope">{project.scope}</span>
+                    <span className="work-list-arrow">↗</span>
+                  </button>
+                ))}
+              </div>
+              <aside className={`work-hover-preview${workPreviewVisible ? " is-visible" : ""}`} aria-live="polite" aria-label={`${previewProject.name} preview`}>
+                <div className="work-hover-media">
+                  {previewProject.image ? <img key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} /> : <SystemArt num={previewProject.num} />}
+                  <span className="work-preview-scan"><i />MARS / SYSTEM {previewProject.num}</span>
                 </div>
-                <div className="project-copy">
-                  <div className="project-kicker"><span>{project.num} / {project.category}</span><span>{project.scope}</span></div>
-                  <p className="project-short-name">{project.shortName}</p>
-                  <h3>{project.name}</h3><p>{project.value}</p><span className="project-open">SCAN SYSTEM ↗</span>
-                </div>
-              </article>
-            ))}
+                <div className="work-hover-meta"><span>{previewProject.shortName}</span><span>CLICK TO OPEN ↗</span></div>
+              </aside>
+            </div>
           </div>
         </section>
 
         <section id="process" className="process theme-light" data-theme="light">
-          <div className="process-head reveal"><p className="eyebrow">03 / PROCESS</p><h2>Build the right thing.<br />Then make it reliable.</h2></div>
-          <div className="process-steps">
-            {[
-              ["01", "UNDERSTAND", "Understand the process, desired outcome, people involved, bottlenecks, and repetitive work before choosing the technology."],
-              ["02", "DESIGN", "Map triggers, actions, integrations, data, decision points, AI steps, exceptions, and expected outcomes."],
-              ["03", "BUILD", "Use the right combination of automation, AI, APIs, CRM tools, and business applications."],
-              ["04", "TEST", "Validate workflow logic, field mappings, branches, AI outputs, timing, integrations, and edge cases."],
-              ["05", "DOCUMENT & IMPROVE", "Use clear naming, organized workflow logic, documentation, execution review, and iteration."],
-            ].map(([num, title, copy]) => <article key={num} className="process-step reveal"><span>{num}</span><h3>{title}</h3><p>{copy}</p></article>)}
+          <div className="process-layout">
+            <div className="process-intro reveal">
+              <p className="eyebrow">03 / PROCESS</p>
+              <h2>Build the right thing.<br />Then make it reliable.</h2>
+              <div className="process-quote"><p>“Automate the right process — not simply the existing process.”</p><span>AI is a tool within the system, not automatically the solution to every problem.</span></div>
+            </div>
+            <div className="process-steps">
+              {[
+                ["01", "UNDERSTAND", "Understand the process, desired outcome, people involved, bottlenecks, and repetitive work before choosing the technology."],
+                ["02", "DESIGN", "Map triggers, actions, integrations, data, decision points, AI steps, exceptions, and expected outcomes."],
+                ["03", "BUILD", "Use the right combination of automation, AI, APIs, CRM tools, and business applications."],
+                ["04", "TEST", "Validate workflow logic, field mappings, branches, AI outputs, timing, integrations, and edge cases."],
+                ["05", "DOCUMENT & IMPROVE", "Use clear naming, organized workflow logic, documentation, execution review, and iteration."],
+              ].map(([num, title, copy]) => <article key={num} className="process-step reveal"><span>{num}</span><h3>{title}</h3><p>{copy}</p></article>)}
+            </div>
           </div>
-          <div className="process-quote reveal"><p>“Automate the right process — not simply the existing process.”</p><span>AI is a tool within the system, not automatically the solution to every problem.</span></div>
         </section>
 
         <section id="experience" className="experience theme-dark" data-theme="dark">
@@ -817,9 +993,13 @@ export default function Portfolio() {
       </main>
 
       {activeProject && (
-        <div className="modal-shell" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveProject(null); }}>
+        <div className="modal-shell" role="presentation">
           <section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title">
-            <button className="dialog-close" type="button" onClick={() => setActiveProject(null)} autoFocus>CLOSE ×</button>
+            <nav className="project-interface-bar" aria-label="Project navigation">
+              <button className="project-back" type="button" onClick={closeProject} autoFocus>← WORK INDEX</button>
+              <span>{activeProject.num} / {String(projects.length).padStart(2, "0")}</span>
+              <div><button type="button" onClick={() => showAdjacentProject(-1)}>PREV</button><button type="button" onClick={() => showAdjacentProject(1)}>NEXT</button></div>
+            </nav>
             <div className="dialog-content">
               <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p></div><h2 id="project-title">{activeProject.name}</h2></div>
               <div className="dialog-system-layout">
