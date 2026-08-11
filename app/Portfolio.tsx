@@ -116,11 +116,12 @@ function SystemArt({ num }: { num: string }) {
 }
 
 const EMAIL = "marsatolba6@gmail.com";
-const INTRO_NAME_REVEAL_AT_MS = 450;
-const INTRO_LOAD_START_MS = 1050;
-const INTRO_PROGRESS_DURATION_MS = 3300;
-const INTRO_COLLAPSE_AT_MS = 4650;
-const INTRO_VISIBLE_DURATION_MS = 5600;
+const INTRO_NAME_REVEAL_AT_MS = 520;
+const INTRO_LOAD_START_MS = 1200;
+const INTRO_PROGRESS_DURATION_MS = 3400;
+const INTRO_COLLAPSE_PAUSE_MS = 250;
+const INTRO_EXIT_DELAY_MS = 1180;
+const INTRO_ROTATION_TERMS = ["AUTOMATION", "GHL", "n8n", "WORKFLOWS"];
 const BRUSH_TRAIL_HOLD_MS = 1550;
 const BRUSH_TRAIL_FADE_MS = 1150;
 const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
@@ -202,6 +203,7 @@ export default function Portfolio() {
   const [introVisible, setIntroVisible] = useState(true);
   const [introPhase, setIntroPhase] = useState<"mark" | "name" | "loading" | "collapse">("mark");
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingWordStep, setLoadingWordStep] = useState(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [headerDark, setHeaderDark] = useState(false);
@@ -236,17 +238,25 @@ export default function Portfolio() {
     }
     const started = performance.now();
     let animation = 0;
+    let collapseTimer = 0;
+    let exitTimer = 0;
     const update = (now: number) => {
       const elapsed = Math.max(0, now - started - INTRO_LOAD_START_MS);
-      const progress = Math.min(100, Math.round((elapsed / INTRO_PROGRESS_DURATION_MS) * 100));
+      const ratio = Math.min(1, elapsed / INTRO_PROGRESS_DURATION_MS);
+      const progress = Math.round(ratio * 100);
+      const rotationStep = Math.min(11, Math.floor(ratio * 2 + Math.pow(ratio, 3) * 9));
       setLoadingProgress(progress);
-      if (progress < 100) animation = requestAnimationFrame(update);
+      setLoadingWordStep(rotationStep);
+      if (progress < 100) {
+        animation = requestAnimationFrame(update);
+      } else {
+        collapseTimer = window.setTimeout(() => setIntroPhase("collapse"), INTRO_COLLAPSE_PAUSE_MS);
+        exitTimer = window.setTimeout(() => setIntroVisible(false), INTRO_EXIT_DELAY_MS);
+      }
     };
     animation = requestAnimationFrame(update);
     const nameTimer = window.setTimeout(() => setIntroPhase("name"), INTRO_NAME_REVEAL_AT_MS);
     const loadTimer = window.setTimeout(() => setIntroPhase("loading"), INTRO_LOAD_START_MS);
-    const collapseTimer = window.setTimeout(() => setIntroPhase("collapse"), INTRO_COLLAPSE_AT_MS);
-    const exitTimer = window.setTimeout(() => setIntroVisible(false), INTRO_VISIBLE_DURATION_MS);
     return () => {
       cancelAnimationFrame(animation);
       window.clearTimeout(nameTimer);
@@ -548,10 +558,21 @@ export default function Portfolio() {
       <a className="skip-link" href="#work">Skip to selected work</a>
       <div className={`intro ${introVisible ? "" : "is-gone"}`} aria-hidden="true">
         <div className={`intro-lockup is-${introPhase}`}>
-          <div className="intro-wordmark" aria-label="Mars Atolba">
-            <span className="intro-initial">M</span><span className="intro-rest">ARS ATOLBA</span>
+          <div className="intro-wordmark" aria-label="Mars">
+            <span className="intro-initial">M</span>
+            <span className="intro-full">MARS</span>
           </div>
-          <div className="intro-loader"><span>{String(loadingProgress).padStart(3, "0")} / 100</span><i><b style={{ width: `${loadingProgress}%` }} /></i></div>
+          <div className="intro-loader">
+            <div className="intro-rotation">
+              <span key={loadingWordStep} style={{ animationDuration: `${Math.max(150, 420 - loadingProgress * 2.7)}ms` }}>
+                {INTRO_ROTATION_TERMS[loadingWordStep % INTRO_ROTATION_TERMS.length]}
+              </span>
+            </div>
+            <div className="intro-meter">
+              <span>{String(loadingProgress).padStart(3, "0")} / 100</span>
+              <i><b style={{ width: `${loadingProgress}%` }} /></i>
+            </div>
+          </div>
         </div>
       </div>
       <div ref={cursorRef} className="cursor-brush" aria-hidden="true"><span>BRUSH</span></div>
