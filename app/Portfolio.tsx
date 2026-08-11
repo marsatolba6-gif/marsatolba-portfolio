@@ -235,7 +235,7 @@ const MANIFESTO_LINES = [
   "EXCELLENCE.",
 ];
 const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
-const ABOUT_ROLE_LINES = ["AN AI & AUTOMATION", "SPECIALIST."];
+const ABOUT_ROLE_LINES = ["AN AI AUTOMATION", "SPECIALIST."];
 const BRUSH_TRAIL_HOLD_MS = 1550;
 const BRUSH_TRAIL_FADE_MS = 1150;
 const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
@@ -894,7 +894,7 @@ export default function Portfolio() {
                 <span>PEOPLE → PROCESS → SYSTEMS</span>
               </div>
               <p className="about-ghost" aria-hidden="true">FROM OPERATIONS TO SYSTEMS</p>
-              <h2 className="about-role" aria-label="An AI and Automation Specialist.">
+              <h2 className="about-role" aria-label="An AI Automation Specialist.">
                 {ABOUT_ROLE_LINES.map((line, lineIndex) => (
                   <span className="about-role-line" key={line} aria-hidden="true">
                     {[...line].map((character, index) => (
@@ -1040,8 +1040,8 @@ export default function Portfolio() {
         <section id="experience" className="experience theme-dark" data-theme="dark">
           <div className="experience-head reveal"><p className="eyebrow inverse">04 / EXPERIENCE</p><h2>FROM OPERATIONS<br />TO SYSTEMS.</h2></div>
           <div className="timeline">
-            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI & Automation Specialist</h3><p>Independent / Freelance</p></div><p>Design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes using n8n, AI models, GoHighLevel, APIs, webhooks, and business applications.</p></article>
-            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI & Automation Developer</h3><p>Independent Projects</p></div><p>Built and tested practical automation systems with n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, structured outputs, and connected business applications.</p></article>
+            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>Design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes using n8n, AI models, GoHighLevel, APIs, webhooks, and business applications.</p></article>
+            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Built and tested practical automation systems with n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, structured outputs, and connected business applications.</p></article>
             <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations & Customer Success</h3><p>Operations & Support</p></div><p>Supported customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving — the operational foundation behind how I design automation today.</p></article>
           </div>
         </section>
@@ -1078,7 +1078,7 @@ export default function Portfolio() {
             </aside>
           </div>
           <div className="footer-word" aria-label="Elevate Automate Excel"><span>ELEVATE.</span><span>AUTOMATE.</span><span>EXCEL.</span></div>
-          <div className="footer-bottom"><span>© 2026 MARS ATOLBA</span><span>AI & AUTOMATION SPECIALIST</span><span>BUILT FOR CLARITY + MOTION</span></div>
+          <div className="footer-bottom"><span>© 2026 MARS ATOLBA</span><span>AI AUTOMATION SPECIALIST</span><span>BUILT FOR CLARITY + MOTION</span></div>
         </section>
       </main>
 
