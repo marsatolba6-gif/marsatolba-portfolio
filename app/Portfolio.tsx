@@ -116,8 +116,14 @@ function SystemArt({ num }: { num: string }) {
 }
 
 const EMAIL = "marsatolba6@gmail.com";
-const INTRO_PROGRESS_DURATION_MS = 4800;
-const INTRO_VISIBLE_DURATION_MS = 5000;
+const INTRO_NAME_REVEAL_AT_MS = 450;
+const INTRO_LOAD_START_MS = 1050;
+const INTRO_PROGRESS_DURATION_MS = 3300;
+const INTRO_COLLAPSE_AT_MS = 4650;
+const INTRO_VISIBLE_DURATION_MS = 5600;
+const BRUSH_TRAIL_HOLD_MS = 1550;
+const BRUSH_TRAIL_FADE_MS = 1150;
+const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
 
 function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -194,6 +200,7 @@ function ContactForm() {
 export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
+  const [introPhase, setIntroPhase] = useState<"mark" | "name" | "loading" | "collapse">("mark");
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -222,6 +229,7 @@ export default function Portfolio() {
     if (reduced) {
       const reducedTimer = window.setTimeout(() => {
         setLoadingProgress(100);
+        setIntroPhase("collapse");
         setIntroVisible(false);
       }, 0);
       return () => window.clearTimeout(reducedTimer);
@@ -229,15 +237,22 @@ export default function Portfolio() {
     const started = performance.now();
     let animation = 0;
     const update = (now: number) => {
-      const progress = Math.min(100, Math.round(((now - started) / INTRO_PROGRESS_DURATION_MS) * 100));
+      const elapsed = Math.max(0, now - started - INTRO_LOAD_START_MS);
+      const progress = Math.min(100, Math.round((elapsed / INTRO_PROGRESS_DURATION_MS) * 100));
       setLoadingProgress(progress);
       if (progress < 100) animation = requestAnimationFrame(update);
     };
     animation = requestAnimationFrame(update);
-    const timer = window.setTimeout(() => setIntroVisible(false), INTRO_VISIBLE_DURATION_MS);
+    const nameTimer = window.setTimeout(() => setIntroPhase("name"), INTRO_NAME_REVEAL_AT_MS);
+    const loadTimer = window.setTimeout(() => setIntroPhase("loading"), INTRO_LOAD_START_MS);
+    const collapseTimer = window.setTimeout(() => setIntroPhase("collapse"), INTRO_COLLAPSE_AT_MS);
+    const exitTimer = window.setTimeout(() => setIntroVisible(false), INTRO_VISIBLE_DURATION_MS);
     return () => {
       cancelAnimationFrame(animation);
-      window.clearTimeout(timer);
+      window.clearTimeout(nameTimer);
+      window.clearTimeout(loadTimer);
+      window.clearTimeout(collapseTimer);
+      window.clearTimeout(exitTimer);
     };
   }, []);
 
@@ -342,52 +357,98 @@ export default function Portfolio() {
     }
     const context = canvas.getContext("2d");
     if (!context) return;
+    const baseCanvas = document.createElement("canvas");
+    const baseContext = baseCanvas.getContext("2d");
+    if (!baseContext) return;
+    type BrushPoint = { x: number; y: number; radius: number; createdAt: number };
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let last: { x: number; y: number; time: number } | null = null;
+    let trail: BrushPoint[] = [];
     let touchActive = false;
     let activePointerId: number | null = null;
-    let frame = 0;
+    let inputFrame = 0;
+    let trailFrame = 0;
+    let lastTrailRender = 0;
+
+    const paintBase = (width: number, height: number) => {
+      baseContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+      baseContext.globalCompositeOperation = "source-over";
+      baseContext.fillStyle = "#fff";
+      baseContext.fillRect(0, 0, width, height);
+      baseContext.strokeStyle = "rgba(10,10,10,.055)";
+      baseContext.lineWidth = 1;
+      for (let x = 0; x < width; x += 46) {
+        baseContext.beginPath();
+        baseContext.moveTo(x, 0);
+        baseContext.lineTo(x, height);
+        baseContext.stroke();
+      }
+      for (let y = 0; y < height; y += 46) {
+        baseContext.beginPath();
+        baseContext.moveTo(0, y);
+        baseContext.lineTo(width, y);
+        baseContext.stroke();
+      }
+    };
+
+    const restoreBase = () => {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.globalCompositeOperation = "source-over";
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(baseCanvas, 0, 0);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
 
     const resetCanvas = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const rect = hero.getBoundingClientRect();
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      baseCanvas.width = canvas.width;
+      baseCanvas.height = canvas.height;
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      context.globalCompositeOperation = "source-over";
-      context.fillStyle = "#fff";
-      context.fillRect(0, 0, rect.width, rect.height);
-      context.strokeStyle = "rgba(10,10,10,.055)";
-      context.lineWidth = 1;
-      for (let x = 0; x < rect.width; x += 46) {
-        context.beginPath();
-        context.moveTo(x, 0);
-        context.lineTo(x, rect.height);
-        context.stroke();
-      }
-      for (let y = 0; y < rect.height; y += 46) {
-        context.beginPath();
-        context.moveTo(0, y);
-        context.lineTo(rect.width, y);
-        context.stroke();
-      }
+      paintBase(rect.width, rect.height);
+      trail = [];
+      restoreBase();
       last = null;
     };
 
-    const erase = (x: number, y: number, radius: number) => {
+    const erase = (x: number, y: number, radius: number, strength = 1) => {
       context.save();
       context.globalCompositeOperation = "destination-out";
       const gradient = context.createRadialGradient(x, y, radius * 0.18, x, y, radius);
-      gradient.addColorStop(0, "rgba(0,0,0,1)");
-      gradient.addColorStop(0.72, "rgba(0,0,0,.88)");
+      gradient.addColorStop(0, `rgba(0,0,0,${strength})`);
+      gradient.addColorStop(0.72, `rgba(0,0,0,${strength * 0.88})`);
       gradient.addColorStop(1, "rgba(0,0,0,0)");
       context.fillStyle = gradient;
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
       context.restore();
+    };
+
+    const renderTrail = (now: number) => {
+      if (now - lastTrailRender < 32) {
+        trailFrame = requestAnimationFrame(renderTrail);
+        return;
+      }
+      lastTrailRender = now;
+      trail = trail.filter((point) => now - point.createdAt < BRUSH_TRAIL_LIFETIME_MS);
+      restoreBase();
+      trail.forEach((point) => {
+        const age = now - point.createdAt;
+        const strength = age <= BRUSH_TRAIL_HOLD_MS
+          ? 1
+          : Math.max(0, 1 - (age - BRUSH_TRAIL_HOLD_MS) / BRUSH_TRAIL_FADE_MS);
+        const radius = point.radius * (0.78 + strength * 0.22);
+        erase(point.x, point.y, radius, strength);
+      });
+      trailFrame = trail.length ? requestAnimationFrame(renderTrail) : 0;
+    };
+
+    const queueTrailRender = () => {
+      if (!trailFrame) trailFrame = requestAnimationFrame(renderTrail);
     };
 
     const move = (event: PointerEvent) => {
@@ -420,8 +481,8 @@ export default function Portfolio() {
         last = null;
         return;
       }
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
+      if (inputFrame) cancelAnimationFrame(inputFrame);
+      inputFrame = requestAnimationFrame(() => {
         const now = performance.now();
         const distance = last ? Math.hypot(x - last.x, y - last.y) : 0;
         const elapsed = last ? Math.max(1, now - last.time) : 16;
@@ -430,8 +491,15 @@ export default function Portfolio() {
         const steps = last ? Math.max(1, Math.ceil(distance / (radius * 0.3))) : 1;
         for (let i = 1; i <= steps; i += 1) {
           const t = i / steps;
-          erase(last ? last.x + (x - last.x) * t : x, last ? last.y + (y - last.y) * t : y, radius);
+          trail.push({
+            x: last ? last.x + (x - last.x) * t : x,
+            y: last ? last.y + (y - last.y) * t : y,
+            radius,
+            createdAt: now,
+          });
         }
+        if (trail.length > 160) trail.splice(0, trail.length - 160);
+        queueTrailRender();
         if (!action && !text) {
           cursor.style.width = `${radius * 1.55}px`;
           cursor.style.height = `${radius * 1.55}px`;
@@ -465,7 +533,8 @@ export default function Portfolio() {
     window.addEventListener("pointerup", pointerUp, { passive: true });
     window.addEventListener("pointercancel", pointerUp, { passive: true });
     return () => {
-      if (frame) cancelAnimationFrame(frame);
+      if (inputFrame) cancelAnimationFrame(inputFrame);
+      if (trailFrame) cancelAnimationFrame(trailFrame);
       window.removeEventListener("resize", resetCanvas);
       window.removeEventListener("pointermove", move);
       canvas.removeEventListener("pointerdown", pointerDown);
@@ -478,8 +547,10 @@ export default function Portfolio() {
     <>
       <a className="skip-link" href="#work">Skip to selected work</a>
       <div className={`intro ${introVisible ? "" : "is-gone"}`} aria-hidden="true">
-        <div className="intro-lockup">
-          <div className="intro-mark">M<span className="intro-star">*</span>RS</div>
+        <div className={`intro-lockup is-${introPhase}`}>
+          <div className="intro-wordmark" aria-label="Mars Atolba">
+            <span className="intro-initial">M</span><span className="intro-rest">ARS ATOLBA</span>
+          </div>
           <div className="intro-loader"><span>{String(loadingProgress).padStart(3, "0")} / 100</span><i><b style={{ width: `${loadingProgress}%` }} /></i></div>
         </div>
       </div>
