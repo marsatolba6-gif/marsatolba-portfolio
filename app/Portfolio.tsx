@@ -227,8 +227,15 @@ const INTRO_PROGRESS_DURATION_MS = 3400;
 const INTRO_COLLAPSE_PAUSE_MS = 250;
 const INTRO_EXIT_DELAY_MS = 1180;
 const INTRO_ROTATION_TERMS = ["AUTOMATION", "GHL", "n8n", "WORKFLOWS"];
+const MANIFESTO_LINES = [
+  "WHAT GOD ENTRUSTS TO ME,",
+  "I ELEVATE WITH PURPOSE,",
+  "AUTOMATE WITH WISDOM,",
+  "AND MULTIPLY THROUGH",
+  "EXCELLENCE.",
+];
+const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
 const ABOUT_ROLE_LINES = ["AN AI & AUTOMATION", "SPECIALIST."];
-const ABOUT_PRELUDE_WORD = "FOUNDATIONS";
 const BRUSH_TRAIL_HOLD_MS = 1550;
 const BRUSH_TRAIL_FADE_MS = 1150;
 const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
@@ -317,8 +324,8 @@ export default function Portfolio() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [headerDark, setHeaderDark] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
-  const manifestoRef = useRef<HTMLElement>(null);
-  const signatureFlowRef = useRef<HTMLDivElement>(null);
+  const manifestoFlowRef = useRef<HTMLElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLElement>(null);
@@ -398,15 +405,15 @@ export default function Portfolio() {
   }, []);
 
   useEffect(() => {
-    const flow = signatureFlowRef.current;
+    const flow = manifestoFlowRef.current;
     if (!flow) return;
-    const stage = flow.querySelector<HTMLElement>(".about-prelude-stage");
-    const letters = [...flow.querySelectorAll<HTMLElement>(".about-prelude-char")];
-    const signature = flow.querySelector<HTMLElement>(".about-signature-preview");
-    const signatureLine = flow.querySelector<HTMLElement>(".about-signature-line");
-    const quote = flow.querySelector<HTMLElement>(".about-quote-preview");
-    const scrollCue = flow.querySelector<HTMLElement>(".about-prelude-scroll");
-    if (!stage || !signature || !signatureLine || !quote || !scrollCue) return;
+    const stage = flow.querySelector<HTMLElement>(".manifesto-stage");
+    const lines = [...flow.querySelectorAll<HTMLElement>(".manifesto-line > span")];
+    const quote = flow.querySelector<HTMLElement>(".manifesto-quote");
+    const signature = flow.querySelector<HTMLElement>(".manifesto-signature-mark");
+    const signatureStrokes = [...flow.querySelectorAll<SVGPathElement>(".manifesto-signature-stroke")];
+    const scrollCue = flow.querySelector<HTMLElement>(".manifesto-scroll");
+    if (!stage || !quote || !signature || !scrollCue) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
@@ -415,23 +422,23 @@ export default function Portfolio() {
       const rect = flow.getBoundingClientRect();
       const travel = Math.max(1, rect.height - window.innerHeight);
       const progress = reduced ? 1 : clamp(-rect.top / travel);
-      const gather = clamp(progress / 0.34);
-      const signatureReveal = clamp((progress - 0.24) / 0.25);
-      const quoteReveal = clamp((progress - 0.52) / 0.24);
-      const handoff = clamp((progress - 0.88) / 0.1);
+      const handoff = clamp((progress - 0.9) / 0.1);
 
-      letters.forEach((letter) => {
-        const x = Number(letter.dataset.x ?? 0) * (1 - gather);
-        const y = Number(letter.dataset.y ?? 0) * (1 - gather);
-        const rotate = Number(letter.dataset.rotate ?? 0) * (1 - gather);
-        letter.style.transform = `translate3d(${x}vw, ${y}vh, 0) rotate(${rotate}deg)`;
-        letter.style.opacity = String(0.12 + gather * 0.88);
+      lines.forEach((line, index) => {
+        const reveal = clamp((progress - 0.08 - index * 0.1) / 0.24);
+        const eased = 1 - Math.pow(1 - reveal, 3);
+        line.style.transform = `translate3d(0, ${(1 - eased) * 112}%, 0)`;
+        line.style.opacity = String(reveal);
       });
-      signature.style.opacity = String(signatureReveal);
-      signature.style.transform = `translate3d(-50%, ${(1 - signatureReveal) * 42}px, 0) rotate(-4deg)`;
-      signatureLine.style.transform = `scaleX(${signatureReveal})`;
+      const quoteReveal = clamp((progress - 0.04) / 0.68);
+      const signatureReveal = clamp((progress - 0.34) / 0.22);
       quote.style.opacity = String(quoteReveal);
-      quote.style.transform = `translate3d(-50%, ${(1 - quoteReveal) * 34}px, 0)`;
+      signature.style.opacity = String(signatureReveal);
+      signature.style.transform = `translate3d(0, ${(1 - signatureReveal) * 24}px, 0)`;
+      signatureStrokes.forEach((stroke, index) => {
+        const strokeReveal = clamp((signatureReveal - index * 0.12) / (1 - index * 0.12));
+        stroke.style.strokeDashoffset = String(1 - strokeReveal);
+      });
       scrollCue.style.opacity = String(1 - clamp(progress / 0.15));
       stage.style.opacity = String(1 - handoff);
       frame = 0;
@@ -450,22 +457,60 @@ export default function Portfolio() {
   }, []);
 
   useEffect(() => {
-    const section = manifestoRef.current;
+    const section = aboutRef.current;
     if (!section) return;
-    const editorialHead = section.querySelector<HTMLElement>(".about-editorial-head");
-    if (!editorialHead) return;
-    const letters = [...section.querySelectorAll<HTMLElement>(".about-motion-char")];
+    const flow = section.querySelector<HTMLElement>(".about-flight-flow");
+    const stage = section.querySelector<HTMLElement>(".about-flight-stage");
+    const targets = [...section.querySelectorAll<HTMLElement>(".about-target-char[data-char-id]")];
+    const flyers = [...section.querySelectorAll<HTMLElement>(".about-flight-char[data-char-id]")];
+    const intro = section.querySelector<HTMLElement>(".about-flight-intro");
+    const scrollCue = section.querySelector<HTMLElement>(".about-flight-scroll");
+    if (!flow || !stage || !intro || !scrollCue) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const pointOnCurve = (start: number, controlA: number, controlB: number, end: number, progress: number) => {
+      const inverse = 1 - progress;
+      return inverse ** 3 * start
+        + 3 * inverse ** 2 * progress * controlA
+        + 3 * inverse * progress ** 2 * controlB
+        + progress ** 3 * end;
+    };
     const update = () => {
-      const rect = editorialHead.getBoundingClientRect();
-      const viewport = window.innerHeight;
-      const progress = reduced ? 1 : Math.min(1, Math.max(0, (viewport * 0.92 - rect.top) / (viewport * 0.72)));
-      letters.forEach((letter) => {
-        const from = Number(letter.dataset.from ?? 0);
-        letter.style.transform = `translate3d(${from * (1 - progress)}vw, 0, 0)`;
-        letter.style.opacity = String(0.16 + progress * 0.84);
+      const flowRect = flow.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      const travel = Math.max(1, flowRect.height - window.innerHeight);
+      const progress = reduced ? 1 : clamp(-flowRect.top / travel);
+      const flightProgress = clamp((progress - 0.06) / 0.62);
+
+      flyers.forEach((flyer, index) => {
+        const target = targets.find((candidate) => candidate.dataset.charId === flyer.dataset.charId);
+        if (!target) return;
+        const targetRect = target.getBoundingClientRect();
+        const lane = index % 6;
+        const side = index % 2 === 0 ? -1 : 1;
+        const startX = side < 0 ? -stageRect.width * (0.08 + lane * 0.018) : stageRect.width * (0.96 + lane * 0.014);
+        const startY = stageRect.height * (0.09 + ((index * 37) % 78) / 100);
+        const endX = targetRect.left - stageRect.left;
+        const endY = targetRect.top - stageRect.top;
+        const controlAX = stageRect.width * (side < 0 ? 0.18 + lane * 0.035 : 0.82 - lane * 0.03);
+        const controlAY = stageRect.height * (index % 3 === 0 ? 0.06 : 0.88);
+        const controlBX = endX + side * stageRect.width * (0.08 + (index % 4) * 0.015);
+        const controlBY = endY + stageRect.height * (index % 2 === 0 ? -0.22 : 0.22);
+        const staggered = clamp((flightProgress - index * 0.009) / Math.max(0.65, 1 - flyers.length * 0.009));
+        const eased = 1 - Math.pow(1 - staggered, 3);
+        const x = pointOnCurve(startX, controlAX, controlBX, endX, eased);
+        const y = pointOnCurve(startY, controlAY, controlBY, endY, eased);
+        const arrival = clamp((staggered - 0.82) / 0.18);
+
+        flyer.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${side * (1 - eased) * (18 + lane * 3)}deg)`;
+        flyer.style.opacity = String(1 - arrival);
+        target.style.opacity = String(arrival);
       });
+      const copyReveal = clamp((progress - 0.7) / 0.18);
+      intro.style.opacity = String(copyReveal);
+      intro.style.transform = `translate3d(0, ${(1 - copyReveal) * 32}px, 0)`;
+      scrollCue.style.opacity = String(1 - clamp(progress / 0.16));
       frame = 0;
     };
     const onScroll = () => {
@@ -818,63 +863,108 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section ref={manifestoRef} id="about" className="manifesto about-editorial theme-light" data-theme="light">
-          <div ref={signatureFlowRef} className="about-prelude" aria-label="Temporary signature and quote preview">
-            <div className="about-prelude-stage">
-              <div className="about-prelude-meta">
-                <span>01 / PERSONAL FOUNDATION</span>
-                <span>EXAMPLE / AWAITING YOUR SIGNATURE + WORDS</span>
+        <section ref={manifestoFlowRef} className="manifesto-flow theme-dark" data-theme="dark" aria-label="Personal manifesto">
+          <div className="manifesto-stage">
+            <div className="manifesto-meta">
+              <span>MARS / PERSONAL MANIFESTO</span>
+              <span>PURPOSE → WISDOM → EXCELLENCE</span>
+            </div>
+            <blockquote className="manifesto-quote" aria-label={MANIFESTO_QUOTE}>
+              {MANIFESTO_LINES.map((line) => (
+                <span className="manifesto-line" key={line} aria-hidden="true"><span>{line}</span></span>
+              ))}
+            </blockquote>
+            <div className="manifesto-signature-slot">
+              <svg className="manifesto-signature-mark" viewBox="0 0 210 145" role="img" aria-label="Angular handwritten signature mark">
+                <path className="manifesto-signature-stroke" pathLength="1" d="M29 72 L188 26" />
+                <path className="manifesto-signature-stroke" pathLength="1" d="M51 125 L101 52 L136 19" />
+                <path className="manifesto-signature-stroke" pathLength="1" d="M71 98 L105 64 L102 71 L124 54 L96 109 L188 26" />
+              </svg>
+            </div>
+            <span className="manifesto-scroll">SCROLL TO REVEAL ↓</span>
+            <span className="manifesto-index" aria-hidden="true">IV</span>
+          </div>
+        </section>
+
+        <section ref={aboutRef} id="about" className="about-assembly theme-dark" data-theme="dark">
+          <div className="about-flight-flow">
+            <div className="about-flight-stage">
+              <div className="about-flight-meta">
+                <span>01 / ABOUT ME</span>
+                <span>PEOPLE → PROCESS → SYSTEMS</span>
               </div>
-              <p className="about-prelude-word" aria-hidden="true">
-                {[...ABOUT_PRELUDE_WORD].map((character, index) => {
-                  const direction = index % 2 === 0 ? -1 : 1;
-                  const x = direction * (18 + (index % 4) * 7);
-                  const y = ((index % 3) - 1) * (12 + (index % 2) * 8);
-                  const rotate = direction * (5 + (index % 3) * 4);
-                  return <span className="about-prelude-char" data-x={x} data-y={y} data-rotate={rotate} key={`${character}-${index}`}>{character}</span>;
-                })}
-              </p>
-              <div className="about-signature-preview">
-                <span>PLACEHOLDER SIGNATURE</span>
-                <strong>Mars Atolba</strong>
-                <i className="about-signature-line" aria-hidden="true" />
+              <p className="about-ghost" aria-hidden="true">FROM OPERATIONS TO SYSTEMS</p>
+              <h2 className="about-role" aria-label="An AI and Automation Specialist.">
+                {ABOUT_ROLE_LINES.map((line, lineIndex) => (
+                  <span className="about-role-line" key={line} aria-hidden="true">
+                    {[...line].map((character, index) => (
+                      <span
+                        className={`about-target-char${character === " " ? " is-space" : ""}`}
+                        data-char-id={character === " " ? undefined : `${lineIndex}-${index}`}
+                        key={`${line}-${index}`}
+                      >
+                        {character === " " ? "\u00A0" : character}
+                      </span>
+                    ))}
+                  </span>
+                ))}
+              </h2>
+              <div className="about-fliers" aria-hidden="true">
+                {ABOUT_ROLE_LINES.flatMap((line, lineIndex) => [...line].map((character, index) => (
+                  character === " " ? null : (
+                    <span className="about-flight-char" data-char-id={`${lineIndex}-${index}`} key={`fly-${lineIndex}-${index}`}>
+                      {character}
+                    </span>
+                  )
+                )))}
               </div>
-              <blockquote className="about-quote-preview">
-                <span>TEMPORARY WORDS / USING EXISTING COPY</span>
-                <p>AI with purpose. Automation that works. Systems built to be understood.</p>
-              </blockquote>
-              <span className="about-prelude-scroll">SCROLL TO REVEAL ↓</span>
+              <div className="about-flight-intro">
+                <p>My work started with people and day-to-day operations. That foundation taught me to see the handoffs, bottlenecks, and repetitive work behind every process.</p>
+                <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
+              </div>
+              <span className="about-flight-scroll">SCROLL / ASSEMBLE ↓</span>
             </div>
           </div>
 
-          <div className="about-editorial-head">
-            <p className="about-parenthetical">( ABOUT ME. )</p>
-            <h2 className="about-role" aria-label="An AI and Automation Specialist.">
-              {ABOUT_ROLE_LINES.map((line) => (
-                <span className="about-role-line" key={line} aria-hidden="true">
-                  {[...line].map((character, index) => {
-                    const midpoint = (line.length - 1) / 2;
-                    const distance = 10 + Math.abs(index - midpoint) * 1.25;
-                    const direction = index < midpoint ? -1 : 1;
-                    return <span className={`about-motion-char${character === " " ? " is-space" : ""}`} data-from={direction * distance} key={`${line}-${index}`}>{character === " " ? "\u00A0" : character}</span>;
-                  })}
-                </span>
-              ))}
-            </h2>
-            <div className="about-role-footer"><p>MARS, FROM OPERATIONS TO SYSTEMS</p><span>+</span></div>
-          </div>
+          <div className="about-story-map reveal" aria-label="Mars's journey from operations to automation systems">
+            <header className="about-story-map-head">
+              <span>ONE JOURNEY / THREE CHAPTERS</span>
+              <p>PEOPLE → PRACTICE → SYSTEMS</p>
+            </header>
 
-          <div className="about-story-grid">
-            {[
-              ["MY FOUNDATION", "Operations and customer support taught me customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving."],
-              ["MY GROWTH", "Independent projects moved my work into n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, and structured outputs."],
-              ["MY WORK", "Today I design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes."],
-            ].map(([title, copy], index) => (
-              <article className="about-story reveal" key={title}>
-                <header><span>{String(index + 1).padStart(2, "0")}</span><h3>{title} +</h3></header>
-                <p>{copy}</p>
-              </article>
-            ))}
+            <svg className="about-connection about-connection-desktop" viewBox="0 0 1200 760" preserveAspectRatio="none" aria-hidden="true">
+              <path className="about-connection-shadow" pathLength="1" d="M185 190 C335 70 535 92 620 235 C742 438 1045 210 1012 420 C980 610 790 570 660 625 C617 643 590 658 565 660" />
+              <path className="about-connection-line" pathLength="1" d="M185 190 C335 70 535 92 620 235 C742 438 1045 210 1012 420 C980 610 790 570 660 625 C617 643 590 658 565 660" />
+              <circle cx="185" cy="190" r="8" /><circle cx="1012" cy="420" r="8" /><circle cx="565" cy="660" r="8" />
+            </svg>
+            <svg className="about-connection about-connection-mobile" viewBox="0 0 400 1060" preserveAspectRatio="none" aria-hidden="true">
+              <path className="about-connection-shadow" pathLength="1" d="M54 150 C346 210 40 360 326 500 C62 628 346 770 332 904 C328 932 306 950 286 956" />
+              <path className="about-connection-line" pathLength="1" d="M54 150 C346 210 40 360 326 500 C62 628 346 770 332 904 C328 932 306 950 286 956" />
+              <circle cx="54" cy="150" r="7" /><circle cx="326" cy="500" r="7" /><circle cx="286" cy="956" r="7" />
+            </svg>
+
+            <article className="about-chapter about-chapter-foundation">
+              <div><span>01</span><i /></div>
+              <p>MY FOUNDATION</p>
+              <h3>PEOPLE &<br />OPERATIONS</h3>
+              <p>Operations and customer support taught me customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving.</p>
+            </article>
+
+            <article className="about-chapter about-chapter-growth">
+              <div><span>02</span><i /></div>
+              <p>MY GROWTH</p>
+              <h3>HANDS-ON<br />AUTOMATION</h3>
+              <p>Independent projects moved my work into n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, and structured outputs.</p>
+            </article>
+
+            <article className="about-chapter about-chapter-work">
+              <div><span>03</span><i /></div>
+              <p>MY WORK</p>
+              <h3>CONNECTED<br />SYSTEMS</h3>
+              <p>Today I design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes.</p>
+            </article>
+
+            <p className="about-story-map-foot">MARS / FROM FRICTION TO FLOW / 2026</p>
           </div>
 
           <div className="about-belief">
