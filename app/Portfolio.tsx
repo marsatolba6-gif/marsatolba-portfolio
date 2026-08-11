@@ -357,7 +357,7 @@ export default function Portfolio() {
       canvas.style.height = `${rect.height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.globalCompositeOperation = "source-over";
-      context.fillStyle = "#f4f3ef";
+      context.fillStyle = "#fff";
       context.fillRect(0, 0, rect.width, rect.height);
       context.strokeStyle = "rgba(10,10,10,.055)";
       context.lineWidth = 1;

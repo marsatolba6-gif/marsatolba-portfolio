@@ -1,8 +1,8 @@
 :root {
-  --paper: #f4f3ef;
-  --ink: #0a0a0a;
-  --muted: #6f706d;
-  --line: rgba(10,10,10,.18);
+  --paper: #fff;
+  --ink: #000;
+  --muted: #626262;
+  --line: rgba(0,0,0,.18);
   --dark-line: rgba(255,255,255,.22);
   --ease: cubic-bezier(.22,.75,.18,1);
 }
@@ -33,7 +33,7 @@ button, input, textarea { font: inherit; }
 }
 
 .intro {
-  position: fixed; inset: 0; background: #050505; color: #fff; z-index: 3000;
+  position: fixed; inset: 0; background: #000; color: #fff; z-index: 3000;
   display: grid; place-items: center; transition: transform .95s var(--ease) 1.15s;
 }
 .intro.is-gone { transform: translateY(-102%); }
@@ -57,7 +57,7 @@ button, input, textarea { font: inherit; }
 .menu-open .menu-icon { transform: rotate(45deg); }
 
 .site-menu {
-  position: fixed; inset: 0; background: #050505; color: #fff; z-index: 1200;
+  position: fixed; inset: 0; background: #000; color: #fff; z-index: 1200;
   transform: translateY(-102%); transition: transform .8s var(--ease); visibility: hidden;
 }
 .site-menu.open { transform: translateY(0); visibility: visible; }
@@ -68,7 +68,7 @@ button, input, textarea { font: inherit; }
 .menu-close { position: absolute; right: 24px; top: 22px; background: none; color: #fff; border: 0; font-size: 10px; letter-spacing: .18em; cursor: pointer; }
 
 .theme-light { background: var(--paper); color: var(--ink); }
-.theme-dark { background: #050505; color: #fff; }
+.theme-dark { background: #000; color: #fff; }
 .eyebrow { font-size: 10px; letter-spacing: .2em; line-height: 1.2; margin: 0; text-transform: uppercase; }
 .eyebrow.inverse { color: rgba(255,255,255,.65); }
 .pill { display: inline-flex; border: 1px solid currentColor; border-radius: 999px; padding: 8px 12px; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; transition: background .25s ease, color .25s ease; }
@@ -295,16 +295,17 @@ button, input, textarea { font: inherit; }
 .brush-underlay {
   position: absolute; inset: 0; z-index: 0; overflow: hidden;
   background:
-    radial-gradient(circle at 78% 22%, rgba(255,255,255,.92) 0 6%, transparent 6.3%),
-    linear-gradient(118deg, #b9d8ff 0%, #b9d8ff 32%, #d7ff42 32%, #d7ff42 68%, #ff7b54 68%, #ff7b54 100%);
+    radial-gradient(circle at 78% 22%, #fff 0 5.8%, transparent 6.1%),
+    radial-gradient(circle at 26% 68%, transparent 0 13%, rgba(255,255,255,.94) 13.2% 13.7%, transparent 14%),
+    #000;
 }
 .underlay-grid {
-  position: absolute; inset: 0; opacity: .22;
-  background-image: linear-gradient(rgba(5,5,5,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(5,5,5,.4) 1px, transparent 1px);
+  position: absolute; inset: 0; opacity: .2;
+  background-image: linear-gradient(rgba(255,255,255,.55) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.55) 1px, transparent 1px);
   background-size: 46px 46px;
 }
 .underlay-orb {
-  position: absolute; width: clamp(96px, 14vw, 210px); aspect-ratio: 1; border: 2px solid #050505;
+  position: absolute; width: clamp(96px, 14vw, 210px); aspect-ratio: 1; border: 2px solid #fff; color: #fff;
   border-radius: 48% 52% 66% 34% / 38% 45% 55% 62%; display: grid; place-items: center;
   font: 700 clamp(14px,2vw,30px)/1 var(--font-geist-mono), monospace; letter-spacing: -.06em;
   animation: underlayFloat 9s ease-in-out infinite alternate;
@@ -312,7 +313,7 @@ button, input, textarea { font: inherit; }
 .orb-alpha { top: 12%; right: 13%; transform: rotate(12deg); }
 .orb-beta { top: 34%; left: 36%; animation-delay: -3s; border-radius: 50%; }
 .orb-gamma { right: 28%; bottom: 14%; animation-delay: -6s; }
-.underlay-note { position: absolute; right: 2vw; top: 2vw; font: 500 8px/1 var(--font-geist-mono), monospace; letter-spacing: .18em; }
+.underlay-note { position: absolute; right: 2vw; top: 2vw; color: #fff; font: 500 8px/1 var(--font-geist-mono), monospace; letter-spacing: .18em; }
 @keyframes underlayFloat { to { transform: translate3d(18px,-22px,0) rotate(34deg) scale(1.08); } }
 
 .brush-canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; touch-action: none; }
@@ -489,8 +490,8 @@ button, input, textarea { font: inherit; }
 .method-track { position: relative; display: grid; gap: 0; border-top: 1px solid rgba(255,255,255,.34); }
 .method-track span { color: #fff; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
 .method-track i {
-  position: absolute; left: -6px; top: -7px; width: 13px; height: 13px; border-radius: 50%; background: #d7ff42;
-  box-shadow: 0 0 0 6px rgba(215,255,66,.13); animation: methodPulse 3.6s ease-in-out infinite alternate;
+  position: absolute; left: -6px; top: -7px; width: 13px; height: 13px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 6px rgba(255,255,255,.13); animation: methodPulse 3.6s ease-in-out infinite alternate;
 }
 .method-signal { color: rgba(255,255,255,.56); display: flex; justify-content: space-between; gap: 16px; }
 @keyframes methodPulse { to { transform: translateX(min(36vw, 480px)); } }
