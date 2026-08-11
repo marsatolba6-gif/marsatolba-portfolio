@@ -3,7 +3,7 @@
 /* Local portfolio screenshots intentionally keep their original pixel dimensions and paths. */
 /* eslint-disable @next/next/no-img-element */
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 
 type Project = {
   num: string;
@@ -112,6 +112,93 @@ function SystemArt({ num }: { num: string }) {
       <div className="core" />
       <span className="art-label">SYSTEM / {num}</span>
     </div>
+  );
+}
+
+const SCAN_MARKER_POSITIONS = [
+  { left: "16%", top: "24%" },
+  { left: "38%", top: "42%" },
+  { left: "62%", top: "26%" },
+  { left: "79%", top: "58%" },
+  { left: "31%", top: "72%" },
+];
+
+function ScanStage({ project, src, index, onExpand }: { project: Project; src: string; index: number; onExpand: () => void }) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const restoreTimer = useRef<number | null>(null);
+  const touchPointer = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
+  }, []);
+
+  const revealAt = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const x = Math.min(rect.width, Math.max(0, event.clientX - rect.left));
+    const y = Math.min(rect.height, Math.max(0, event.clientY - rect.top));
+    stage.style.setProperty("--scan-x", `${x}px`);
+    stage.style.setProperty("--scan-y", `${y}px`);
+    stage.classList.add("is-scanning");
+    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
+    restoreTimer.current = window.setTimeout(() => stage.classList.remove("is-scanning"), 1800);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" && touchPointer.current !== event.pointerId) return;
+    revealAt(event);
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" || (event.target as HTMLElement).closest("button")) return;
+    touchPointer.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    revealAt(event);
+  };
+
+  const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (touchPointer.current !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    touchPointer.current = null;
+  };
+
+  return (
+    <article
+      ref={stageRef}
+      className="scan-stage"
+      onPointerMove={handlePointerMove}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      aria-label={`${project.name} system scan ${index + 1}`}
+    >
+      <div className="scan-image-layer">
+        <img src={src} alt={`${project.name} workflow view ${index + 1}`} loading="lazy" />
+      </div>
+      <div className="scan-map" aria-hidden="true">
+        <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>
+        <div className="scan-map-flow">
+          {project.flow.map((step, stepIndex) => (
+            <div key={`${src}-${step}`}><span>{String(stepIndex + 1).padStart(2, "0")}</span><strong>{step}</strong></div>
+          ))}
+        </div>
+        <div className="scan-map-foot"><span>TRIGGER → LOGIC → ACTION</span><span>SYSTEM VERIFIED</span></div>
+      </div>
+      <div className="scan-markers" aria-hidden="true">
+        {project.flow.slice(0, SCAN_MARKER_POSITIONS.length).map((step, markerIndex) => (
+          <span className="scan-marker" style={SCAN_MARKER_POSITIONS[markerIndex]} key={`${src}-marker-${step}`}>
+            <i>{String(markerIndex + 1).padStart(2, "0")}</i><em>{step}</em>
+          </span>
+        ))}
+      </div>
+      <span className="scan-reticle" aria-hidden="true"><i>SCAN</i></span>
+      <div className="scan-stage-meta">
+        <span>{String(index + 1).padStart(2, "0")} / {String(project.gallery?.length ?? 1).padStart(2, "0")}</span>
+        <span>MOVE TO SCAN / TAP + DRAG</span>
+        <button type="button" onClick={onExpand} aria-label={`Open ${project.name} screenshot ${index + 1} full size`}>VIEW FULL IMAGE ↗</button>
+      </div>
+    </article>
   );
 }
 
@@ -470,16 +557,21 @@ export default function Portfolio() {
       const inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
       const target = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
       const action = target?.closest("a,button,input,textarea,select,[role='button']");
-      const text = !action && target?.closest("h1,h2,h3,p,.project-short-name,.footer-word,.eyebrow");
+      const scan = !action && target?.closest(".scan-stage");
+      const text = !action && !scan && target?.closest("h1,h2,h3,p,.project-short-name,.footer-word,.eyebrow");
       const label = cursor.querySelector("span");
       cursor.classList.toggle("is-action", Boolean(action));
       cursor.classList.toggle("is-text", Boolean(text));
-      if (label) label.textContent = action ? (target?.matches("input,textarea,select") ? "WRITE" : "OPEN") : text ? "READ" : "BRUSH";
+      cursor.classList.toggle("is-scan", Boolean(scan));
+      if (label) label.textContent = action ? (target?.matches("input,textarea,select") ? "WRITE" : "OPEN") : scan ? "SCAN" : text ? "READ" : "BRUSH";
       cursor.style.opacity = event.pointerType === "mouse" ? "1" : touchActive ? ".86" : "0";
       cursor.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0) translate(-50%,-50%)`;
       if (action) {
         cursor.style.width = "58px";
         cursor.style.height = "58px";
+      } else if (scan) {
+        cursor.style.width = "88px";
+        cursor.style.height = "88px";
       } else if (text) {
         cursor.style.width = "46px";
         cursor.style.height = "22px";
@@ -658,7 +750,7 @@ export default function Portfolio() {
                 <div className="project-copy">
                   <div className="project-kicker"><span>{project.num} / {project.category}</span><span>{project.scope}</span></div>
                   <p className="project-short-name">{project.shortName}</p>
-                  <h3>{project.name}</h3><p>{project.value}</p><span className="project-open">OPEN CASE STUDY ↗</span>
+                  <h3>{project.name}</h3><p>{project.value}</p><span className="project-open">SCAN SYSTEM ↗</span>
                 </div>
               </article>
             ))}
@@ -730,11 +822,40 @@ export default function Portfolio() {
             <button className="dialog-close" type="button" onClick={() => setActiveProject(null)} autoFocus>CLOSE ×</button>
             <div className="dialog-content">
               <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p></div><h2 id="project-title">{activeProject.name}</h2></div>
-              {activeProject.gallery && <div className="dialog-gallery">{activeProject.gallery.map((src, index) => <button type="button" key={src} onClick={() => setLightbox(src)} aria-label={`Open ${activeProject.name} screenshot ${index + 1}`}><img src={src} alt={`${activeProject.name} workflow view ${index + 1}`} loading="lazy" /></button>)}</div>}
-              <div className="dialog-grid"><article><h3>PROBLEM</h3><p>{activeProject.problem}</p></article><article><h3>SYSTEM BUILT</h3><p>{activeProject.system}</p></article><article><h3>RELIABILITY / QA</h3><p>{activeProject.reliability}</p></article><article><h3>BUSINESS VALUE</h3><p>{activeProject.value}</p></article></div>
-              <div className="dialog-flow">{activeProject.flow.map((item, index) => <span key={item}>{index > 0 && <i>→</i>}{item}</span>)}</div>
-              <div className="dialog-tools">{activeProject.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
-              <p className="case-study-note">Case-study details are available on request. Walkthrough links are included only when a verified video is available.</p>
+              <div className="dialog-system-layout">
+                <aside className="project-proof-rail" aria-label="Project proof rail">
+                  <div className="proof-status"><i /><span>SYSTEM VERIFIED</span></div>
+                  <dl>
+                    <div><dt>TYPE</dt><dd>{activeProject.category}</dd></div>
+                    <div><dt>SCOPE</dt><dd>{activeProject.scope}</dd></div>
+                    <div><dt>STAGES</dt><dd>{String(activeProject.flow.length).padStart(2, "0")}</dd></div>
+                    <div><dt>TOOLS</dt><dd>{String(activeProject.tools.length).padStart(2, "0")}</dd></div>
+                    <div><dt>QA</dt><dd>TESTED</dd></div>
+                  </dl>
+                  <p>MOVE OVER EACH IMAGE TO REVEAL THE SYSTEM MAP.</p>
+                </aside>
+                <div className="dialog-system-main">
+                  {activeProject.gallery && (
+                    <div className="dialog-gallery scan-gallery">
+                      {activeProject.gallery.map((src, index) => <ScanStage project={activeProject} src={src} index={index} key={src} onExpand={() => setLightbox(src)} />)}
+                    </div>
+                  )}
+                  <section className="system-story" aria-label="System story">
+                    <header><p>MARS / SYSTEM STORY</p><h3>FROM FRICTION<br />TO FLOW.</h3></header>
+                    {[
+                      ["00", "PROBLEM", activeProject.problem],
+                      ["01", "TRIGGER", `The sequence begins at ${activeProject.flow[0] ?? "a defined trigger"}.`],
+                      ["02", "LOGIC", activeProject.system],
+                      ["03", "ACTION", `The workflow advances through ${activeProject.flow.slice(1).join(" → ")}.`],
+                      ["04", "RESULT", activeProject.value],
+                    ].map(([num, label, copy]) => <article className="story-step" key={num}><span>{num}</span><h4>{label}</h4><p>{copy}</p></article>)}
+                    <article className="story-qa"><span>RELIABILITY / QA</span><p>{activeProject.reliability}</p></article>
+                  </section>
+                  <div className="dialog-flow">{activeProject.flow.map((item, index) => <span key={item}>{index > 0 && <i>→</i>}{item}</span>)}</div>
+                  <div className="dialog-tools">{activeProject.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
+                  <p className="case-study-note">Case-study details are available on request. Walkthrough links are included only when a verified video is available.</p>
+                </div>
+              </div>
             </div>
           </section>
         </div>
