@@ -926,46 +926,6 @@ export default function Portfolio() {
             </div>
           </div>
 
-          <div className="about-story-map reveal" aria-label="Mars's journey from operations to automation systems">
-            <header className="about-story-map-head">
-              <span>ONE JOURNEY / THREE CHAPTERS</span>
-              <p>PEOPLE → PRACTICE → SYSTEMS</p>
-            </header>
-
-            <svg className="about-connection about-connection-desktop" viewBox="0 0 1200 760" preserveAspectRatio="none" aria-hidden="true">
-              <path className="about-connection-shadow" pathLength="1" d="M185 190 C335 70 535 92 620 235 C742 438 1045 210 1012 420 C980 610 790 570 660 625 C617 643 590 658 565 660" />
-              <path className="about-connection-line" pathLength="1" d="M185 190 C335 70 535 92 620 235 C742 438 1045 210 1012 420 C980 610 790 570 660 625 C617 643 590 658 565 660" />
-              <circle cx="185" cy="190" r="8" /><circle cx="1012" cy="420" r="8" /><circle cx="565" cy="660" r="8" />
-            </svg>
-            <svg className="about-connection about-connection-mobile" viewBox="0 0 400 1060" preserveAspectRatio="none" aria-hidden="true">
-              <path className="about-connection-shadow" pathLength="1" d="M54 150 C346 210 40 360 326 500 C62 628 346 770 332 904 C328 932 306 950 286 956" />
-              <path className="about-connection-line" pathLength="1" d="M54 150 C346 210 40 360 326 500 C62 628 346 770 332 904 C328 932 306 950 286 956" />
-              <circle cx="54" cy="150" r="7" /><circle cx="326" cy="500" r="7" /><circle cx="286" cy="956" r="7" />
-            </svg>
-
-            <article className="about-chapter about-chapter-foundation">
-              <div><span>01</span><i /></div>
-              <p>MY FOUNDATION</p>
-              <h3>PEOPLE &<br />OPERATIONS</h3>
-              <p>Operations and customer support taught me customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving.</p>
-            </article>
-
-            <article className="about-chapter about-chapter-growth">
-              <div><span>02</span><i /></div>
-              <p>MY GROWTH</p>
-              <h3>HANDS-ON<br />AUTOMATION</h3>
-              <p>Independent projects moved my work into n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, and structured outputs.</p>
-            </article>
-
-            <article className="about-chapter about-chapter-work">
-              <div><span>03</span><i /></div>
-              <p>MY WORK</p>
-              <h3>CONNECTED<br />SYSTEMS</h3>
-              <p>Today I design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes.</p>
-            </article>
-
-            <p className="about-story-map-foot">MARS / FROM FRICTION TO FLOW / 2026</p>
-          </div>
 
           <div className="about-belief">
             <h3 className="reveal">I START WITH<br />THE PROCESS.</h3>
