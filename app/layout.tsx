@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://automateiv.vercel.app"),
-  title: "Automate with Mars — Premium Portfolio",
+  title: "Automate with Mars — AI Automation Specialist",
   description: "Mars Atolba — AI Automation Specialist building AI workflows, n8n automations, GoHighLevel systems, APIs, and connected business systems.",
   authors: [{ name: "Mars Atolba" }],
   alternates: { canonical: "https://automateiv.vercel.app/" },
