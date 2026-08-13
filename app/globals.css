@@ -1194,7 +1194,7 @@ button, input, textarea { font: inherit; }
 /* Manifesto + About — a clean-room, scroll-led identity sequence for Mars. */
 .manifesto-flow {
   position: relative;
-  height: 210svh;
+  height: 320svh;
   overflow: clip;
   background: #000;
   color: #fff;
