@@ -102,7 +102,23 @@ const projects: Project[] = [
     reliability: "Checked desktop/mobile responsiveness, form submissions, redirects, booking flows, CRM record creation, and workflow enrollment where applicable.",
     flow: ["Landing Page", "Form", "CRM Record", "Calendar Booking", "Workflow Enrollment"],
     tools: ["GoHighLevel", "Landing Pages", "Forms", "Calendars", "Funnels", "CRM Workflows"],
+  },  {
+    num: "06",
+    name: "RoofFlow Voice AI",
+    shortName: "RoofFlow Voice AI",
+    category: "VOICE AI / CRM AUTOMATION",
+    scope: "CLIENT-READY AUTOMATION DEMO",
+    layout: "wide",
+    image: "/assets/roofflow-voice-ai-workflow.svg",
+    gallery: ["/assets/roofflow-voice-ai-workflow.svg"],
+    problem: "Roofing inquiries often arrive by phone, where emergency leaks, estimate requests, and lower-intent questions enter the same queue. Manual notes and delayed handoffs can lose context, duplicate records, and slow the response that wins the job.",
+    system: "A voice-first n8n workflow that receives roofing call data, uses Groq to extract structured lead information, applies deterministic urgency and intent scoring, upserts the contact and opportunity in GoHighLevel, books through Google Calendar, and routes the next action. Emergencies create a five-minute task, qualified inquiries a 15-minute follow-up, and nurture leads a one-day follow-up. Google Sheets records the outcome for auditability.",
+    value: "Turns roofing calls into structured, prioritized CRM actions—so urgent leaks are handled quickly, qualified leads are booked, and every follow-up is traceable.",
+    reliability: "Uses a fixed extraction schema, deterministic scoring rules, contact upsert logic, explicit routing branches, and a logged audit trail with CRM record IDs. Emergency, qualified, and nurture scenarios were tested to confirm that each path creates the intended next action.",
+    flow: ["Call", "Understand", "Prioritize", "Record", "Book", "Follow Up"],
+    tools: ["n8n", "Groq", "GoHighLevel", "Google Calendar", "Google Sheets", "JavaScript", "Webhooks"],
   },
+
 ];
 
 function SystemArt({ num }: { num: string }) {
@@ -943,10 +959,10 @@ export default function Portfolio() {
         <section id="work" className="work theme-dark" data-theme="dark">
           <div className="work-intro reveal">
             <div><p className="eyebrow inverse">02 / SELECTED WORK</p><h2>WORKS</h2><p className="muted-light">Where automation becomes operational.</p></div>
-            <p className="work-index">05 SYSTEMS<br />AI / CRM / AUTOMATION</p>
+            <p className="work-index">06 SYSTEMS<br />AI / CRM / AUTOMATION</p>
           </div>
           <div className="work-browser reveal">
-            <div className="work-browser-bar"><span>MARS / WORK INDEX</span><span>SELECT A SYSTEM</span><span>01—05</span></div>
+            <div className="work-browser-bar"><span>MARS / WORK INDEX</span><span>SELECT A SYSTEM</span><span>01—06</span></div>
             <div className="work-browser-layout" onMouseLeave={() => setWorkPreviewVisible(false)}>
               <div className="work-list" aria-label="Selected systems">
                 {projects.map((project) => (
