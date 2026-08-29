@@ -343,7 +343,6 @@ export default function Portfolio() {
   const manifestoFlowRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -607,212 +606,239 @@ export default function Portfolio() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const hero = heroRef.current;
-    const cursor = cursorRef.current;
-    if (!canvas || !hero || !cursor) return;
+    if (!canvas || !hero) return;
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       canvas.style.display = "none";
       return;
     }
-    const context = canvas.getContext("2d");
+
+    const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
-    const baseCanvas = document.createElement("canvas");
-    const baseContext = baseCanvas.getContext("2d");
-    if (!baseContext) return;
-    type BrushPoint = { x: number; y: number; radius: number; angle: number; seed: number; createdAt: number };
+
+    type MaskFragment = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      angle: number;
+      length: number;
+      thickness: number;
+      life: number;
+      decay: number;
+      seed: number;
+    };
+    type DustParticle = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      life: number;
+      decay: number;
+      seed: number;
+    };
+
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let last: { x: number; y: number; time: number } | null = null;
-    let trail: BrushPoint[] = [];
-    let touchActive = false;
-    let activePointerId: number | null = null;
-    let inputFrame = 0;
-    let trailFrame = 0;
-    let lastTrailRender = 0;
+    let fragments: MaskFragment[] = [];
+    let dust: DustParticle[] = [];
+    let frame = 0;
+    let previousFrame = performance.now();
+    let lastPoint: { x: number; y: number; time: number } | null = null;
 
-    const paintBase = (width: number, height: number) => {
-      baseContext.setTransform(dpr, 0, 0, dpr, 0, 0);
-      baseContext.globalCompositeOperation = "source-over";
-      baseContext.fillStyle = "#fff";
-      baseContext.fillRect(0, 0, width, height);
+    const noise = (seed: number) => {
+      const value = Math.sin(seed * 91.734 + 18.127) * 43758.5453;
+      return value - Math.floor(value);
     };
 
-    const restoreBase = () => {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.globalCompositeOperation = "source-over";
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(baseCanvas, 0, 0);
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    const resetCanvas = () => {
+    const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const rect = hero.getBoundingClientRect();
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      baseCanvas.width = canvas.width;
-      baseCanvas.height = canvas.height;
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
-      paintBase(rect.width, rect.height);
-      trail = [];
-      restoreBase();
-      last = null;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fragments = [];
+      dust = [];
+      lastPoint = null;
     };
 
-    const erase = (point: BrushPoint, strength = 1) => {
-      const { x, y, radius, angle, seed } = point;
-      context.save();
-      context.globalCompositeOperation = "destination-out";
-      context.translate(x, y);
-      context.rotate(angle);
-      context.scale(1.42, 0.64 + seed * 0.08);
-      const gradient = context.createRadialGradient(0, 0, radius * 0.14, 0, 0, radius);
-      gradient.addColorStop(0, `rgba(0,0,0,${strength})`);
-      gradient.addColorStop(0.72, `rgba(0,0,0,${strength * 0.96})`);
-      gradient.addColorStop(0.9, `rgba(0,0,0,${strength * 0.72})`);
-      gradient.addColorStop(1, "rgba(0,0,0,0)");
-      context.fillStyle = gradient;
-      context.beginPath();
-      context.arc(0, 0, radius, 0, Math.PI * 2);
-      context.fill();
+    const spawnMask = (x: number, y: number, dx: number, dy: number, velocity: number, stamp: number) => {
+      const angle = Math.atan2(dy, dx || 0.001);
+      const normalX = -Math.sin(angle);
+      const normalY = Math.cos(angle);
+      const radius = Math.min(128, 48 + velocity * 28);
+      const baseSeed = stamp * 0.013 + fragments.length * 7.17 + dust.length * 0.31;
 
-      context.fillStyle = `rgba(0,0,0,${strength * 0.5})`;
-      [-0.58, -0.4, 0.4, 0.58].forEach((offset, index) => {
-        context.beginPath();
-        context.ellipse(
-          radius * (0.26 + index * 0.07),
-          radius * (offset + (seed - 0.5) * 0.12),
-          radius * (0.38 + seed * 0.12),
-          radius * 0.035,
-          0,
-          0,
-          Math.PI * 2,
-        );
-        context.fill();
-      });
+      for (let band = 0; band < 4; band += 1) {
+        const seed = baseSeed + band * 11.19;
+        const across = (noise(seed) - 0.5) * radius * 0.72;
+        fragments.push({
+          x: x + normalX * across,
+          y: y + normalY * across,
+          vx: Math.cos(angle) * velocity * (0.42 + noise(seed + 1) * 0.32) + normalX * (noise(seed + 2) - 0.5) * 1.8,
+          vy: Math.sin(angle) * velocity * (0.42 + noise(seed + 3) * 0.32) + normalY * (noise(seed + 4) - 0.5) * 1.8,
+          angle: angle + (noise(seed + 5) - 0.5) * 0.28,
+          length: radius * (0.7 + noise(seed + 6) * 0.72),
+          thickness: radius * (0.16 + noise(seed + 7) * 0.14),
+          life: 1,
+          decay: 0.032 + noise(seed + 8) * 0.018,
+          seed,
+        });
+      }
+
+      const particleCount = Math.min(34, 16 + Math.round(velocity * 5));
+      for (let index = 0; index < particleCount; index += 1) {
+        const seed = baseSeed + index * 3.71 + 43;
+        const across = (noise(seed) - 0.5) * radius * 1.45;
+        const along = (noise(seed + 1) - 0.5) * radius * 0.92;
+        const burst = 0.7 + noise(seed + 2) * (2.4 + velocity * 0.58);
+        dust.push({
+          x: x + normalX * across + Math.cos(angle) * along,
+          y: y + normalY * across + Math.sin(angle) * along,
+          vx: normalX * Math.sign(across || 1) * burst + Math.cos(angle) * velocity * (noise(seed + 3) * 0.64),
+          vy: normalY * Math.sign(across || 1) * burst + Math.sin(angle) * velocity * (noise(seed + 4) * 0.64),
+          size: 1 + noise(seed + 5) * Math.min(11, 3.5 + velocity * 1.7),
+          life: 1,
+          decay: 0.014 + noise(seed + 6) * 0.026,
+          seed,
+        });
+      }
+
+      if (fragments.length > 190) fragments.splice(0, fragments.length - 190);
+      if (dust.length > 880) dust.splice(0, dust.length - 880);
+    };
+
+    const drawFragment = (fragment: MaskFragment) => {
+      context.save();
+      context.translate(fragment.x, fragment.y);
+      context.rotate(fragment.angle);
+      const opacity = Math.min(1, fragment.life * 1.9);
+      const spread = 1 - fragment.life;
+
+      for (let shard = 0; shard < 7; shard += 1) {
+        const seed = fragment.seed + shard * 5.43;
+        const shardLength = fragment.length * (0.35 + noise(seed) * 0.68) * (1 - spread * 0.24);
+        const shardHeight = Math.max(1.2, fragment.thickness * (0.08 + noise(seed + 1) * 0.17));
+        const offsetX = -fragment.length * 0.5 + noise(seed + 2) * fragment.length * 0.62 + spread * (noise(seed + 3) - 0.5) * 34;
+        const offsetY = (shard - 3) * fragment.thickness * 0.18 + (noise(seed + 4) - 0.5) * fragment.thickness * 0.24;
+        context.fillStyle = `rgba(255,255,255,${opacity * (0.62 + noise(seed + 5) * 0.38)})`;
+        context.fillRect(offsetX, offsetY, shardLength, shardHeight);
+      }
       context.restore();
     };
 
-    const renderTrail = (now: number) => {
-      if (now - lastTrailRender < 32) {
-        trailFrame = requestAnimationFrame(renderTrail);
-        return;
-      }
-      lastTrailRender = now;
-      trail = trail.filter((point) => now - point.createdAt < BRUSH_TRAIL_LIFETIME_MS);
-      restoreBase();
-      trail.forEach((point) => {
-        const age = now - point.createdAt;
-        const strength = age <= BRUSH_TRAIL_HOLD_MS
-          ? 1
-          : Math.max(0, 1 - (age - BRUSH_TRAIL_HOLD_MS) / BRUSH_TRAIL_FADE_MS);
-        const radius = point.radius * (0.78 + strength * 0.22);
-        erase({ ...point, radius }, strength);
+    const render = (now: number) => {
+      const delta = Math.min(2.4, Math.max(0.45, (now - previousFrame) / 16.667));
+      previousFrame = now;
+      const rect = hero.getBoundingClientRect();
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, rect.width, rect.height);
+      context.globalCompositeOperation = "source-over";
+
+      fragments = fragments.filter((fragment) => {
+        fragment.life -= fragment.decay * delta;
+        if (fragment.life <= 0) return false;
+        fragment.x += fragment.vx * delta;
+        fragment.y += fragment.vy * delta;
+        fragment.vx *= Math.pow(0.92, delta);
+        fragment.vy *= Math.pow(0.92, delta);
+        fragment.angle += (noise(fragment.seed + 17) - 0.5) * 0.006 * delta;
+        drawFragment(fragment);
+        return true;
       });
-      trailFrame = trail.length ? requestAnimationFrame(renderTrail) : 0;
+
+      dust = dust.filter((particle) => {
+        particle.life -= particle.decay * delta;
+        if (particle.life <= 0) return false;
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.vx *= Math.pow(0.965, delta);
+        particle.vy *= Math.pow(0.965, delta);
+        particle.vy += (noise(particle.seed + 9) - 0.46) * 0.025 * delta;
+        const opacity = Math.min(1, particle.life * 1.65);
+        const size = Math.max(0.7, particle.size * (0.56 + particle.life * 0.44));
+        context.fillStyle = `rgba(255,255,255,${opacity})`;
+        if (noise(particle.seed + 12) > 0.72) {
+          context.beginPath();
+          context.arc(particle.x, particle.y, size * 0.48, 0, Math.PI * 2);
+          context.fill();
+        } else {
+          context.save();
+          context.translate(particle.x, particle.y);
+          context.rotate((noise(particle.seed + 14) - 0.5) * 0.9);
+          context.fillRect(-size * 0.5, -size * 0.5, size, size * (0.35 + noise(particle.seed + 15)));
+          context.restore();
+        }
+        return true;
+      });
+
+      frame = requestAnimationFrame(render);
     };
 
-    const queueTrailRender = () => {
-      if (!trailFrame) trailFrame = requestAnimationFrame(renderTrail);
-    };
-
-    const move = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse" && activePointerId !== event.pointerId) return;
-      if (event.pointerType !== "mouse" && touchActive) event.preventDefault();
+    const pointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && event.pressure === 0) return;
       const rect = hero.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      const inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
-      const target = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
-      const action = target?.closest("a,button,input,textarea,select,[role='button']");
-      const scan = !action && target?.closest(".scan-stage");
-      const text = !action && !scan && target?.closest("h1,h2,h3,p,.project-short-name,.footer-word,.eyebrow");
-      const label = cursor.querySelector("span");
-      cursor.classList.toggle("is-action", Boolean(action));
-      cursor.classList.toggle("is-text", Boolean(text));
-      cursor.classList.toggle("is-scan", Boolean(scan));
-      if (label) label.textContent = action ? (target?.matches("input,textarea,select") ? "WRITE" : "OPEN") : scan ? "SCAN" : text ? "READ" : "BRUSH";
-      cursor.style.opacity = event.pointerType === "mouse" ? "1" : touchActive ? ".86" : "0";
-      cursor.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0) translate(-50%,-50%)`;
-      if (action) {
-        cursor.style.width = "58px";
-        cursor.style.height = "58px";
-      } else if (scan) {
-        cursor.style.width = "88px";
-        cursor.style.height = "88px";
-      } else if (text) {
-        cursor.style.width = "46px";
-        cursor.style.height = "22px";
-      } else if (!inside) {
-        cursor.style.width = "76px";
-        cursor.style.height = "76px";
-      }
-      if (!inside || (event.pointerType !== "mouse" && !touchActive)) {
-        last = null;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+        lastPoint = null;
         return;
       }
-      if (inputFrame) cancelAnimationFrame(inputFrame);
-      inputFrame = requestAnimationFrame(() => {
-        const now = performance.now();
-        const distance = last ? Math.hypot(x - last.x, y - last.y) : 0;
-        const elapsed = last ? Math.max(1, now - last.time) : 16;
-        const speed = distance / elapsed;
-        const radius = Math.min(122, Math.max(52, 58 + speed * 19));
-        const angle = last && distance > 0.5 ? Math.atan2(y - last.y, x - last.x) : 0;
-        const steps = last ? Math.max(1, Math.ceil(distance / (radius * 0.24))) : 1;
-        for (let i = 1; i <= steps; i += 1) {
-          const t = i / steps;
-          trail.push({
-            x: last ? last.x + (x - last.x) * t : x,
-            y: last ? last.y + (y - last.y) * t : y,
-            radius,
-            angle,
-            seed: ((trail.length + i * 7) % 19) / 18,
-            createdAt: now,
-          });
-        }
-        if (trail.length > 160) trail.splice(0, trail.length - 160);
-        queueTrailRender();
-        if (!action && !text) {
-          cursor.style.width = `${radius * 1.72}px`;
-          cursor.style.height = `${radius * 0.84}px`;
-        }
-        last = { x, y, time: now };
-      });
+
+      const now = performance.now();
+      if (!lastPoint) {
+        lastPoint = { x, y, time: now };
+        spawnMask(x, y, 1, 0, 0.8, now);
+        return;
+      }
+
+      const dx = x - lastPoint.x;
+      const dy = y - lastPoint.y;
+      const distance = Math.hypot(dx, dy);
+      const elapsed = Math.max(8, now - lastPoint.time);
+      const velocity = Math.min(4.8, distance / elapsed * 3.1);
+      const steps = Math.max(1, Math.ceil(distance / 18));
+      for (let index = 1; index <= steps; index += 1) {
+        const progress = index / steps;
+        spawnMask(
+          lastPoint.x + dx * progress,
+          lastPoint.y + dy * progress,
+          dx,
+          dy,
+          velocity,
+          now + index * 13,
+        );
+      }
+      lastPoint = { x, y, time: now };
     };
 
     const pointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" || !event.isPrimary) return;
-      event.preventDefault();
-      touchActive = true;
-      activePointerId = event.pointerId;
-      cursor.classList.add("is-touching");
-      canvas.setPointerCapture(event.pointerId);
-      move(event);
+      const rect = hero.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      lastPoint = { x, y, time: performance.now() };
+      spawnMask(x, y, 1, 0, 1.4, performance.now());
     };
-    const pointerUp = (event: PointerEvent) => {
-      if (activePointerId !== event.pointerId) return;
-      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-      touchActive = false;
-      activePointerId = null;
-      cursor.classList.remove("is-touching");
-      cursor.style.opacity = "0";
-      last = null;
+    const pointerLeave = () => {
+      lastPoint = null;
     };
-    resetCanvas();
-    window.addEventListener("resize", resetCanvas);
-    window.addEventListener("pointermove", move, { passive: false });
-    canvas.addEventListener("pointerdown", pointerDown, { passive: false });
-    window.addEventListener("pointerup", pointerUp, { passive: true });
-    window.addEventListener("pointercancel", pointerUp, { passive: true });
+
+    resize();
+    frame = requestAnimationFrame(render);
+    window.addEventListener("resize", resize);
+    hero.addEventListener("pointermove", pointerMove, { passive: true });
+    hero.addEventListener("pointerdown", pointerDown, { passive: true });
+    hero.addEventListener("pointerleave", pointerLeave, { passive: true });
+
     return () => {
-      if (inputFrame) cancelAnimationFrame(inputFrame);
-      if (trailFrame) cancelAnimationFrame(trailFrame);
-      window.removeEventListener("resize", resetCanvas);
-      window.removeEventListener("pointermove", move);
-      canvas.removeEventListener("pointerdown", pointerDown);
-      window.removeEventListener("pointerup", pointerUp);
-      window.removeEventListener("pointercancel", pointerUp);
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+      hero.removeEventListener("pointermove", pointerMove);
+      hero.removeEventListener("pointerdown", pointerDown);
+      hero.removeEventListener("pointerleave", pointerLeave);
     };
   }, []);
 
@@ -838,7 +864,6 @@ export default function Portfolio() {
           </div>
         </div>
       </div>
-      <div ref={cursorRef} className="cursor-brush" aria-hidden="true"><span>BRUSH</span></div>
       <div className="noise" aria-hidden="true" />
 
       <header className={`topbar ${headerDark ? "dark" : ""}`}>
@@ -864,9 +889,7 @@ export default function Portfolio() {
 
       <main id="top">
         <section ref={heroRef} className="hero theme-light" data-theme="light">
-          <div className="brush-underlay" aria-hidden="true" />
           <canvas ref={canvasRef} className="brush-canvas" aria-hidden="true" />
-          <div className="brush-instruction" aria-hidden="true"><span>MOVE / DRAG TO REVEAL</span><i /></div>
           <div className="hero-meta">
             <p>AI with purpose.<br />Automation that works.<br />Systems built to be understood.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>

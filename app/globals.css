@@ -1866,3 +1866,44 @@ button, input, textarea { font: inherit; }
     mix-blend-mode: normal;
   }
 }
+
+
+/* Dispersed hero mask: original implementation matching Nothin's visible motion behavior. */
+.cursor-brush,
+.brush-underlay,
+.brush-instruction {
+  display: none !important;
+}
+@media (pointer: fine) {
+  body { cursor: auto !important; }
+  a, button, [role="button"] { cursor: pointer !important; }
+  input, textarea, select { cursor: text !important; }
+}
+.hero {
+  isolation: isolate;
+  background: #fff;
+}
+.brush-canvas {
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+.hero-title {
+  z-index: 2;
+  color: #000;
+  mix-blend-mode: normal;
+}
+.hero-meta,
+.hero-footer {
+  z-index: 4;
+  color: #000;
+  mix-blend-mode: normal;
+}
+.hero-footer {
+  border-color: rgba(0,0,0,.18);
+}
+@media (prefers-reduced-motion: reduce) {
+  .brush-canvas { display: none !important; }
+}
