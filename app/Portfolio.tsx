@@ -619,7 +619,7 @@ export default function Portfolio() {
     const baseCanvas = document.createElement("canvas");
     const baseContext = baseCanvas.getContext("2d");
     if (!baseContext) return;
-    type BrushPoint = { x: number; y: number; radius: number; createdAt: number };
+    type BrushPoint = { x: number; y: number; radius: number; angle: number; seed: number; createdAt: number };
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let last: { x: number; y: number; time: number } | null = null;
     let trail: BrushPoint[] = [];
@@ -634,20 +634,6 @@ export default function Portfolio() {
       baseContext.globalCompositeOperation = "source-over";
       baseContext.fillStyle = "#fff";
       baseContext.fillRect(0, 0, width, height);
-      baseContext.strokeStyle = "rgba(10,10,10,.055)";
-      baseContext.lineWidth = 1;
-      for (let x = 0; x < width; x += 46) {
-        baseContext.beginPath();
-        baseContext.moveTo(x, 0);
-        baseContext.lineTo(x, height);
-        baseContext.stroke();
-      }
-      for (let y = 0; y < height; y += 46) {
-        baseContext.beginPath();
-        baseContext.moveTo(0, y);
-        baseContext.lineTo(width, y);
-        baseContext.stroke();
-      }
     };
 
     const restoreBase = () => {
@@ -673,17 +659,37 @@ export default function Portfolio() {
       last = null;
     };
 
-    const erase = (x: number, y: number, radius: number, strength = 1) => {
+    const erase = (point: BrushPoint, strength = 1) => {
+      const { x, y, radius, angle, seed } = point;
       context.save();
       context.globalCompositeOperation = "destination-out";
-      const gradient = context.createRadialGradient(x, y, radius * 0.18, x, y, radius);
+      context.translate(x, y);
+      context.rotate(angle);
+      context.scale(1.42, 0.64 + seed * 0.08);
+      const gradient = context.createRadialGradient(0, 0, radius * 0.14, 0, 0, radius);
       gradient.addColorStop(0, `rgba(0,0,0,${strength})`);
-      gradient.addColorStop(0.72, `rgba(0,0,0,${strength * 0.88})`);
+      gradient.addColorStop(0.72, `rgba(0,0,0,${strength * 0.96})`);
+      gradient.addColorStop(0.9, `rgba(0,0,0,${strength * 0.72})`);
       gradient.addColorStop(1, "rgba(0,0,0,0)");
       context.fillStyle = gradient;
       context.beginPath();
-      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.arc(0, 0, radius, 0, Math.PI * 2);
       context.fill();
+
+      context.fillStyle = `rgba(0,0,0,${strength * 0.5})`;
+      [-0.58, -0.4, 0.4, 0.58].forEach((offset, index) => {
+        context.beginPath();
+        context.ellipse(
+          radius * (0.26 + index * 0.07),
+          radius * (offset + (seed - 0.5) * 0.12),
+          radius * (0.38 + seed * 0.12),
+          radius * 0.035,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        context.fill();
+      });
       context.restore();
     };
 
@@ -701,7 +707,7 @@ export default function Portfolio() {
           ? 1
           : Math.max(0, 1 - (age - BRUSH_TRAIL_HOLD_MS) / BRUSH_TRAIL_FADE_MS);
         const radius = point.radius * (0.78 + strength * 0.22);
-        erase(point.x, point.y, radius, strength);
+        erase({ ...point, radius }, strength);
       });
       trailFrame = trail.length ? requestAnimationFrame(renderTrail) : 0;
     };
@@ -751,22 +757,25 @@ export default function Portfolio() {
         const distance = last ? Math.hypot(x - last.x, y - last.y) : 0;
         const elapsed = last ? Math.max(1, now - last.time) : 16;
         const speed = distance / elapsed;
-        const radius = Math.min(132, Math.max(54, 62 + speed * 22));
-        const steps = last ? Math.max(1, Math.ceil(distance / (radius * 0.3))) : 1;
+        const radius = Math.min(122, Math.max(52, 58 + speed * 19));
+        const angle = last && distance > 0.5 ? Math.atan2(y - last.y, x - last.x) : 0;
+        const steps = last ? Math.max(1, Math.ceil(distance / (radius * 0.24))) : 1;
         for (let i = 1; i <= steps; i += 1) {
           const t = i / steps;
           trail.push({
             x: last ? last.x + (x - last.x) * t : x,
             y: last ? last.y + (y - last.y) * t : y,
             radius,
+            angle,
+            seed: ((trail.length + i * 7) % 19) / 18,
             createdAt: now,
           });
         }
         if (trail.length > 160) trail.splice(0, trail.length - 160);
         queueTrailRender();
         if (!action && !text) {
-          cursor.style.width = `${radius * 1.55}px`;
-          cursor.style.height = `${radius * 1.55}px`;
+          cursor.style.width = `${radius * 1.72}px`;
+          cursor.style.height = `${radius * 0.84}px`;
         }
         last = { x, y, time: now };
       });
@@ -855,22 +864,15 @@ export default function Portfolio() {
 
       <main id="top">
         <section ref={heroRef} className="hero theme-light" data-theme="light">
-          <div className="brush-underlay" aria-hidden="true">
-            <div className="underlay-grid" />
-            <div className="underlay-orb orb-alpha">AI</div>
-            <div className="underlay-orb orb-beta">N8N</div>
-            <div className="underlay-orb orb-gamma">GHL</div>
-            <span className="underlay-note">CONNECTED SYSTEMS / HUMAN CLARITY</span>
-          </div>
+          <div className="brush-underlay" aria-hidden="true" />
           <canvas ref={canvasRef} className="brush-canvas" aria-hidden="true" />
-          <div className="brush-instruction" aria-hidden="true"><span>DRAG TO REVEAL</span><i /></div>
+          <div className="brush-instruction" aria-hidden="true"><span>MOVE / DRAG TO REVEAL</span><i /></div>
           <div className="hero-meta">
             <p>AI with purpose.<br />Automation that works.<br />Systems built to be understood.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>
           </div>
-          <h1 className="hero-title" aria-label="Automate with Mars">
+          <h1 className="hero-title" aria-label="Automate">
             <span className="hero-line reveal-word">AUTOMATE</span>
-            <span className="hero-line hero-line-indent reveal-word">WITH MARS.</span>
           </h1>
           <div className="hero-footer">
             <span>AI WORKFLOWS / N8N / GOHIGHLEVEL</span>
