@@ -429,23 +429,25 @@ export default function Portfolio() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const smootherstep = (value: number) =>
+      value * value * value * (value * (value * 6 - 15) + 10);
     const readProgress = () => {
       const rect = flow.getBoundingClientRect();
       const travel = Math.max(1, rect.height - window.innerHeight);
       return reduced ? 1 : clamp(-rect.top / travel);
     };
     const paint = (progress: number) => {
-      const handoff = clamp((progress - 0.9) / 0.1);
+      const handoff = smootherstep(clamp((progress - 0.9) / 0.1));
 
       lines.forEach((line, index) => {
-        const reveal = clamp((progress - 0.08 - index * 0.1) / 0.24);
+        const reveal = smootherstep(clamp((progress - 0.08 - index * 0.1) / 0.24));
         const eased = 1 - Math.pow(1 - reveal, 3);
         line.style.transform = "translate3d(0, " + ((1 - eased) * 112) + "%, 0)";
         line.style.opacity = String(reveal);
       });
 
-      const quoteReveal = clamp((progress - 0.04) / 0.68);
-      const signatureReveal = clamp((progress - 0.34) / 0.22);
+      const quoteReveal = smootherstep(clamp((progress - 0.04) / 0.68));
+      const signatureReveal = smootherstep(clamp((progress - 0.34) / 0.22));
       quote.style.opacity = String(quoteReveal);
       signature.style.opacity = String(signatureReveal);
       signature.style.transform = "translate3d(0, " + ((1 - signatureReveal) * 24) + "px, 0)";
@@ -453,7 +455,7 @@ export default function Portfolio() {
         const strokeReveal = clamp((signatureReveal - index * 0.12) / (1 - index * 0.12));
         stroke.style.strokeDashoffset = String(1 - strokeReveal);
       });
-      scrollCue.style.opacity = String(1 - clamp(progress / 0.15));
+      scrollCue.style.opacity = String(1 - smootherstep(clamp(progress / 0.15)));
       stage.style.opacity = String(1 - handoff);
     };
 
@@ -465,7 +467,7 @@ export default function Portfolio() {
     const tick = (now: number) => {
       const elapsed = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
       previousTime = now;
-      const smoothing = 1 - Math.exp(-12 * elapsed);
+      const smoothing = 1 - Math.exp(-7.5 * elapsed);
       renderedProgress += (targetProgress - renderedProgress) * smoothing;
 
       if (Math.abs(targetProgress - renderedProgress) < 0.0004) {
@@ -511,6 +513,8 @@ export default function Portfolio() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const smootherstep = (value: number) =>
+      value * value * value * (value * (value * 6 - 15) + 10);
     const pointOnCurve = (start: number, controlA: number, controlB: number, end: number, progress: number) => {
       const inverse = 1 - progress;
       return inverse ** 3 * start
@@ -577,14 +581,14 @@ export default function Portfolio() {
     };
 
     const paint = (progress: number) => {
-      const flightProgress = clamp((progress - 0.06) / 0.62);
+      const flightProgress = smootherstep(clamp((progress - 0.06) / 0.62));
 
       flights.forEach((flight) => {
-        const staggered = clamp((flightProgress - flight.index * 0.009) / staggerSpan);
-        const eased = 1 - Math.pow(1 - staggered, 3);
+        const staggered = smootherstep(clamp((flightProgress - flight.index * 0.009) / staggerSpan));
+        const eased = smootherstep(staggered);
         const x = pointOnCurve(flight.startX, flight.controlAX, flight.controlBX, flight.endX, eased);
         const y = pointOnCurve(flight.startY, flight.controlAY, flight.controlBY, flight.endY, eased);
-        const arrival = clamp((staggered - 0.82) / 0.18);
+        const arrival = smootherstep(clamp((staggered - 0.82) / 0.18));
         const rotation = flight.side * (1 - eased) * (18 + flight.lane * 3);
 
         flight.flyer.style.transform = "translate3d(" + x + "px, " + y + "px, 0) rotate(" + rotation + "deg)";
@@ -592,10 +596,10 @@ export default function Portfolio() {
         flight.target.style.opacity = String(arrival);
       });
 
-      const copyReveal = clamp((progress - 0.7) / 0.18);
+      const copyReveal = smootherstep(clamp((progress - 0.7) / 0.18));
       intro.style.opacity = String(copyReveal);
       intro.style.transform = "translate3d(0, " + ((1 - copyReveal) * 32) + "px, 0)";
-      scrollCue.style.opacity = String(1 - clamp(progress / 0.16));
+      scrollCue.style.opacity = String(1 - smootherstep(clamp(progress / 0.16)));
     };
 
     measure();
@@ -608,7 +612,7 @@ export default function Portfolio() {
     const tick = (now: number) => {
       const elapsed = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
       previousTime = now;
-      const smoothing = 1 - Math.exp(-11 * elapsed);
+      const smoothing = 1 - Math.exp(-6.5 * elapsed);
       renderedProgress += (targetProgress - renderedProgress) * smoothing;
 
       if (Math.abs(targetProgress - renderedProgress) < 0.0004) {
