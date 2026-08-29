@@ -721,7 +721,7 @@ export default function Portfolio() {
         <section ref={heroRef} className="hero theme-light" data-theme="light">
           <HeroFluidCanvas />
           <div className="hero-meta">
-            <p>I design reliable AI, CRM, and workflow systems for service businesses and growing teams.</p>
+            <p>I turn operational friction into reliable AI, CRM, and workflow systems built to serve people and scale with intention.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>
           </div>
           <h1 className="hero-title" aria-label="Automate">
@@ -790,7 +790,7 @@ export default function Portfolio() {
                 )))}
               </div>
               <div className="about-flight-intro">
-                <p>My work started with people and day-to-day operations. That foundation taught me to see the handoffs, bottlenecks, and repetitive work behind every process.</p>
+                <p>I began in people-focused operations, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
                 <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
               </div>
               <span className="about-flight-scroll">SCROLL / ASSEMBLE ↓</span>
@@ -799,21 +799,34 @@ export default function Portfolio() {
 
 
           <div className="about-belief">
-            <h3 className="reveal">I START WITH<br />THE PROCESS.</h3>
-            <div className="about-belief-body">
-              <div className="manifesto-graphic" aria-hidden="true">
-                <svg viewBox="0 0 620 620"><path d="M310 120 C470 120 520 260 430 310 C520 380 440 510 310 500 C170 500 95 380 190 310 C95 245 155 120 310 120Z" /><path d="M185 310H435M310 120V500" /></svg>
-                <div className="map-core"><strong>MARS</strong><span>SYSTEM MAP</span></div>
-                <span className="map-node map-a">PROCESS</span><span className="map-node map-b">LOGIC</span><span className="map-node map-c">TOOLS</span><span className="map-node map-d">OUTCOME</span>
-              </div>
-              <p className="reveal">I choose the right mix of n8n, AI, GoHighLevel, APIs, and business tools—so the result is practical, reliable, and easy to maintain.</p>
+            <div className="about-journey" aria-hidden="true">
+              <svg viewBox="0 0 1440 650" preserveAspectRatio="none">
+                <path className="journey-line-base" pathLength="1" d="M-70 420 C70 420 90 420 180 420 C285 420 275 180 390 180 C515 180 500 490 640 490 C780 490 790 230 920 230 C1050 230 1080 420 1210 420 C1330 420 1350 300 1510 300" />
+                <path className="journey-line-signal" pathLength="1" d="M-70 420 C70 420 90 420 180 420 C285 420 275 180 390 180 C515 180 500 490 640 490 C780 490 790 230 920 230 C1050 230 1080 420 1210 420 C1330 420 1350 300 1510 300" />
+              </svg>
+              {[
+                ["01", "UNDERSTAND", "12.5%", "64.6%"],
+                ["02", "MAP", "27%", "27.7%"],
+                ["03", "DESIGN", "44.4%", "75.4%"],
+                ["04", "BUILD", "63.9%", "35.4%"],
+                ["05", "TEST", "84%", "64.6%"],
+                ["06", "IMPROVE", "96%", "46.2%"],
+              ].map(([num, label, left, top]) => (
+                <span className="journey-node" style={{ left, top }} key={num}><i>{num}</i><strong>{label}</strong></span>
+              ))}
+            </div>
+            <div className="about-belief-copy reveal">
+              <span>PROCESS BEFORE PLATFORM</span>
+              <h3>I START WITH<br />THE PROCESS.</h3>
+              <p>Before I choose a tool, I understand the people, decisions, and outcomes behind the work. Then I shape the clearest system to carry it forward—reliably, thoughtfully, and with room to grow.</p>
+              <div className="about-belief-rule" aria-hidden="true"><i /><b>MARS / WORKING METHOD</b><i /></div>
             </div>
           </div>
         </section>
 
         <section id="work" className="work theme-dark" data-theme="dark">
           <div className="work-intro reveal">
-            <div><p className="eyebrow inverse">02 / SELECTED WORK</p><h2>SYSTEMS</h2><p className="muted-light">Where automation becomes operational.</p></div>
+            <div><p className="eyebrow inverse">02 / SELECTED WORK</p><h2>SYSTEMS</h2><p className="muted-light">Practical systems, built around real work.</p></div>
             <p className="work-index">06 SYSTEMS<br />AI / CRM / AUTOMATION</p>
           </div>
           <div className="work-browser reveal">
@@ -853,16 +866,16 @@ export default function Portfolio() {
           <div className="process-layout">
             <div className="process-intro reveal">
               <p className="eyebrow">03 / PROCESS</p>
-              <h2>Build the right thing.<br />Then make it reliable.</h2>
-              <div className="process-quote"><p>“Automate the right process — not simply the existing process.”</p><span>AI is a tool within the system, not automatically the solution to every problem.</span></div>
+              <h2>Understand the work.<br />Design the flow.<br />Build for what comes next.</h2>
+              <div className="process-quote"><p>“The goal is not to automate more. It is to create a better way of working.”</p><span>Technology earns its place when it removes friction, supports people, and makes the outcome more reliable.</span></div>
             </div>
             <div className="process-steps">
               {[
-                ["01", "UNDERSTAND", "Understand the process, desired outcome, people involved, bottlenecks, and repetitive work before choosing the technology."],
-                ["02", "DESIGN", "Map triggers, actions, integrations, data, decision points, AI steps, exceptions, and expected outcomes."],
-                ["03", "BUILD", "Use the right combination of automation, AI, APIs, CRM tools, and business applications."],
-                ["04", "TEST", "Validate workflow logic, field mappings, branches, AI outputs, timing, integrations, and edge cases."],
-                ["05", "DOCUMENT & IMPROVE", "Use clear naming, organized workflow logic, documentation, execution review, and iteration."],
+                ["01", "UNDERSTAND", "Begin with the people, the purpose, and the outcome. Find the handoffs, delays, and repetitive work shaping the process."],
+                ["02", "DESIGN", "Turn the process into a clear system of triggers, decisions, data, responsibilities, exceptions, and measurable outcomes."],
+                ["03", "BUILD", "Choose only what the system needs, then connect automation, AI, CRM, APIs, and business applications into one dependable flow."],
+                ["04", "TEST", "Challenge every branch, field, response, delay, and edge case so the workflow performs beyond the ideal scenario."],
+                ["05", "REFINE", "Document the logic, review performance, and improve the system as the business, people, and priorities evolve."],
               ].map(([num, title, copy]) => <article key={num} className="process-step reveal"><span>{num}</span><h3>{title}</h3><p>{copy}</p></article>)}
             </div>
           </div>
@@ -871,20 +884,20 @@ export default function Portfolio() {
         <section id="experience" className="experience theme-dark" data-theme="dark">
           <div className="experience-head reveal"><p className="eyebrow inverse">04 / EXPERIENCE</p><h2>FROM OPERATIONS<br />TO SYSTEMS.</h2></div>
           <div className="timeline">
-            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>Design and build AI-powered workflows, business automations, CRM systems, integrations, and connected processes using n8n, AI models, GoHighLevel, APIs, webhooks, and business applications.</p></article>
-            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Built and tested practical automation systems with n8n, AI-assisted processes, GoHighLevel, APIs, webhooks, routing logic, structured outputs, and connected business applications.</p></article>
-            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations & Customer Success</h3><p>Operations & Support</p></div><p>Supported customer communication, documentation, reporting, follow-ups, administrative processes, and day-to-day problem solving — the operational foundation behind how I design automation today.</p></article>
+            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>Design and build reliable AI, CRM, and workflow systems that reduce friction, connect teams and tools, and turn operational intent into repeatable execution.</p></article>
+            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Built and tested end-to-end automation systems, strengthening my practice in orchestration, API integration, routing logic, structured AI outputs, and resilient workflow design.</p></article>
+            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations & Customer Success</h3><p>Operations & Support</p></div><p>Managed communication, documentation, reporting, follow-ups, and day-to-day problem solving—experience that taught me to design systems around the realities of people and operations.</p></article>
           </div>
         </section>
 
         <section id="stack" className="stack theme-light" data-theme="light">
-          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>TOOLS CHANGE.<br />SYSTEM THINKING STAYS.</h2></div>
+          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>TOOLS EVOLVE.<br />CLEAR THINKING ENDURES.</h2></div>
           <div className="marquee" aria-label="Core tools"><div className="marquee-track">{[0, 1].map((set) => <div className="marquee-set" key={set}><span>N8N</span><i>+</i><span>GOHIGHLEVEL</span><i>+</i><span>OPENAI</span><i>+</i><span>GROQ</span><i>+</i><span>APIs</span><i>+</i><span>WEBHOOKS</span><i>+</i><span>GOOGLE SHEETS</span><i>+</i><span>SLACK</span><i>+</i></div>)}</div></div>
           <div className="stack-grid reveal">
-            <article><span>AI & LLM WORK</span><p>ChatGPT, OpenAI, Groq, prompt design, structured outputs, AI-assisted workflows.</p></article>
-            <article><span>AUTOMATION</span><p>n8n, workflow automation, conditional logic, data transformation, testing.</p></article>
-            <article><span>INTEGRATIONS</span><p>APIs, webhooks, Gmail, Google Sheets, Slack, Google Workspace.</p></article>
-            <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel, pipelines, funnels, calendars, forms, email & SMS automation.</p></article>
+            <article><span>AI & LLM WORK</span><p>LLM workflow design, prompt systems, structured outputs, validation, and human-reviewed AI assistance.</p></article>
+            <article><span>AUTOMATION</span><p>n8n orchestration, decision logic, data transformation, error handling, testing, and monitoring.</p></article>
+            <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Gmail, Google Sheets, Slack, and Google Workspace.</p></article>
+            <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel pipelines, funnels, calendars, forms, and intentional email and SMS journeys.</p></article>
           </div>
         </section>
 
@@ -894,12 +907,12 @@ export default function Portfolio() {
             <div className="method-track"><i /><span>01 / DISCOVER</span><span>02 / MAP</span><span>03 / BUILD</span><span>04 / TEST</span><span>05 / IMPROVE</span></div>
             <div className="method-signal"><span>PROCESS FIRST</span><span>HUMAN IN THE LOOP</span><span>MEASURED OUTCOME</span></div>
           </div>
-          <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Business first.<br />AI with purpose.<br />Clear enough to maintain.</h2><div className="principle-list"><span>RELIABLE WORKFLOWS</span><span>CLEAR COMMUNICATION</span><span>MAINTAINABLE SYSTEMS</span><span>CONTINUOUS LEARNING</span></div></div>
+          <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Rooted in the business.<br />Intentional with AI.<br />Built to be understood.</h2><div className="principle-list"><span>RELIABILITY BY DESIGN</span><span>COMMUNICATION WITH CLARITY</span><span>SYSTEMS PEOPLE CAN OWN</span><span>CONTINUOUS REFINEMENT</span></div></div>
         </section>
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
           <div className="contact-layout reveal">
-            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>LET&apos;S BUILD<br />A BETTER SYSTEM.</h2><ContactForm /></div>
+            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>LET&apos;S BUILD WHAT<br />MOVES WORK FORWARD.</h2><ContactForm /></div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               <a href="mailto:marsatolba6@gmail.com"><span>EMAIL</span>marsatolba6@gmail.com ↗</a>
