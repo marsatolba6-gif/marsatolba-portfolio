@@ -428,43 +428,73 @@ export default function Portfolio() {
     if (!stage || !quote || !signature || !scrollCue) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let frame = 0;
     const clamp = (value: number) => Math.min(1, Math.max(0, value));
-    const update = () => {
+    const readProgress = () => {
       const rect = flow.getBoundingClientRect();
       const travel = Math.max(1, rect.height - window.innerHeight);
-      const progress = reduced ? 1 : clamp(-rect.top / travel);
+      return reduced ? 1 : clamp(-rect.top / travel);
+    };
+    const paint = (progress: number) => {
       const handoff = clamp((progress - 0.9) / 0.1);
 
       lines.forEach((line, index) => {
         const reveal = clamp((progress - 0.08 - index * 0.1) / 0.24);
         const eased = 1 - Math.pow(1 - reveal, 3);
-        line.style.transform = `translate3d(0, ${(1 - eased) * 112}%, 0)`;
+        line.style.transform = "translate3d(0, " + ((1 - eased) * 112) + "%, 0)";
         line.style.opacity = String(reveal);
       });
+
       const quoteReveal = clamp((progress - 0.04) / 0.68);
       const signatureReveal = clamp((progress - 0.34) / 0.22);
       quote.style.opacity = String(quoteReveal);
       signature.style.opacity = String(signatureReveal);
-      signature.style.transform = `translate3d(0, ${(1 - signatureReveal) * 24}px, 0)`;
+      signature.style.transform = "translate3d(0, " + ((1 - signatureReveal) * 24) + "px, 0)";
       signatureStrokes.forEach((stroke, index) => {
         const strokeReveal = clamp((signatureReveal - index * 0.12) / (1 - index * 0.12));
         stroke.style.strokeDashoffset = String(1 - strokeReveal);
       });
       scrollCue.style.opacity = String(1 - clamp(progress / 0.15));
       stage.style.opacity = String(1 - handoff);
-      frame = 0;
     };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+
+    let targetProgress = readProgress();
+    let renderedProgress = targetProgress;
+    let frame = 0;
+    let previousTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
+      previousTime = now;
+      const smoothing = 1 - Math.exp(-12 * elapsed);
+      renderedProgress += (targetProgress - renderedProgress) * smoothing;
+
+      if (Math.abs(targetProgress - renderedProgress) < 0.0004) {
+        renderedProgress = targetProgress;
+      }
+      paint(renderedProgress);
+
+      if (renderedProgress !== targetProgress) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        frame = 0;
+      }
     };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+
+    const requestUpdate = () => {
+      targetProgress = readProgress();
+      if (!frame && renderedProgress !== targetProgress) {
+        previousTime = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    paint(renderedProgress);
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
     };
   }, []);
 
@@ -478,8 +508,8 @@ export default function Portfolio() {
     const intro = section.querySelector<HTMLElement>(".about-flight-intro");
     const scrollCue = section.querySelector<HTMLElement>(".about-flight-scroll");
     if (!flow || !stage || !intro || !scrollCue) return;
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let frame = 0;
     const clamp = (value: number) => Math.min(1, Math.max(0, value));
     const pointOnCurve = (start: number, controlA: number, controlB: number, end: number, progress: number) => {
       const inverse = 1 - progress;
@@ -488,53 +518,138 @@ export default function Portfolio() {
         + 3 * inverse * progress ** 2 * controlB
         + progress ** 3 * end;
     };
-    const update = () => {
-      const flowRect = flow.getBoundingClientRect();
-      const stageRect = stage.getBoundingClientRect();
-      const travel = Math.max(1, flowRect.height - window.innerHeight);
-      const progress = reduced ? 1 : clamp(-flowRect.top / travel);
-      const flightProgress = clamp((progress - 0.06) / 0.62);
+    const targetsById = new Map(
+      targets.map((target) => [target.dataset.charId, target]),
+    );
+    const staggerSpan = Math.max(0.65, 1 - flyers.length * 0.009);
+    let flights: {
+      flyer: HTMLElement;
+      target: HTMLElement;
+      index: number;
+      lane: number;
+      side: number;
+      startX: number;
+      startY: number;
+      endX: number;
+      endY: number;
+      controlAX: number;
+      controlAY: number;
+      controlBX: number;
+      controlBY: number;
+    }[] = [];
 
-      flyers.forEach((flyer, index) => {
-        const target = targets.find((candidate) => candidate.dataset.charId === flyer.dataset.charId);
-        if (!target) return;
+    const measure = () => {
+      const stageRect = stage.getBoundingClientRect();
+      flights = flyers.flatMap((flyer, index) => {
+        const target = targetsById.get(flyer.dataset.charId);
+        if (!target) return [];
         const targetRect = target.getBoundingClientRect();
         const lane = index % 6;
         const side = index % 2 === 0 ? -1 : 1;
-        const startX = side < 0 ? -stageRect.width * (0.08 + lane * 0.018) : stageRect.width * (0.96 + lane * 0.014);
+        const startX = side < 0
+          ? -stageRect.width * (0.08 + lane * 0.018)
+          : stageRect.width * (0.96 + lane * 0.014);
         const startY = stageRect.height * (0.09 + ((index * 37) % 78) / 100);
         const endX = targetRect.left - stageRect.left;
         const endY = targetRect.top - stageRect.top;
-        const controlAX = stageRect.width * (side < 0 ? 0.18 + lane * 0.035 : 0.82 - lane * 0.03);
-        const controlAY = stageRect.height * (index % 3 === 0 ? 0.06 : 0.88);
-        const controlBX = endX + side * stageRect.width * (0.08 + (index % 4) * 0.015);
-        const controlBY = endY + stageRect.height * (index % 2 === 0 ? -0.22 : 0.22);
-        const staggered = clamp((flightProgress - index * 0.009) / Math.max(0.65, 1 - flyers.length * 0.009));
-        const eased = 1 - Math.pow(1 - staggered, 3);
-        const x = pointOnCurve(startX, controlAX, controlBX, endX, eased);
-        const y = pointOnCurve(startY, controlAY, controlBY, endY, eased);
-        const arrival = clamp((staggered - 0.82) / 0.18);
-
-        flyer.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${side * (1 - eased) * (18 + lane * 3)}deg)`;
-        flyer.style.opacity = String(1 - arrival);
-        target.style.opacity = String(arrival);
+        return [{
+          flyer,
+          target,
+          index,
+          lane,
+          side,
+          startX,
+          startY,
+          endX,
+          endY,
+          controlAX: stageRect.width * (side < 0 ? 0.18 + lane * 0.035 : 0.82 - lane * 0.03),
+          controlAY: stageRect.height * (index % 3 === 0 ? 0.06 : 0.88),
+          controlBX: endX + side * stageRect.width * (0.08 + (index % 4) * 0.015),
+          controlBY: endY + stageRect.height * (index % 2 === 0 ? -0.22 : 0.22),
+        }];
       });
+    };
+
+    const readProgress = () => {
+      const flowRect = flow.getBoundingClientRect();
+      const travel = Math.max(1, flowRect.height - window.innerHeight);
+      return reduced ? 1 : clamp(-flowRect.top / travel);
+    };
+
+    const paint = (progress: number) => {
+      const flightProgress = clamp((progress - 0.06) / 0.62);
+
+      flights.forEach((flight) => {
+        const staggered = clamp((flightProgress - flight.index * 0.009) / staggerSpan);
+        const eased = 1 - Math.pow(1 - staggered, 3);
+        const x = pointOnCurve(flight.startX, flight.controlAX, flight.controlBX, flight.endX, eased);
+        const y = pointOnCurve(flight.startY, flight.controlAY, flight.controlBY, flight.endY, eased);
+        const arrival = clamp((staggered - 0.82) / 0.18);
+        const rotation = flight.side * (1 - eased) * (18 + flight.lane * 3);
+
+        flight.flyer.style.transform = "translate3d(" + x + "px, " + y + "px, 0) rotate(" + rotation + "deg)";
+        flight.flyer.style.opacity = String(1 - arrival);
+        flight.target.style.opacity = String(arrival);
+      });
+
       const copyReveal = clamp((progress - 0.7) / 0.18);
       intro.style.opacity = String(copyReveal);
-      intro.style.transform = `translate3d(0, ${(1 - copyReveal) * 32}px, 0)`;
+      intro.style.transform = "translate3d(0, " + ((1 - copyReveal) * 32) + "px, 0)";
       scrollCue.style.opacity = String(1 - clamp(progress / 0.16));
-      frame = 0;
     };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+
+    measure();
+    let targetProgress = readProgress();
+    let renderedProgress = targetProgress;
+    let frame = 0;
+    let previousTime = performance.now();
+    let disposed = false;
+
+    const tick = (now: number) => {
+      const elapsed = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
+      previousTime = now;
+      const smoothing = 1 - Math.exp(-11 * elapsed);
+      renderedProgress += (targetProgress - renderedProgress) * smoothing;
+
+      if (Math.abs(targetProgress - renderedProgress) < 0.0004) {
+        renderedProgress = targetProgress;
+      }
+      paint(renderedProgress);
+
+      if (renderedProgress !== targetProgress) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        frame = 0;
+      }
     };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+
+    const requestUpdate = () => {
+      targetProgress = readProgress();
+      if (!frame && renderedProgress !== targetProgress) {
+        previousTime = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    const onResize = () => {
+      measure();
+      requestUpdate();
+      if (!frame) paint(renderedProgress);
+    };
+
+    paint(renderedProgress);
+    void document.fonts.ready.then(() => {
+      if (disposed) return;
+      measure();
+      paint(renderedProgress);
+    });
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
+      disposed = true;
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
