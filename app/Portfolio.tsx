@@ -252,9 +252,6 @@ const MANIFESTO_LINES = [
 ];
 const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
 const ABOUT_ROLE_LINES = ["AN AI AUTOMATION", "SPECIALIST."];
-const BRUSH_TRAIL_HOLD_MS = 1550;
-const BRUSH_TRAIL_FADE_MS = 1150;
-const BRUSH_TRAIL_LIFETIME_MS = BRUSH_TRAIL_HOLD_MS + BRUSH_TRAIL_FADE_MS;
 
 function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -608,8 +605,7 @@ export default function Portfolio() {
     const hero = heroRef.current;
     if (!canvas || !hero) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       canvas.style.display = "none";
       return;
     }
@@ -617,227 +613,268 @@ export default function Portfolio() {
     const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
 
-    type MaskFragment = {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      angle: number;
-      length: number;
-      thickness: number;
-      life: number;
-      decay: number;
-      seed: number;
-    };
-    type DustParticle = {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      life: number;
-      decay: number;
-      seed: number;
-    };
+    const fieldCanvas = document.createElement("canvas");
+    const fieldContext = fieldCanvas.getContext("2d", { alpha: true });
+    if (!fieldContext) return;
+
+    const FIELD_SIZE = 144;
+    const VELOCITY_DISSIPATION = 0.962;
+    const DYE_DISSIPATION = 0.988;
+    const SPLAT_RADIUS = 0.00006;
+    const SPLAT_FORCE = 0.72;
+    const REVEAL_SIZE = 3.9;
+    const EDGE_START = 0.5;
+    const EDGE_WIDTH = 0.01;
+    const PRESSURE_ITERATIONS = 12;
 
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let fragments: MaskFragment[] = [];
-    let dust: DustParticle[] = [];
     let frame = 0;
     let previousFrame = performance.now();
-    let lastPoint: { x: number; y: number; time: number } | null = null;
+    let heroWidth = 1;
+    let heroHeight = 1;
+    let aspectRatio = 1;
+    let mouse = { x: 0.5, y: 0.5 };
+    let previousMouse = { x: 0.5, y: 0.5 };
+    let mouseHasMoved = false;
+    let pointerReady = false;
 
-    const noise = (seed: number) => {
-      const value = Math.sin(seed * 91.734 + 18.127) * 43758.5453;
-      return value - Math.floor(value);
+    let velocityX = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let velocityY = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let nextVelocityX = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let nextVelocityY = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let dye = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let nextDye = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let divergence = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let pressure = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+    let nextPressure = new Float32Array(FIELD_SIZE * FIELD_SIZE);
+
+    fieldCanvas.width = FIELD_SIZE;
+    fieldCanvas.height = FIELD_SIZE;
+    let imageData = fieldContext.createImageData(FIELD_SIZE, FIELD_SIZE);
+
+    const clamp = (value: number, minimum: number, maximum: number) =>
+      Math.max(minimum, Math.min(maximum, value));
+
+    const smoothstep = (startValue: number, endValue: number, value: number) => {
+      const amount = clamp((value - startValue) / (endValue - startValue), 0, 1);
+      return amount * amount * (3 - 2 * amount);
+    };
+
+    const sample = (source: Float32Array, x: number, y: number) => {
+      const left = clamp(Math.floor(x), 0, FIELD_SIZE - 1);
+      const top = clamp(Math.floor(y), 0, FIELD_SIZE - 1);
+      const right = Math.min(FIELD_SIZE - 1, left + 1);
+      const bottom = Math.min(FIELD_SIZE - 1, top + 1);
+      const horizontal = clamp(x - left, 0, 1);
+      const vertical = clamp(y - top, 0, 1);
+      const topValue = source[top * FIELD_SIZE + left] * (1 - horizontal)
+        + source[top * FIELD_SIZE + right] * horizontal;
+      const bottomValue = source[bottom * FIELD_SIZE + left] * (1 - horizontal)
+        + source[bottom * FIELD_SIZE + right] * horizontal;
+      return topValue * (1 - vertical) + bottomValue * vertical;
+    };
+
+    const clearFluid = () => {
+      velocityX.fill(0);
+      velocityY.fill(0);
+      nextVelocityX.fill(0);
+      nextVelocityY.fill(0);
+      dye.fill(0);
+      nextDye.fill(0);
+      divergence.fill(0);
+      pressure.fill(0);
+      nextPressure.fill(0);
+      context.clearRect(0, 0, heroWidth, heroHeight);
     };
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
       const rect = hero.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      heroWidth = Math.max(1, rect.width);
+      heroHeight = Math.max(1, rect.height);
+      aspectRatio = heroWidth / heroHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(heroWidth * dpr));
+      canvas.height = Math.max(1, Math.round(heroHeight * dpr));
+      canvas.style.width = `${heroWidth}px`;
+      canvas.style.height = `${heroHeight}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fragments = [];
-      dust = [];
-      lastPoint = null;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      pointerReady = false;
+      mouseHasMoved = false;
+      clearFluid();
     };
 
-    const spawnMask = (x: number, y: number, dx: number, dy: number, velocity: number, stamp: number) => {
-      const angle = Math.atan2(dy, dx || 0.001);
-      const normalX = -Math.sin(angle);
-      const normalY = Math.cos(angle);
-      const radius = Math.min(128, 48 + velocity * 28);
-      const baseSeed = stamp * 0.013 + fragments.length * 7.17 + dust.length * 0.31;
+    const splat = (pointX: number, pointY: number, deltaX: number, deltaY: number) => {
+      const radius = Math.sqrt(SPLAT_RADIUS * 5.2);
+      const minX = clamp(Math.floor((pointX - radius / aspectRatio) * FIELD_SIZE), 0, FIELD_SIZE - 1);
+      const maxX = clamp(Math.ceil((pointX + radius / aspectRatio) * FIELD_SIZE), 0, FIELD_SIZE - 1);
+      const minY = clamp(Math.floor((pointY - radius) * FIELD_SIZE), 0, FIELD_SIZE - 1);
+      const maxY = clamp(Math.ceil((pointY + radius) * FIELD_SIZE), 0, FIELD_SIZE - 1);
+      const impulseX = clamp(deltaX * FIELD_SIZE * SPLAT_FORCE, -2.4, 2.4);
+      const impulseY = clamp(deltaY * FIELD_SIZE * SPLAT_FORCE, -2.4, 2.4);
 
-      for (let band = 0; band < 4; band += 1) {
-        const seed = baseSeed + band * 11.19;
-        const across = (noise(seed) - 0.5) * radius * 0.72;
-        fragments.push({
-          x: x + normalX * across,
-          y: y + normalY * across,
-          vx: Math.cos(angle) * velocity * (0.42 + noise(seed + 1) * 0.32) + normalX * (noise(seed + 2) - 0.5) * 1.8,
-          vy: Math.sin(angle) * velocity * (0.42 + noise(seed + 3) * 0.32) + normalY * (noise(seed + 4) - 0.5) * 1.8,
-          angle: angle + (noise(seed + 5) - 0.5) * 0.28,
-          length: radius * (0.7 + noise(seed + 6) * 0.72),
-          thickness: radius * (0.16 + noise(seed + 7) * 0.14),
-          life: 1,
-          decay: 0.032 + noise(seed + 8) * 0.018,
-          seed,
-        });
+      for (let y = minY; y <= maxY; y += 1) {
+        const v = (y + 0.5) / FIELD_SIZE;
+        for (let x = minX; x <= maxX; x += 1) {
+          const u = (x + 0.5) / FIELD_SIZE;
+          const offsetX = (u - pointX) * aspectRatio;
+          const offsetY = v - pointY;
+          const amount = Math.exp(-(offsetX * offsetX + offsetY * offsetY) / SPLAT_RADIUS);
+          if (amount < 0.004) continue;
+          const index = y * FIELD_SIZE + x;
+          velocityX[index] += impulseX * amount;
+          velocityY[index] += impulseY * amount;
+          dye[index] = Math.min(1.5, dye[index] + amount);
+        }
       }
-
-      const particleCount = Math.min(34, 16 + Math.round(velocity * 5));
-      for (let index = 0; index < particleCount; index += 1) {
-        const seed = baseSeed + index * 3.71 + 43;
-        const across = (noise(seed) - 0.5) * radius * 1.45;
-        const along = (noise(seed + 1) - 0.5) * radius * 0.92;
-        const burst = 0.7 + noise(seed + 2) * (2.4 + velocity * 0.58);
-        dust.push({
-          x: x + normalX * across + Math.cos(angle) * along,
-          y: y + normalY * across + Math.sin(angle) * along,
-          vx: normalX * Math.sign(across || 1) * burst + Math.cos(angle) * velocity * (noise(seed + 3) * 0.64),
-          vy: normalY * Math.sign(across || 1) * burst + Math.sin(angle) * velocity * (noise(seed + 4) * 0.64),
-          size: 1 + noise(seed + 5) * Math.min(11, 3.5 + velocity * 1.7),
-          life: 1,
-          decay: 0.014 + noise(seed + 6) * 0.026,
-          seed,
-        });
-      }
-
-      if (fragments.length > 190) fragments.splice(0, fragments.length - 190);
-      if (dust.length > 880) dust.splice(0, dust.length - 880);
     };
 
-    const drawFragment = (fragment: MaskFragment) => {
-      context.save();
-      context.translate(fragment.x, fragment.y);
-      context.rotate(fragment.angle);
-      const opacity = Math.min(1, fragment.life * 1.9);
-      const spread = 1 - fragment.life;
+    const advect = (frameScale: number) => {
+      const velocityDecay = Math.pow(VELOCITY_DISSIPATION, frameScale);
+      const dyeDecay = Math.pow(DYE_DISSIPATION, frameScale);
 
-      for (let shard = 0; shard < 7; shard += 1) {
-        const seed = fragment.seed + shard * 5.43;
-        const shardLength = fragment.length * (0.35 + noise(seed) * 0.68) * (1 - spread * 0.24);
-        const shardHeight = Math.max(1.2, fragment.thickness * (0.08 + noise(seed + 1) * 0.17));
-        const offsetX = -fragment.length * 0.5 + noise(seed + 2) * fragment.length * 0.62 + spread * (noise(seed + 3) - 0.5) * 34;
-        const offsetY = (shard - 3) * fragment.thickness * 0.18 + (noise(seed + 4) - 0.5) * fragment.thickness * 0.24;
-        context.fillStyle = `rgba(255,255,255,${opacity * (0.62 + noise(seed + 5) * 0.38)})`;
-        context.fillRect(offsetX, offsetY, shardLength, shardHeight);
+      for (let y = 0; y < FIELD_SIZE; y += 1) {
+        for (let x = 0; x < FIELD_SIZE; x += 1) {
+          const index = y * FIELD_SIZE + x;
+          const backX = x - velocityX[index] * frameScale;
+          const backY = y - velocityY[index] * frameScale;
+          nextVelocityX[index] = sample(velocityX, backX, backY) * velocityDecay;
+          nextVelocityY[index] = sample(velocityY, backX, backY) * velocityDecay;
+          nextDye[index] = sample(dye, backX, backY) * dyeDecay;
+        }
       }
-      context.restore();
+
+      [velocityX, nextVelocityX] = [nextVelocityX, velocityX];
+      [velocityY, nextVelocityY] = [nextVelocityY, velocityY];
+      [dye, nextDye] = [nextDye, dye];
+    };
+
+    const projectVelocity = () => {
+      pressure.fill(0);
+
+      for (let y = 0; y < FIELD_SIZE; y += 1) {
+        const top = Math.max(0, y - 1);
+        const bottom = Math.min(FIELD_SIZE - 1, y + 1);
+        for (let x = 0; x < FIELD_SIZE; x += 1) {
+          const left = Math.max(0, x - 1);
+          const right = Math.min(FIELD_SIZE - 1, x + 1);
+          const index = y * FIELD_SIZE + x;
+          divergence[index] = 0.5 * (
+            velocityX[y * FIELD_SIZE + right] - velocityX[y * FIELD_SIZE + left]
+            + velocityY[bottom * FIELD_SIZE + x] - velocityY[top * FIELD_SIZE + x]
+          );
+        }
+      }
+
+      for (let iteration = 0; iteration < PRESSURE_ITERATIONS; iteration += 1) {
+        for (let y = 0; y < FIELD_SIZE; y += 1) {
+          const top = Math.max(0, y - 1);
+          const bottom = Math.min(FIELD_SIZE - 1, y + 1);
+          for (let x = 0; x < FIELD_SIZE; x += 1) {
+            const left = Math.max(0, x - 1);
+            const right = Math.min(FIELD_SIZE - 1, x + 1);
+            const index = y * FIELD_SIZE + x;
+            nextPressure[index] = (
+              pressure[y * FIELD_SIZE + left]
+              + pressure[y * FIELD_SIZE + right]
+              + pressure[top * FIELD_SIZE + x]
+              + pressure[bottom * FIELD_SIZE + x]
+              - divergence[index]
+            ) * 0.25;
+          }
+        }
+        [pressure, nextPressure] = [nextPressure, pressure];
+      }
+
+      for (let y = 0; y < FIELD_SIZE; y += 1) {
+        const top = Math.max(0, y - 1);
+        const bottom = Math.min(FIELD_SIZE - 1, y + 1);
+        for (let x = 0; x < FIELD_SIZE; x += 1) {
+          const left = Math.max(0, x - 1);
+          const right = Math.min(FIELD_SIZE - 1, x + 1);
+          const index = y * FIELD_SIZE + x;
+          velocityX[index] -= 0.5 * (
+            pressure[y * FIELD_SIZE + right] - pressure[y * FIELD_SIZE + left]
+          );
+          velocityY[index] -= 0.5 * (
+            pressure[bottom * FIELD_SIZE + x] - pressure[top * FIELD_SIZE + x]
+          );
+        }
+      }
+    };
+
+    const drawMask = () => {
+      const pixels = imageData.data;
+      for (let index = 0; index < dye.length; index += 1) {
+        const mask = smoothstep(EDGE_START, EDGE_START + EDGE_WIDTH, dye[index] * REVEAL_SIZE);
+        const pixel = index * 4;
+        pixels[pixel] = 255;
+        pixels[pixel + 1] = 255;
+        pixels[pixel + 2] = 255;
+        pixels[pixel + 3] = Math.round(mask * 255);
+      }
+
+      fieldContext.putImageData(imageData, 0, 0);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, heroWidth, heroHeight);
+      context.drawImage(fieldCanvas, 0, 0, heroWidth, heroHeight);
     };
 
     const render = (now: number) => {
-      const delta = Math.min(2.4, Math.max(0.45, (now - previousFrame) / 16.667));
+      const frameScale = clamp((now - previousFrame) / 16.667, 0.45, 1.5);
       previousFrame = now;
-      const rect = hero.getBoundingClientRect();
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      context.clearRect(0, 0, rect.width, rect.height);
-      context.globalCompositeOperation = "source-over";
 
-      fragments = fragments.filter((fragment) => {
-        fragment.life -= fragment.decay * delta;
-        if (fragment.life <= 0) return false;
-        fragment.x += fragment.vx * delta;
-        fragment.y += fragment.vy * delta;
-        fragment.vx *= Math.pow(0.92, delta);
-        fragment.vy *= Math.pow(0.92, delta);
-        fragment.angle += (noise(fragment.seed + 17) - 0.5) * 0.006 * delta;
-        drawFragment(fragment);
-        return true;
-      });
-
-      dust = dust.filter((particle) => {
-        particle.life -= particle.decay * delta;
-        if (particle.life <= 0) return false;
-        particle.x += particle.vx * delta;
-        particle.y += particle.vy * delta;
-        particle.vx *= Math.pow(0.965, delta);
-        particle.vy *= Math.pow(0.965, delta);
-        particle.vy += (noise(particle.seed + 9) - 0.46) * 0.025 * delta;
-        const opacity = Math.min(1, particle.life * 1.65);
-        const size = Math.max(0.7, particle.size * (0.56 + particle.life * 0.44));
-        context.fillStyle = `rgba(255,255,255,${opacity})`;
-        if (noise(particle.seed + 12) > 0.72) {
-          context.beginPath();
-          context.arc(particle.x, particle.y, size * 0.48, 0, Math.PI * 2);
-          context.fill();
-        } else {
-          context.save();
-          context.translate(particle.x, particle.y);
-          context.rotate((noise(particle.seed + 14) - 0.5) * 0.9);
-          context.fillRect(-size * 0.5, -size * 0.5, size, size * (0.35 + noise(particle.seed + 15)));
-          context.restore();
+      if (mouseHasMoved) {
+        const deltaX = mouse.x - previousMouse.x;
+        const deltaY = mouse.y - previousMouse.y;
+        if (Math.hypot(deltaX, deltaY) > 0.0001) {
+          splat(mouse.x, mouse.y, deltaX, deltaY);
         }
-        return true;
-      });
+        previousMouse = { ...mouse };
+        mouseHasMoved = false;
+      }
 
-      frame = requestAnimationFrame(render);
+      advect(frameScale);
+      projectVelocity();
+      drawMask();
+      frame = window.requestAnimationFrame(render);
     };
 
     const pointerMove = (event: PointerEvent) => {
       if (event.pointerType !== "mouse" && event.pressure === 0) return;
       const rect = hero.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-        lastPoint = null;
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      if (x < 0 || y < 0 || x > 1 || y > 1) {
+        pointerReady = false;
         return;
       }
 
-      const now = performance.now();
-      if (!lastPoint) {
-        lastPoint = { x, y, time: now };
-        spawnMask(x, y, 1, 0, 0.8, now);
+      mouse = { x, y };
+      if (!pointerReady) {
+        previousMouse = { x, y };
+        pointerReady = true;
         return;
       }
-
-      const dx = x - lastPoint.x;
-      const dy = y - lastPoint.y;
-      const distance = Math.hypot(dx, dy);
-      const elapsed = Math.max(8, now - lastPoint.time);
-      const velocity = Math.min(4.8, distance / elapsed * 3.1);
-      const steps = Math.max(1, Math.ceil(distance / 18));
-      for (let index = 1; index <= steps; index += 1) {
-        const progress = index / steps;
-        spawnMask(
-          lastPoint.x + dx * progress,
-          lastPoint.y + dy * progress,
-          dx,
-          dy,
-          velocity,
-          now + index * 13,
-        );
-      }
-      lastPoint = { x, y, time: now };
+      mouseHasMoved = true;
     };
 
-    const pointerDown = (event: PointerEvent) => {
-      const rect = hero.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      lastPoint = { x, y, time: performance.now() };
-      spawnMask(x, y, 1, 0, 1.4, performance.now());
-    };
     const pointerLeave = () => {
-      lastPoint = null;
+      pointerReady = false;
+      mouseHasMoved = false;
     };
 
     resize();
-    frame = requestAnimationFrame(render);
+    frame = window.requestAnimationFrame(render);
     window.addEventListener("resize", resize);
     hero.addEventListener("pointermove", pointerMove, { passive: true });
-    hero.addEventListener("pointerdown", pointerDown, { passive: true });
     hero.addEventListener("pointerleave", pointerLeave, { passive: true });
 
     return () => {
-      cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       hero.removeEventListener("pointermove", pointerMove);
-      hero.removeEventListener("pointerdown", pointerDown);
       hero.removeEventListener("pointerleave", pointerLeave);
     };
   }, []);
