@@ -903,7 +903,7 @@ export default function Portfolio() {
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               <a href="mailto:marsatolba6@gmail.com"><span>EMAIL</span>marsatolba6@gmail.com ↗</a>
-              <a href="https://www.linkedin.com/in/automatonwithmars/" target="_blank" rel="noreferrer"><span>LINKEDIN</span>linkedin.com/in/automatonwithmars ↗</a>
+              <a href="https://www.linkedin.com/in/automatewithmars/" target="_blank" rel="noreferrer"><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer">VIEW RESUME ↗</a></div>
             </aside>

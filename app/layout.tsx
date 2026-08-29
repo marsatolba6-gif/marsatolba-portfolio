@@ -38,7 +38,7 @@ const personSchema = {
   name: "Mars Atolba",
   url: "https://automateiv.vercel.app/",
   jobTitle: "AI Automation Specialist",
-  sameAs: ["https://www.linkedin.com/in/automatonwithmars/"],
+  sameAs: ["https://www.linkedin.com/in/automatewithmars/"],
   knowsAbout: ["AI automation", "n8n", "GoHighLevel", "CRM automation", "APIs", "webhooks", "business systems"],
 };
 

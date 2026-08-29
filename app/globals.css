@@ -1881,8 +1881,8 @@ section[id] { scroll-margin-top: 72px; }
 }
 .hero-footer,
 .footer-bottom { font-size: 9px; line-height: 1.4; }
-.manifesto-flow { height: 240svh; }
-.about-flight-flow { height: 235svh; }
+.manifesto-flow { height: 285svh; }
+.about-flight-flow { height: 280svh; }
 .contact-form label > span,
 .contact-details-label,
 .contact-details > a span,
@@ -1930,8 +1930,8 @@ section[id] { scroll-margin-top: 72px; }
 .scan-map-foot { font-size: 8px; }
 
 @media (max-width: 520px) {
-  .manifesto-flow { height: 165svh; }
-  .about-flight-flow { height: 210svh; }
+  .manifesto-flow { height: 190svh; }
+  .about-flight-flow { height: 255svh; }
   .hero-meta {
     left: 14px;
     right: 14px;
