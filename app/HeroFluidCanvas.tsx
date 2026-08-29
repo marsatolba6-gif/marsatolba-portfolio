@@ -382,13 +382,18 @@ export default function HeroFluidCanvas() {
       let mouseHasMoved = false;
       let pointerReady = false;
       let maskCleaned = true;
+      let heroIsVisible = false;
+      let tabIsVisible = !document.hidden;
+      const compactDevice = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+      const pressureIterations = compactDevice ? 12 : PRESSURE_ITERATIONS;
+      const pixelRatioLimit = compactDevice ? 1.25 : 2;
 
       const resize = () => {
         const rect = hero.getBoundingClientRect();
         width = Math.max(1, rect.width);
         height = Math.max(1, rect.height);
         aspectRatio = width / height;
-        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, pixelRatioLimit);
         const nextWidth = Math.max(1, Math.round(width * pixelRatio));
         const nextHeight = Math.max(1, Math.round(height * pixelRatio));
         if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
@@ -461,7 +466,7 @@ export default function HeroFluidCanvas() {
         });
 
         clearTarget(pressure.read);
-        for (let iteration = 0; iteration < PRESSURE_ITERATIONS; iteration += 1) {
+        for (let iteration = 0; iteration < pressureIterations; iteration += 1) {
           draw(pressureProgram, pressure.write, () => {
             bindTexture(pressure.read, 0, pressureProgram.uniforms.uPressure);
             bindTexture(divergence, 1, pressureProgram.uniforms.uDivergence);
@@ -486,21 +491,45 @@ export default function HeroFluidCanvas() {
       };
 
       const render = () => {
-        const rect = hero.getBoundingClientRect();
-        const heroIsVisible = rect.bottom > 0 && rect.top < window.innerHeight;
-        if (heroIsVisible) {
-          if (maskCleaned) {
-            previousMouse = { ...mouse };
-            mouseHasMoved = false;
-            maskCleaned = false;
-          }
-          step();
-        } else if (!maskCleaned) {
+        frame = 0;
+        if (!heroIsVisible || !tabIsVisible) return;
+        if (maskCleaned) {
+          previousMouse = { ...mouse };
+          mouseHasMoved = false;
+          maskCleaned = false;
+        }
+        step();
+        frame = window.requestAnimationFrame(render);
+      };
+
+      const startAnimation = () => {
+        if (!frame && heroIsVisible && tabIsVisible) {
+          frame = window.requestAnimationFrame(render);
+        }
+      };
+
+      const stopAnimation = (clearMask: boolean) => {
+        if (frame) {
+          window.cancelAnimationFrame(frame);
+          frame = 0;
+        }
+        if (clearMask && !maskCleaned) {
           clearFluid();
           maskCleaned = true;
           pointerReady = false;
         }
-        frame = window.requestAnimationFrame(render);
+      };
+
+      const visibilityObserver = new IntersectionObserver(([entry]) => {
+        heroIsVisible = entry.isIntersecting;
+        if (heroIsVisible) startAnimation();
+        else stopAnimation(true);
+      }, { threshold: 0.01 });
+
+      const handleVisibilityChange = () => {
+        tabIsVisible = !document.hidden;
+        if (tabIsVisible) startAnimation();
+        else stopAnimation(false);
       };
 
       const pointerMove = (event: PointerEvent) => {
@@ -529,15 +558,18 @@ export default function HeroFluidCanvas() {
 
       const resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(hero);
+      visibilityObserver.observe(hero);
       resize();
       clearFluid();
-      frame = window.requestAnimationFrame(render);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
       hero.addEventListener("pointermove", pointerMove, { passive: true });
       hero.addEventListener("pointerleave", pointerLeave, { passive: true });
 
       return () => {
-        window.cancelAnimationFrame(frame);
+        stopAnimation(false);
         resizeObserver.disconnect();
+        visibilityObserver.disconnect();
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
         hero.removeEventListener("pointermove", pointerMove);
         hero.removeEventListener("pointerleave", pointerLeave);
         for (const target of targets) {

@@ -26,12 +26,6 @@ button, input, textarea { font: inherit; }
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
 }
 
-.cursor-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: currentColor;
-  position: fixed; left: 0; top: 0; z-index: 999; pointer-events: none;
-  transform: translate(-50%,-50%); mix-blend-mode: difference; color: #fff;
-}
-
 .intro {
   position: fixed; inset: 0; background: #000; color: #fff; z-index: 3000;
   display: grid; place-items: center; transition: transform .95s var(--ease) 1.15s;
@@ -218,7 +212,6 @@ button, input, textarea { font: inherit; }
 .dialog-tools span { background:#111; color:#fff; padding:8px 9px; font-size:8px; letter-spacing:.14em; }
 
 @media (max-width: 900px) {
-  .cursor-dot { display:none; }
   .topbar { padding:16px; }
   .hero { padding:80px 14px 18px; min-height:92svh; }
   .hero-meta { left:14px; }
@@ -277,19 +270,6 @@ button, input, textarea { font: inherit; }
 .intro { transition: transform .72s var(--ease); }
 .intro.is-gone { pointer-events: none; }
 .intro-index { font-family: var(--font-geist-mono), monospace; }
-
-.cursor-brush {
-  position: fixed; left: 0; top: 0; width: 96px; height: 96px; border: 1px solid rgba(255,255,255,.9);
-  border-radius: 50%; z-index: 6200; pointer-events: none; opacity: 0; mix-blend-mode: difference;
-  color: #fff; display: grid; place-items: center; transition: width .18s ease, height .18s ease, opacity .15s ease;
-  will-change: transform, width, height;
-}
-.cursor-brush::before { content:""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.cursor-brush span { position: absolute; bottom: 14%; font: 500 7px/1 var(--font-geist-mono), monospace; letter-spacing: .18em; }
-.menu-open .cursor-brush { opacity: 0 !important; }
-@media (pointer: fine) {
-  body, a, button, [role="button"] { cursor: none; }
-}
 
 .hero { isolation: isolate; background: var(--paper); }
 .brush-underlay {
@@ -361,8 +341,6 @@ button, input, textarea { font: inherit; }
 .lightbox img { max-width:100%; max-height:100%; object-fit:contain; box-shadow:0 22px 90px rgba(0,0,0,.5); }
 
 @media (max-width: 900px) {
-  .cursor-brush { display:none; }
-  .cursor-brush.is-touching { display:grid; }
   .brush-instruction { right:14px; bottom:5.2rem; }
   .underlay-orb { width:112px; }
   .hero-meta { top:76px; }
@@ -373,13 +351,10 @@ button, input, textarea { font: inherit; }
 
 @media (pointer: coarse), (hover: none) {
   .brush-canvas { pointer-events:auto; touch-action:none; }
-  .cursor-brush.is-touching {
-    width:72px; height:72px; opacity:.86; transition:none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brush-canvas, .cursor-brush, .brush-instruction { display:none !important; }
+  .brush-canvas, .brush-instruction { display:none !important; }
   .underlay-orb { animation:none; }
   .reveal { opacity:1; transform:none; }
 }
@@ -427,24 +402,6 @@ button, input, textarea { font: inherit; }
 @keyframes introTermIn {
   from { opacity: 0; transform: translateY(75%) scale(.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.cursor-brush { opacity: 0; border-style: solid; }
-.cursor-brush::after {
-  content: ""; position: absolute; inset: 8%; border: 1px dashed rgba(255,255,255,.55);
-  border-radius: 52% 48% 62% 38% / 44% 56% 42% 58%; animation: cursorBrush 4s linear infinite;
-}
-.cursor-brush.is-action { background: #fff; color: #050505; border-color: #fff; }
-.cursor-brush.is-action::before { width: 5px; height: 5px; }
-.cursor-brush.is-action::after { inset: 4px; border-color: #050505; border-style: solid; opacity: .22; }
-.cursor-brush.is-text { border-radius: 999px; }
-.cursor-brush.is-text::before, .cursor-brush.is-text::after { display: none; }
-.cursor-brush.is-text span { bottom: auto; position: static; font-size: 6px; }
-.cursor-brush.is-action span { bottom: 12%; }
-.menu-open .cursor-brush { opacity: 1 !important; }
-@keyframes cursorBrush { to { transform: rotate(360deg); } }
-@media (pointer: fine) {
-  input, textarea, select, label { cursor: none; }
 }
 
 .manifesto { min-height: 108vh; padding-bottom: 10vw; }
@@ -606,14 +563,6 @@ button, input, textarea { font: inherit; }
 }
 
 /* MARS System Scan — interactive case-study proof layer */
-.cursor-brush.is-scan {
-  border-radius: 44% 56% 58% 42% / 52% 46% 54% 48%;
-  background: rgba(255,255,255,.08); backdrop-filter: blur(2px);
-}
-.cursor-brush.is-scan::after { inset: 5%; border-style: solid; animation-duration: 2.2s; }
-.cursor-brush.is-scan::before { width: 9px; height: 9px; box-shadow: 0 0 0 8px rgba(255,255,255,.16); }
-.cursor-brush.is-scan span { bottom: 13%; }
-
 .project-dialog { width: min(1320px, 100%); }
 .dialog-content { padding: clamp(32px,5vw,74px); }
 .dialog-system-layout {
@@ -1845,14 +1794,6 @@ button, input, textarea { font: inherit; }
   text-align: center;
   transform-origin: center;
 }
-.cursor-brush {
-  width: 88px;
-  height: 44px;
-  border-radius: 52% 48% 46% 54% / 58% 46% 54% 42%;
-}
-.cursor-brush span {
-  bottom: -15px;
-}
 @media (max-width: 900px) {
   .hero-title {
     padding-inline: 14px;
@@ -1869,7 +1810,6 @@ button, input, textarea { font: inherit; }
 
 
 /* Dispersed hero mask: original implementation matching Nothin's visible motion behavior. */
-.cursor-brush,
 .brush-underlay,
 .brush-instruction {
   display: none !important;
@@ -1906,4 +1846,107 @@ button, input, textarea { font: inherit; }
 }
 @media (prefers-reduced-motion: reduce) {
   .brush-canvas { display: none !important; }
+}
+
+/* Timelessness pass: faster entry, clearer reading, resilient interaction. */
+section[id] { scroll-margin-top: 72px; }
+.intro { transition-duration: .32s; }
+.intro-wordmark,
+.intro-initial,
+.intro-full,
+.intro-loader { transition-duration: .3s; }
+.menu-button,
+.menu-close,
+.pill,
+.brand {
+  min-height: 44px;
+}
+.menu-button,
+.menu-close { padding: 10px 12px; }
+.menu-button { margin: -10px -12px 0 0; }
+.menu-close { margin: -10px -12px 0 0; }
+.pill {
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 10px;
+}
+.hero-meta {
+  align-items: center;
+  max-width: min(620px, calc(100vw - 44px));
+}
+.hero-meta p {
+  width: min(330px, 46vw);
+  font-size: 11px;
+  line-height: 1.42;
+}
+.hero-footer,
+.footer-bottom { font-size: 9px; line-height: 1.4; }
+.manifesto-flow { height: 240svh; }
+.about-flight-flow { height: 235svh; }
+.contact-form label > span,
+.contact-details-label,
+.contact-details > a span,
+.contact-details > p span,
+.project-proof-rail dt,
+.project-proof-rail > p,
+.work-browser-bar,
+.work-preview-meta,
+.project-interface-bar {
+  font-size: 9px !important;
+  line-height: 1.35;
+}
+.contact-form label > span,
+.contact-details-label,
+.contact-details > a span,
+.contact-details > p span {
+  color: rgba(255,255,255,.7) !important;
+}
+.contact-details > a,
+.contact-details > p:not(.contact-details-label) {
+  color: rgba(255,255,255,.9);
+  font-size: 12px;
+}
+.contact-form :is(input, textarea, select):focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 7px;
+}
+.form-privacy {
+  max-width: 560px;
+  margin: 18px 0 0;
+  color: rgba(255,255,255,.68);
+  font: 500 10px/1.55 var(--font-geist-mono), monospace;
+  letter-spacing: .04em;
+}
+.project-interface-bar button:focus-visible,
+.lightbox button:focus-visible,
+.menu-button:focus-visible,
+.menu-close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -5px;
+}
+.lightbox button { min-width: 88px; min-height: 44px; }
+.scan-map-flow strong,
+.scan-map-head,
+.scan-map-foot { font-size: 8px; }
+
+@media (max-width: 520px) {
+  .manifesto-flow { height: 165svh; }
+  .about-flight-flow { height: 210svh; }
+  .hero-meta {
+    left: 14px;
+    right: 14px;
+    max-width: none;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hero-meta p {
+    width: min(64vw, 250px);
+    font-size: 10px;
+  }
+  .hero-meta .pill { flex: 0 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manifesto-flow,
+  .about-flight-flow { height: 100svh; min-height: 720px; }
 }
