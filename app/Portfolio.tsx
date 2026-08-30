@@ -1,10 +1,9 @@
 "use client";
 
-/* Local portfolio screenshots intentionally keep their original pixel dimensions and paths. */
-/* eslint-disable @next/next/no-img-element */
-
 import { FormEvent, PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
 import { projects, type Project } from "./projects";
 
 const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false });
@@ -96,7 +95,7 @@ function ScanStage({ project, src, index, onExpand }: { project: Project; src: s
       aria-label={`${project.name} system scan ${index + 1}`}
     >
       <div className="scan-image-layer">
-        <img src={src} alt={`${project.name} workflow view ${index + 1}`} loading="lazy" decoding="async" />
+        <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 900px) 100vw, 72vw" />
       </div>
       <div className="scan-map" aria-hidden="true">
         <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>
@@ -141,6 +140,7 @@ const MANIFESTO_LINES = [
 ];
 const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
 const ABOUT_ROLE_LINES = ["AN AI AUTOMATION", "SPECIALIST."];
+const featuredProjects = [projects[5], projects[3], projects[0]];
 
 function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -722,7 +722,7 @@ export default function Portfolio() {
         <section ref={heroRef} className="hero theme-light" data-theme="light">
           <HeroFluidCanvas />
           <div className="hero-meta">
-            <p>I turn operational friction into reliable AI, CRM, and workflow systems built to serve people and scale with intention.</p>
+            <p>I build AI, CRM, and n8n systems that capture leads, reduce repetitive work, and keep follow-up moving for service businesses and operations teams.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>
           </div>
           <h1 className="hero-title">
@@ -734,6 +734,30 @@ export default function Portfolio() {
             <span>ELEVATE. AUTOMATE. EXCEL</span>
             <span>PHILIPPINES / REMOTE</span>
           </div>
+        </section>
+
+        <section className="proof-preview theme-dark" data-theme="dark" aria-labelledby="proof-preview-title">
+          <header className="proof-preview-head">
+            <div>
+              <p className="eyebrow inverse">SELECTED SYSTEM PROOF</p>
+              <h2 id="proof-preview-title">BUILT.<br />TESTED.<br />MAPPED.</h2>
+            </div>
+            <p>Independent systems documented through workflow logic, scenario testing, reliability decisions, and clear operational handoffs.</p>
+          </header>
+          <div className="proof-preview-grid">
+            {featuredProjects.map((project) => (
+              <Link className="proof-preview-card" href={`/work/${project.slug}`} key={project.slug}>
+                <span>{project.num} / {project.category}</span>
+                <h3>{project.shortName}</h3>
+                <p>{project.tested[0]} · {project.tested[1]}</p>
+                <strong>READ CASE STUDY ↗</strong>
+              </Link>
+            ))}
+          </div>
+          <footer className="proof-preview-actions">
+            <a href="#work">VIEW ALL SIX SYSTEMS ↓</a>
+            <a href="#contact">START A CONVERSATION ↗</a>
+          </footer>
         </section>
 
         <section ref={manifestoFlowRef} className="manifesto-flow theme-dark" data-theme="dark" aria-label="Personal manifesto">
@@ -836,26 +860,31 @@ export default function Portfolio() {
             <div className="work-browser-layout" onMouseLeave={() => setWorkPreviewVisible(false)}>
               <div className="work-list" aria-label="Selected systems">
                 {projects.map((project) => (
-                  <button
+                  <div
                     key={project.num}
-                    type="button"
                     className={`work-list-row${workPreviewVisible && previewProject.num === project.num ? " is-active" : ""}`}
-                    aria-label={`Open project: ${project.name}`}
                     onMouseEnter={() => { setPreviewProject(project); setWorkPreviewVisible(true); }}
-                    onFocus={() => { setPreviewProject(project); setWorkPreviewVisible(true); }}
-                    onBlur={() => setWorkPreviewVisible(false)}
-                    onClick={(event) => openProject(project, event.currentTarget)}
                   >
-                    <span className="work-list-num">{project.num}</span>
-                    <span className="work-list-title"><strong>{project.name}</strong><em>{project.category}</em></span>
-                    <span className="work-list-scope">{project.scope}</span>
-                    <span className="work-list-arrow">↗</span>
-                  </button>
+                    <button
+                      type="button"
+                      className="work-list-main"
+                      aria-label={`Open quick view: ${project.name}`}
+                      onFocus={() => { setPreviewProject(project); setWorkPreviewVisible(true); }}
+                      onBlur={() => setWorkPreviewVisible(false)}
+                      onClick={(event) => openProject(project, event.currentTarget)}
+                    >
+                      <span className="work-list-num">{project.num}</span>
+                      <span className="work-list-title"><strong>{project.name}</strong><em>{project.category}</em></span>
+                      <span className="work-list-scope">{project.scope}</span>
+                      <span className="work-list-arrow">QUICK VIEW</span>
+                    </button>
+                    <Link className="work-list-case" href={`/work/${project.slug}`} aria-label={`Read full case study: ${project.name}`}>CASE ↗</Link>
+                  </div>
                 ))}
               </div>
               <aside className={`work-hover-preview${workPreviewVisible ? " is-visible" : ""}`} aria-live="polite" aria-label={`${previewProject.name} preview`}>
                 <div className="work-hover-media">
-                  {previewProject.image ? <img key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} loading="lazy" decoding="async" /> : <SystemArt num={previewProject.num} />}
+                  {previewProject.image ? <Image key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} fill sizes="(max-width: 900px) 68vw, 34vw" /> : <SystemArt num={previewProject.num} />}
                   <span className="work-preview-scan"><i />MARS / SYSTEM {previewProject.num}</span>
                 </div>
                 <div className="work-hover-meta"><span>{previewProject.shortName}</span><span>CLICK TO OPEN ↗</span></div>
@@ -863,6 +892,11 @@ export default function Portfolio() {
             </div>
           </div>
         </section>
+
+        <aside className="work-contact-bridge theme-dark" data-theme="dark" aria-label="Start a conversation">
+          <p>HAVE A PROCESS, HANDOFF, OR FOLLOW-UP SYSTEM THAT NEEDS A CLEARER FLOW?</p>
+          <a href="#contact">START A CONVERSATION ↗</a>
+        </aside>
 
         <section id="process" className="process theme-light" data-theme="light">
           <div className="process-layout">
@@ -937,7 +971,7 @@ export default function Portfolio() {
               <div><button type="button" onClick={() => showAdjacentProject(-1)}>PREV</button><button type="button" onClick={() => showAdjacentProject(1)}>NEXT</button></div>
             </nav>
             <div className="dialog-content">
-              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p></div><h2 id="project-title">{activeProject.name}</h2></div>
+              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p><Link className="dialog-case-link" href={`/work/${activeProject.slug}`}>OPEN SHAREABLE CASE STUDY ↗</Link></div><h2 id="project-title">{activeProject.name}</h2></div>
               <div className="dialog-system-layout">
                 <aside className="project-proof-rail" aria-label="Project proof rail">
                   <div className="proof-status"><i /><span>TESTED BUILD</span></div>
@@ -977,7 +1011,7 @@ export default function Portfolio() {
         </div>
       )}
 
-      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><img src={lightbox} alt="Expanded project workflow screenshot" decoding="async" /></div>}
+      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><div className="lightbox-media"><Image src={lightbox} alt="Expanded project workflow screenshot" fill sizes="100vw" /></div></div>}
     </>
   );
 }

@@ -16,7 +16,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Automate with Mars — AI Automation Specialist",
+  title: {
+    default: "Automate with Mars — AI Automation Specialist",
+    template: "%s — Automate with Mars",
+  },
   description: "Mars Atolba is an AI Automation Specialist building reliable n8n workflows, GoHighLevel CRM systems, API integrations, and connected business automation.",
   authors: [{ name: "Mars Atolba" }],
   creator: "Mars Atolba",
