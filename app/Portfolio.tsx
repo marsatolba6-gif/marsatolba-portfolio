@@ -96,7 +96,7 @@ function ScanStage({ project, src, index, onExpand }: { project: Project; src: s
       aria-label={`${project.name} system scan ${index + 1}`}
     >
       <div className="scan-image-layer">
-        <img src={src} alt={`${project.name} workflow view ${index + 1}`} loading="lazy" />
+        <img src={src} alt={`${project.name} workflow view ${index + 1}`} loading="lazy" decoding="async" />
       </div>
       <div className="scan-map" aria-hidden="true">
         <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>
@@ -271,6 +271,7 @@ export default function Portfolio() {
   const navigateFromMenu = (href: string) => {
     setMenuOpen(false);
     document.body.classList.remove("menu-open");
+    menuButtonRef.current?.focus({ preventScroll: true });
     window.setTimeout(() => {
       const target = document.querySelector<HTMLElement>(href);
       if (target) {
@@ -724,8 +725,9 @@ export default function Portfolio() {
             <p>I turn operational friction into reliable AI, CRM, and workflow systems built to serve people and scale with intention.</p>
             <a href="#work" className="pill">VIEW WORK ↘</a>
           </div>
-          <h1 className="hero-title" aria-label="Automate">
-            <span className="hero-line reveal-word">AUTOMATE</span>
+          <h1 className="hero-title">
+            <span className="sr-only">Mars Atolba — AI Automation Specialist</span>
+            <span className="hero-line reveal-word" aria-hidden="true">AUTOMATE</span>
           </h1>
           <div className="hero-footer">
             <span>AI WORKFLOWS / N8N / GOHIGHLEVEL</span>
@@ -853,7 +855,7 @@ export default function Portfolio() {
               </div>
               <aside className={`work-hover-preview${workPreviewVisible ? " is-visible" : ""}`} aria-live="polite" aria-label={`${previewProject.name} preview`}>
                 <div className="work-hover-media">
-                  {previewProject.image ? <img key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} /> : <SystemArt num={previewProject.num} />}
+                  {previewProject.image ? <img key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} loading="lazy" decoding="async" /> : <SystemArt num={previewProject.num} />}
                   <span className="work-preview-scan"><i />MARS / SYSTEM {previewProject.num}</span>
                 </div>
                 <div className="work-hover-meta"><span>{previewProject.shortName}</span><span>CLICK TO OPEN ↗</span></div>
@@ -975,7 +977,7 @@ export default function Portfolio() {
         </div>
       )}
 
-      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><img src={lightbox} alt="Expanded project workflow screenshot" /></div>}
+      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><img src={lightbox} alt="Expanded project workflow screenshot" decoding="async" /></div>}
     </>
   );
 }
