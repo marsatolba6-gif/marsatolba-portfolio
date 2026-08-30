@@ -4,6 +4,7 @@ import { FormEvent, PointerEvent as ReactPointerEvent, useCallback, useEffect, u
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { projects, type Project } from "./projects";
 
 const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false });
@@ -155,11 +156,12 @@ function ContactForm() {
 
     const name = String(values.get("name") || "");
     const email = String(values.get("email") || "");
+    const projectType = String(values.get("projectType") || "Not specified");
     const payload = {
       name,
       email,
       company: String(values.get("company") || "Not provided"),
-      "project type": String(values.get("projectType") || "Not specified"),
+      "project type": projectType,
       message: String(values.get("message") || ""),
       _subject: `Portfolio enquiry — ${name || "Website visitor"}`,
       _replyto: email,
@@ -176,6 +178,7 @@ function ContactForm() {
       if (!response.ok) throw new Error("Message could not be sent");
       form.reset();
       setStatus("success");
+      track("Contact Form Submitted", { project_type: projectType });
     } catch {
       setStatus("error");
     }
@@ -237,6 +240,7 @@ export default function Portfolio() {
   const lightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const openProject = (project: Project, trigger: HTMLButtonElement) => {
+    track("Project Quick View Opened", { project: project.slug });
     projectTriggerRef.current = trigger;
     setPreviewProject(project);
     setWorkPreviewVisible(false);
@@ -713,7 +717,7 @@ export default function Portfolio() {
           {[["01", "ABOUT", "#about"], ["02", "WORK", "#work"], ["03", "PROCESS", "#process"], ["04", "EXPERIENCE", "#experience"], ["05", "STACK", "#stack"], ["06", "CONTACT", "#contact"]].map(([num, label, href]) => (
             <a key={href} href={href} onClick={(event) => { event.preventDefault(); navigateFromMenu(href); }}><span>{num}</span>{label}</a>
           ))}
-          <a href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer"><span>07</span>RESUME</a>
+          <a href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "menu" })}><span>07</span>RESUME</a>
           <button className="menu-close" type="button" onClick={() => { setMenuOpen(false); menuButtonRef.current?.focus(); }}>CLOSE ×</button>
         </div>
       </nav>
@@ -723,7 +727,7 @@ export default function Portfolio() {
           <HeroFluidCanvas />
           <div className="hero-meta">
             <p>I build AI, CRM, and n8n systems that capture leads, reduce repetitive work, and keep follow-up moving for service businesses and operations teams.</p>
-            <a href="#work" className="pill">VIEW WORK ↘</a>
+            <a href="#work" className="pill" onClick={() => track("Hero CTA Clicked", { destination: "work" })}>VIEW WORK ↘</a>
           </div>
           <h1 className="hero-title">
             <span className="sr-only">Mars Atolba — AI Automation Specialist</span>
@@ -746,7 +750,7 @@ export default function Portfolio() {
           </header>
           <div className="proof-preview-grid">
             {featuredProjects.map((project) => (
-              <Link className="proof-preview-card" href={`/work/${project.slug}`} key={project.slug}>
+              <Link className="proof-preview-card" href={`/work/${project.slug}`} key={project.slug} onClick={() => track("Case Study Opened", { project: project.slug, source: "proof_preview" })}>
                 <span>{project.num} / {project.category}</span>
                 <h3>{project.shortName}</h3>
                 <p>{project.tested[0]} · {project.tested[1]}</p>
@@ -755,8 +759,8 @@ export default function Portfolio() {
             ))}
           </div>
           <footer className="proof-preview-actions">
-            <a href="#work">VIEW ALL SIX SYSTEMS ↓</a>
-            <a href="#contact">START A CONVERSATION ↗</a>
+            <a href="#work" onClick={() => track("Proof CTA Clicked", { destination: "work" })}>VIEW ALL SIX SYSTEMS ↓</a>
+            <a href="#contact" onClick={() => track("Contact CTA Clicked", { source: "proof_preview" })}>START A CONVERSATION ↗</a>
           </footer>
         </section>
 
@@ -878,7 +882,7 @@ export default function Portfolio() {
                       <span className="work-list-scope">{project.scope}</span>
                       <span className="work-list-arrow">QUICK VIEW</span>
                     </button>
-                    <Link className="work-list-case" href={`/work/${project.slug}`} aria-label={`Read full case study: ${project.name}`}>CASE ↗</Link>
+                    <Link className="work-list-case" href={`/work/${project.slug}`} aria-label={`Read full case study: ${project.name}`} onClick={() => track("Case Study Opened", { project: project.slug, source: "work_index" })}>CASE ↗</Link>
                   </div>
                 ))}
               </div>
@@ -895,7 +899,7 @@ export default function Portfolio() {
 
         <aside className="work-contact-bridge theme-dark" data-theme="dark" aria-label="Start a conversation">
           <p>HAVE A PROCESS, HANDOFF, OR FOLLOW-UP SYSTEM THAT NEEDS A CLEARER FLOW?</p>
-          <a href="#contact">START A CONVERSATION ↗</a>
+          <a href="#contact" onClick={() => track("Contact CTA Clicked", { source: "work_bridge" })}>START A CONVERSATION ↗</a>
         </aside>
 
         <section id="process" className="process theme-light" data-theme="light">
@@ -952,9 +956,9 @@ export default function Portfolio() {
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               <a href="mailto:marsatolba6@gmail.com"><span>EMAIL</span>marsatolba6@gmail.com ↗</a>
-              <a href="https://www.linkedin.com/in/automatewithmars/" target="_blank" rel="noreferrer"><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
+              <a href="https://www.linkedin.com/in/automatewithmars/" target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
-              <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer">VIEW RESUME ↗</a></div>
+              <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "contact" })}>VIEW RESUME ↗</a></div>
             </aside>
           </div>
           <div className="footer-word" aria-label="Elevate Automate Excel"><span>ELEVATE.</span><span>AUTOMATE.</span><span>EXCEL.</span></div>
@@ -971,7 +975,7 @@ export default function Portfolio() {
               <div><button type="button" onClick={() => showAdjacentProject(-1)}>PREV</button><button type="button" onClick={() => showAdjacentProject(1)}>NEXT</button></div>
             </nav>
             <div className="dialog-content">
-              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p><Link className="dialog-case-link" href={`/work/${activeProject.slug}`}>OPEN SHAREABLE CASE STUDY ↗</Link></div><h2 id="project-title">{activeProject.name}</h2></div>
+              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p><Link className="dialog-case-link" href={`/work/${activeProject.slug}`} onClick={() => track("Case Study Opened", { project: activeProject.slug, source: "quick_view" })}>OPEN SHAREABLE CASE STUDY ↗</Link></div><h2 id="project-title">{activeProject.name}</h2></div>
               <div className="dialog-system-layout">
                 <aside className="project-proof-rail" aria-label="Project proof rail">
                   <div className="proof-status"><i /><span>TESTED BUILD</span></div>

@@ -48,13 +48,13 @@ export const metadata: Metadata = {
     siteName: "Automate with Mars",
     locale: "en_US",
     url: `${SITE_URL}/`,
-    images: [{ url: "/assets/portfolio-workflow-board.png", width: 977, height: 427, alt: "Automate with Mars workflow portfolio" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Automate with Mars — AI Automation Specialist" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mars Atolba — AI Automation Specialist",
     description: "Reliable n8n workflows, GoHighLevel CRM systems, AI automation, APIs, and connected business systems.",
-    images: ["/assets/portfolio-workflow-board.png"],
+    images: ["/og.png"],
   },
 };
 

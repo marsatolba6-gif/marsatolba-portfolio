@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AnalyticsLink from "../../AnalyticsLink";
 import { getProject, projects } from "../../projects";
 
 const SITE_URL = "https://automateiv.vercel.app";
@@ -75,9 +75,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <>
       <script id={`case-study-${project.slug}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(caseStudySchema) }} />
       <header className="case-topbar">
-        <Link href="/#work">← WORK INDEX</Link>
+        <AnalyticsLink href="/#work" eventName="Case Study Back Clicked" eventProperties={{ project: project.slug }}>← WORK INDEX</AnalyticsLink>
         <span>{project.num} / {String(projects.length).padStart(2, "0")}</span>
-        <Link href="/#contact">START A CONVERSATION ↗</Link>
+        <AnalyticsLink href="/#contact" eventName="Contact CTA Clicked" eventProperties={{ source: "case_topbar", project: project.slug }}>START A CONVERSATION ↗</AnalyticsLink>
       </header>
 
       <main className="case-page">
@@ -162,12 +162,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-cta">
           <p>HAVE A PROCESS THAT NEEDS A CLEARER SYSTEM?</p>
           <h2>LET&apos;S BUILD WHAT<br />MOVES WORK FORWARD.</h2>
-          <Link href="/#contact">START A CONVERSATION ↗</Link>
+          <AnalyticsLink href="/#contact" eventName="Contact CTA Clicked" eventProperties={{ source: "case_footer", project: project.slug }}>START A CONVERSATION ↗</AnalyticsLink>
         </section>
 
         <nav className="case-pagination" aria-label="Other case studies">
-          <Link href={`/work/${previous.slug}`}><span>PREVIOUS</span>{previous.shortName}</Link>
-          <Link href={`/work/${next.slug}`}><span>NEXT</span>{next.shortName}</Link>
+          <AnalyticsLink href={`/work/${previous.slug}`} eventName="Case Study Navigation" eventProperties={{ direction: "previous", project: previous.slug }}><span>PREVIOUS</span>{previous.shortName}</AnalyticsLink>
+          <AnalyticsLink href={`/work/${next.slug}`} eventName="Case Study Navigation" eventProperties={{ direction: "next", project: next.slug }}><span>NEXT</span>{next.shortName}</AnalyticsLink>
         </nav>
       </main>
     </>
