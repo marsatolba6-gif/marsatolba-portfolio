@@ -3,8 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import AnalyticsLink from "../../AnalyticsLink";
 import { getProject, projects } from "../../projects";
-
-const SITE_URL = "https://automateiv.vercel.app";
+import { SITE_CONFIG } from "../../site-config";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -21,9 +20,9 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   const project = getProject(slug);
   if (!project) return {};
 
-  const url = `${SITE_URL}/work/${project.slug}`;
+  const url = `${SITE_CONFIG.url}/work/${project.slug}`;
   const description = project.value;
-  const image = project.image ? `${SITE_URL}${project.image}` : undefined;
+  const image = project.image ? `${SITE_CONFIG.url}${project.image}` : undefined;
 
   return {
     title: project.name,
@@ -55,7 +54,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const previous = projects[(projectIndex - 1 + projects.length) % projects.length];
   const next = projects[(projectIndex + 1) % projects.length];
   const gallery = project.gallery?.length ? project.gallery : project.image ? [project.image] : [];
-  const url = `${SITE_URL}/work/${project.slug}`;
+  const url = `${SITE_CONFIG.url}/work/${project.slug}`;
   const caseStudySchema = {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
@@ -63,11 +62,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     name: project.name,
     url,
     description: project.system,
-    creator: { "@id": `${SITE_URL}/#person` },
+    creator: { "@id": `${SITE_CONFIG.url}/#person` },
     about: project.category,
     keywords: project.tools.join(", "),
-    image: project.image ? `${SITE_URL}${project.image}` : undefined,
-    isPartOf: { "@id": `${SITE_URL}/#website` },
+    image: project.image ? `${SITE_CONFIG.url}${project.image}` : undefined,
+    isPartOf: { "@id": `${SITE_CONFIG.url}/#website` },
     inLanguage: "en",
   };
 

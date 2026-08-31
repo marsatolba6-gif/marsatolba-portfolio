@@ -1,222 +1,30 @@
 "use client";
 
-import { FormEvent, PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
-import { projects, type Project } from "./projects";
+import ContactForm from "./_components/ContactForm";
+import ScanStage from "./_components/ScanStage";
+import SystemArt from "./_components/SystemArt";
+import {
+  ABOUT_ROLE_LINES,
+  FEATURED_PROJECT_SLUGS,
+  INTRO_ROTATION_TERMS,
+  INTRO_TIMING,
+  MANIFESTO_LINES,
+  MANIFESTO_QUOTE,
+  NAVIGATION_ITEMS,
+  PROCESS_STEPS,
+  STACK_TOOLS,
+} from "./portfolio-content";
+import { getProject, projects, type Project } from "./projects";
+import { SITE_CONFIG } from "./site-config";
 
 const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false });
-
-function SystemArt({ num }: { num: string }) {
-  return (
-    <div className="system-art" aria-hidden="true">
-      <div className="ring" />
-      <div className="core" />
-      <span className="art-label">SYSTEM / {num}</span>
-    </div>
-  );
-}
-
-const SCAN_MARKER_POSITIONS = [
-  { left: "16%", top: "24%" },
-  { left: "38%", top: "42%" },
-  { left: "62%", top: "26%" },
-  { left: "79%", top: "58%" },
-  { left: "31%", top: "72%" },
-];
-
-function ScanStage({ project, src, index, onExpand }: { project: Project; src: string; index: number; onExpand: (trigger: HTMLButtonElement) => void }) {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const restoreTimer = useRef<number | null>(null);
-  const touchPointer = useRef<number | null>(null);
-
-  useEffect(() => () => {
-    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
-  }, []);
-
-  const revealAt = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const rect = stage.getBoundingClientRect();
-    const x = Math.min(rect.width, Math.max(0, event.clientX - rect.left));
-    const y = Math.min(rect.height, Math.max(0, event.clientY - rect.top));
-    stage.style.setProperty("--scan-x", `${x}px`);
-    stage.style.setProperty("--scan-y", `${y}px`);
-    stage.classList.add("is-scanning");
-    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
-    restoreTimer.current = window.setTimeout(() => stage.classList.remove("is-scanning"), 1800);
-  };
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "mouse" && touchPointer.current !== event.pointerId) return;
-    revealAt(event);
-  };
-
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === "mouse" || (event.target as HTMLElement).closest("button")) return;
-    touchPointer.current = event.pointerId;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    revealAt(event);
-  };
-
-  const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (touchPointer.current !== event.pointerId) return;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    touchPointer.current = null;
-  };
-
-  const revealCenter = () => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    stage.style.setProperty("--scan-x", "50%");
-    stage.style.setProperty("--scan-y", "50%");
-    stage.classList.add("is-scanning");
-    if (restoreTimer.current) window.clearTimeout(restoreTimer.current);
-    restoreTimer.current = window.setTimeout(() => stage.classList.remove("is-scanning"), 1800);
-  };
-
-  return (
-    <article
-      ref={stageRef}
-      className="scan-stage"
-      tabIndex={0}
-      onPointerMove={handlePointerMove}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onFocus={revealCenter}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          revealCenter();
-        }
-      }}
-      aria-label={`${project.name} system scan ${index + 1}`}
-    >
-      <div className="scan-image-layer">
-        <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 900px) 100vw, 72vw" />
-      </div>
-      <div className="scan-map" aria-hidden="true">
-        <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>
-        <div className="scan-map-flow">
-          {project.flow.map((step, stepIndex) => (
-            <div key={`${src}-${step}`}><span>{String(stepIndex + 1).padStart(2, "0")}</span><strong>{step}</strong></div>
-          ))}
-        </div>
-        <div className="scan-map-foot"><span>TRIGGER → LOGIC → ACTION</span><span>SYSTEM MAPPED</span></div>
-      </div>
-      <div className="scan-markers" aria-hidden="true">
-        {project.flow.slice(0, SCAN_MARKER_POSITIONS.length).map((step, markerIndex) => (
-          <span className="scan-marker" style={SCAN_MARKER_POSITIONS[markerIndex]} key={`${src}-marker-${step}`}>
-            <i>{String(markerIndex + 1).padStart(2, "0")}</i><em>{step}</em>
-          </span>
-        ))}
-      </div>
-      <span className="scan-reticle" aria-hidden="true"><i>SCAN</i></span>
-      <div className="scan-stage-meta">
-        <span>{String(index + 1).padStart(2, "0")} / {String(project.gallery?.length ?? 1).padStart(2, "0")}</span>
-        <span>MOVE TO SCAN / TAP + DRAG</span>
-        <button type="button" onClick={(event) => onExpand(event.currentTarget)} aria-label={`Open ${project.name} screenshot ${index + 1} full size`}>VIEW FULL IMAGE ↗</button>
-      </div>
-    </article>
-  );
-}
-
-const EMAIL = "marsatolba6@gmail.com";
-const INTRO_NAME_REVEAL_AT_MS = 120;
-const INTRO_LOAD_START_MS = 240;
-const INTRO_PROGRESS_DURATION_MS = 560;
-const INTRO_COLLAPSE_PAUSE_MS = 40;
-const INTRO_EXIT_DELAY_MS = 240;
-const INTRO_ROTATION_TERMS = ["AUTOMATION", "GHL", "n8n", "WORKFLOWS"];
 const CURRENT_YEAR = new Date().getFullYear();
-const MANIFESTO_LINES = [
-  "WHAT GOD ENTRUSTS TO ME,",
-  "I ELEVATE WITH PURPOSE,",
-  "AUTOMATE WITH WISDOM,",
-  "AND MULTIPLY THROUGH",
-  "EXCELLENCE.",
-];
-const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
-const ABOUT_ROLE_LINES = ["AN AI AUTOMATION", "SPECIALIST."];
-const featuredProjects = [projects[5], projects[3], projects[0]];
-
-function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [copied, setCopied] = useState(false);
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const values = new FormData(form);
-    if (values.get("_honey")) return;
-    setStatus("sending");
-
-    const name = String(values.get("name") || "");
-    const email = String(values.get("email") || "");
-    const projectType = String(values.get("projectType") || "Not specified");
-    const payload = {
-      name,
-      email,
-      company: String(values.get("company") || "Not provided"),
-      "project type": projectType,
-      message: String(values.get("message") || ""),
-      _subject: `Portfolio enquiry — ${name || "Website visitor"}`,
-      _replyto: email,
-      _template: "table",
-      _captcha: "false",
-    };
-
-    try {
-      const response = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error("Message could not be sent");
-      form.reset();
-      setStatus("success");
-      track("Contact Form Submitted", { project_type: projectType });
-    } catch {
-      setStatus("error");
-    }
-  };
-
-  const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      window.location.href = `mailto:${EMAIL}`;
-    }
-  };
-
-  return (
-    <form className="contact-form" action={`https://formsubmit.co/${EMAIL}`} method="POST" onSubmit={submit}>
-      <input className="form-honey" type="text" name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-      <div className="form-row">
-        <label><span>YOUR NAME *</span><input name="name" type="text" autoComplete="name" required placeholder="Name" /></label>
-        <label><span>EMAIL ADDRESS *</span><input name="email" type="email" autoComplete="email" required placeholder="you@company.com" /></label>
-      </div>
-      <div className="form-row">
-        <label><span>COMPANY / TEAM</span><input name="company" type="text" autoComplete="organization" placeholder="Optional" /></label>
-        <label><span>WHAT ARE WE BUILDING?</span><select name="projectType" defaultValue=""><option value="" disabled>Select a system</option><option>AI Workflow</option><option>n8n Automation</option><option>GoHighLevel System</option><option>Workflow Optimization</option><option>Ongoing Automation Support</option><option>Other</option></select></label>
-      </div>
-      <label className="message-field"><span>WHAT PROCESS WOULD YOU LIKE TO IMPROVE? *</span><textarea name="message" required rows={5} placeholder="Share the process, bottleneck, or outcome you have in mind." /></label>
-      <div className="form-submit">
-        <button className="contact-submit" type="submit" disabled={status === "sending"}>{status === "sending" ? "SENDING…" : "DISCUSS A SYSTEM"}<span>↗</span></button>
-        <p className={`form-status is-${status}`} aria-live="polite">
-          {status === "success" && "Message sent. Thanks — I’ll review the details and reply by email."}
-          {status === "error" && <>The form paused. <a href={`mailto:${EMAIL}`}>Email me directly</a> or <button type="button" onClick={copyEmail}>{copied ? "EMAIL COPIED" : "COPY EMAIL"}</button>.</>}
-        </p>
-      </div>
-      <p className="form-privacy">Your details are used only to respond to this enquiry. They are not added to a mailing list.</p>
-    </form>
-  );
-}
+const featuredProjects = FEATURED_PROJECT_SLUGS.map(getProject).filter((project): project is Project => Boolean(project));
 
 export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -301,8 +109,8 @@ export default function Portfolio() {
     let collapseTimer = 0;
     let exitTimer = 0;
     const update = (now: number) => {
-      const elapsed = Math.max(0, now - started - INTRO_LOAD_START_MS);
-      const ratio = Math.min(1, elapsed / INTRO_PROGRESS_DURATION_MS);
+      const elapsed = Math.max(0, now - started - INTRO_TIMING.loadStart);
+      const ratio = Math.min(1, elapsed / INTRO_TIMING.progressDuration);
       const progress = Math.round(ratio * 100);
       const rotationStep = Math.min(11, Math.floor(ratio * 2 + Math.pow(ratio, 3) * 9));
       setLoadingProgress(progress);
@@ -310,13 +118,13 @@ export default function Portfolio() {
       if (progress < 100) {
         animation = requestAnimationFrame(update);
       } else {
-        collapseTimer = window.setTimeout(() => setIntroPhase("collapse"), INTRO_COLLAPSE_PAUSE_MS);
-        exitTimer = window.setTimeout(() => setIntroVisible(false), INTRO_EXIT_DELAY_MS);
+        collapseTimer = window.setTimeout(() => setIntroPhase("collapse"), INTRO_TIMING.collapsePause);
+        exitTimer = window.setTimeout(() => setIntroVisible(false), INTRO_TIMING.exitDelay);
       }
     };
     animation = requestAnimationFrame(update);
-    const nameTimer = window.setTimeout(() => setIntroPhase("name"), INTRO_NAME_REVEAL_AT_MS);
-    const loadTimer = window.setTimeout(() => setIntroPhase("loading"), INTRO_LOAD_START_MS);
+    const nameTimer = window.setTimeout(() => setIntroPhase("name"), INTRO_TIMING.nameRevealAt);
+    const loadTimer = window.setTimeout(() => setIntroPhase("loading"), INTRO_TIMING.loadStart);
     return () => {
       cancelAnimationFrame(animation);
       window.clearTimeout(nameTimer);
@@ -714,7 +522,7 @@ export default function Portfolio() {
       <nav ref={menuRef} id="site-menu" className={`site-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
         <div className="site-menu-inner">
           <p className="eyebrow inverse">NAVIGATION / {CURRENT_YEAR}</p>
-          {[["01", "ABOUT", "#about"], ["02", "WORK", "#work"], ["03", "PROCESS", "#process"], ["04", "EXPERIENCE", "#experience"], ["05", "STACK", "#stack"], ["06", "CONTACT", "#contact"]].map(([num, label, href]) => (
+          {NAVIGATION_ITEMS.map(([num, label, href]) => (
             <a key={href} href={href} onClick={(event) => { event.preventDefault(); navigateFromMenu(href); }}><span>{num}</span>{label}</a>
           ))}
           <a href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "menu" })}><span>07</span>RESUME</a>
@@ -910,13 +718,7 @@ export default function Portfolio() {
               <div className="process-quote"><p>“The goal is not to automate more. It is to create a better way of working.”</p><span>Technology earns its place when it removes friction, supports people, and makes the outcome more reliable.</span></div>
             </div>
             <div className="process-steps">
-              {[
-                ["01", "UNDERSTAND", "Begin with the people, the purpose, and the outcome. Find the handoffs, delays, and repetitive work shaping the process."],
-                ["02", "DESIGN", "Turn the process into a clear system of triggers, decisions, data, responsibilities, exceptions, and measurable outcomes."],
-                ["03", "BUILD", "Choose only what the system needs, then connect automation, AI, CRM, APIs, and business applications into one dependable flow."],
-                ["04", "TEST", "Challenge every branch, field, response, delay, and edge case so the workflow performs beyond the ideal scenario."],
-                ["05", "REFINE", "Document the logic, review performance, and improve the system as the business, people, and priorities evolve."],
-              ].map(([num, title, copy]) => <article key={num} className="process-step reveal"><span>{num}</span><h3>{title}</h3><p>{copy}</p></article>)}
+              {PROCESS_STEPS.map(([num, title, copy]) => <article key={num} className="process-step reveal"><span>{num}</span><h3>{title}</h3><p>{copy}</p></article>)}
             </div>
           </div>
         </section>
@@ -932,7 +734,7 @@ export default function Portfolio() {
 
         <section id="stack" className="stack theme-light" data-theme="light">
           <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>TOOLS EVOLVE.<br />CLEAR THINKING ENDURES.</h2></div>
-          <div className="marquee" aria-label="Core tools"><div className="marquee-track">{[0, 1].map((set) => <div className="marquee-set" key={set}><span>N8N</span><i>+</i><span>GOHIGHLEVEL</span><i>+</i><span>OPENAI</span><i>+</i><span>GROQ</span><i>+</i><span>APIs</span><i>+</i><span>WEBHOOKS</span><i>+</i><span>GOOGLE SHEETS</span><i>+</i><span>SLACK</span><i>+</i></div>)}</div></div>
+          <div className="marquee" aria-label="Core tools"><div className="marquee-track">{[0, 1].map((set) => <div className="marquee-set" key={set}>{STACK_TOOLS.map((tool, index) => <Fragment key={tool}>{index > 0 && <i>+</i>}<span>{tool}</span></Fragment>)}</div>)}</div></div>
           <div className="stack-grid reveal">
             <article><span>AI & LLM WORK</span><p>LLM workflow design, prompt systems, structured outputs, validation, and human-reviewed AI assistance.</p></article>
             <article><span>AUTOMATION</span><p>n8n orchestration, decision logic, data transformation, error handling, testing, and monitoring.</p></article>
@@ -955,8 +757,8 @@ export default function Portfolio() {
             <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>LET&apos;S BUILD WHAT<br />MOVES WORK FORWARD.</h2><ContactForm /></div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
-              <a href="mailto:marsatolba6@gmail.com"><span>EMAIL</span>marsatolba6@gmail.com ↗</a>
-              <a href="https://www.linkedin.com/in/automatewithmars/" target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
+              <a href={`mailto:${SITE_CONFIG.email}`}><span>EMAIL</span>{SITE_CONFIG.email} ↗</a>
+              <a href={SITE_CONFIG.linkedIn} target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "contact" })}>VIEW RESUME ↗</a></div>
             </aside>

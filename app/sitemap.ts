@@ -1,18 +1,21 @@
 import type { MetadataRoute } from "next";
 import { projects } from "./projects";
+import { SITE_CONFIG } from "./site-config";
+
+const CONTENT_UPDATED_AT = new Date("2026-08-31");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const caseStudies: MetadataRoute.Sitemap = projects.map((project) => ({
-    url: `https://automateiv.vercel.app/work/${project.slug}`,
-    lastModified: new Date("2026-08-30"),
+    url: `${SITE_CONFIG.url}/work/${project.slug}`,
+    lastModified: CONTENT_UPDATED_AT,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
   return [
     {
-      url: "https://automateiv.vercel.app/",
-      lastModified: new Date("2026-08-30"),
+      url: `${SITE_CONFIG.url}/`,
+      lastModified: CONTENT_UPDATED_AT,
       changeFrequency: "monthly",
       priority: 1,
     },
