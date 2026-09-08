@@ -125,13 +125,13 @@ export const projects: Project[] = [
     image: "/assets/roofflow-voice-ai-workflow.svg",
     gallery: ["/assets/roofflow-voice-ai-workflow.svg"],
     problem: "Roofing inquiries often arrive by phone, where emergency leaks, estimate requests, and lower-intent questions enter the same queue. Manual notes and delayed handoffs can lose context, duplicate records, and slow the response that wins the job.",
-    system: "A voice-first n8n workflow that receives roofing call data, uses Groq to extract structured lead information, applies deterministic urgency and intent scoring, upserts the contact and opportunity in GoHighLevel, books through Google Calendar, and routes the next action. Emergencies create a five-minute task, qualified inquiries a 15-minute follow-up, and nurture leads a one-day follow-up. Google Sheets records the outcome for auditability.",
+    system: "A voice-first n8n workflow that receives roofing call data from Retell AI, uses Groq to extract structured lead information, applies deterministic urgency and intent scoring, upserts the contact and opportunity in GoHighLevel, books through Google Calendar, and routes the next action. Emergencies create a five-minute task, qualified inquiries a 15-minute follow-up, and nurture leads a one-day follow-up. Google Sheets records the outcome for auditability.",
     value: "Turns roofing calls into structured, prioritized CRM actions—so urgent leaks are handled quickly, qualified leads are booked, and every follow-up is traceable.",
     reliability: "Uses a fixed extraction schema, deterministic scoring rules, contact upsert logic, explicit routing branches, and a logged audit trail with CRM record IDs. Emergency, qualified, and nurture scenarios were tested to confirm that each path creates the intended next action.",
     tested: ["Emergency scenario", "Qualified inquiry scenario", "Nurture scenario", "CRM IDs and audit records"],
     decisions: ["Use deterministic urgency rules", "Upsert contacts to reduce duplicates", "Log every routed outcome to Google Sheets"],
     flow: ["Call", "Understand", "Prioritize", "Record", "Book", "Follow Up"],
-    tools: ["n8n", "Groq", "GoHighLevel", "Google Calendar", "Google Sheets", "Webhooks"],
+    tools: ["n8n", "Retell AI", "Groq", "GoHighLevel", "Google Calendar", "Google Sheets", "Webhooks"],
   },
 
 ];
