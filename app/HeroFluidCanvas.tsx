@@ -20,11 +20,11 @@ type FluidProgram = {
   uniforms: Record<string, WebGLUniformLocation>;
 };
 
-const SIM_RESOLUTION = 256;
-const DYE_RESOLUTION = 512;
+const SIM_RESOLUTION = 128;
+const DYE_RESOLUTION = 384;
 const VELOCITY_DISSIPATION = 0.962;
 const DYE_DISSIPATION = 0.978;
-const PRESSURE_ITERATIONS = 20;
+const PRESSURE_ITERATIONS = 14;
 const SPLAT_RADIUS = 0.00028;
 const SPLAT_FORCE = 5900;
 const REVEAL_SIZE = 3.9;
@@ -385,7 +385,7 @@ export default function HeroFluidCanvas() {
       let heroIsVisible = false;
       let tabIsVisible = !document.hidden;
       const compactDevice = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
-      const pressureIterations = compactDevice ? 12 : PRESSURE_ITERATIONS;
+      const pressureIterations = compactDevice ? 8 : PRESSURE_ITERATIONS;
       const pixelRatioLimit = compactDevice ? 1.25 : 2;
 
       const resize = () => {
