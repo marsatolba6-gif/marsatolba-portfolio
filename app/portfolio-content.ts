@@ -44,6 +44,7 @@ export const PROCESS_STEPS = [
 export const STACK_TOOLS = [
   "N8N",
   "GOHIGHLEVEL",
+  "RETELL AI",
   "OPENAI",
   "GROQ",
   "APIs",
