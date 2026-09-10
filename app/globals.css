@@ -1390,7 +1390,15 @@ button, input, textarea { font: inherit; }
   letter-spacing: .16em;
   text-align: right;
 }
-
+.about-flight-photo {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  border: 1px solid rgba(255,255,255,.24);
+}
 .about-assembly .about-story-grid {
   display: block;
   border-top: 1px solid rgba(255,255,255,.72);
