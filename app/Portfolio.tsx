@@ -631,8 +631,8 @@ export default function Portfolio() {
                 <Image
                   src="/assets/mars-atolba-photo.jpg"
                   alt="Mars Atolba, AI Automation Specialist"
-                  width={96}
-                  height={96}
+                  width={150}
+                  height={150}
                   className="about-flight-photo"
                 />
                 <p>I began in people-focused operations, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
