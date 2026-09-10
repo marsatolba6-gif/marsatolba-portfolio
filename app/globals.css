@@ -1493,6 +1493,15 @@ button, input, textarea { font: inherit; }
     border-right: 0;
     border-bottom: 1px solid rgba(255,255,255,.18);
   }
+  .about-flight-photo {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  border: 1px solid rgba(255,255,255,.24);
+}
   .about-assembly .about-story:last-child { border-bottom: 0; }
   .about-assembly .about-story header { position: relative; top: auto; }
   .about-assembly .about-story p,
@@ -1536,7 +1545,8 @@ button, input, textarea { font: inherit; }
   .about-flight-stage .about-role-line:nth-child(2) { font-size: 1.2em; }
   .about-flight-char { font-size: clamp(1.8rem,10vw,3.2rem); }
   .about-flight-intro { left: 24px; right: 24px; bottom: 90px; }
-  .about-flight-intro p { font-size: .96rem; line-height: 1.42; }
+  .about-flight-intro p { font-size: .96rem; line-height: 1.42; }  
+  .about-flight-photo { width: 72px; height: 72px; }
   .about-assembly .about-belief > h3 { font-size: clamp(3.2rem,15vw,5.4rem); }
 }
 
