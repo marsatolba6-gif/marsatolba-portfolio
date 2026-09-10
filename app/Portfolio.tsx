@@ -636,8 +636,9 @@ export default function Portfolio() {
                   className="about-flight-photo"
                 />
                 <p>I began in people-focused operations, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
-                <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
+              <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
               </div>
+              <span className="about-flight-scroll">SCROLL / ASSEMBLE ↓</span>
             </div>
           </div>
 
