@@ -1,3 +1,10 @@
+export type TestScenario = {
+  scenario: string;
+  input?: string;
+  expectedResult?: string;
+  outcome?: string;
+};
+
 export type Project = {
   num: string;
   slug: string;
@@ -12,7 +19,13 @@ export type Project = {
   system: string;
   value: string;
   reliability: string;
-  tested: string[];
+  testScenarios: TestScenario[];
+  /** Optional proof fields. Leave empty to hide the section/link. */
+  demoVideoUrl?: string;
+  sampleRun?: { input?: string; extractedOutput?: string; result?: string };
+  workflowJsonUrl?: string;
+  /** Only show when it adds information beyond the hero summary. */
+  practicalValueDetail?: string;
   decisions: string[];
   flow: string[];
   tools: string[];
@@ -33,7 +46,10 @@ export const projects: Project[] = [
     system: "An n8n workflow that retrieves Gmail messages, prepares the email data, analyzes intent and urgency using an AI model, routes high-priority cases to Slack, and records results in Google Sheets.",
     value: "Reduces repetitive inbox assessment and demonstrates how important messages can be identified, routed, and recorded automatically.",
     reliability: "Tested different email scenarios, reviewed execution history, checked field mappings, validated structured AI outputs, and refined routing for different urgency levels.",
-    tested: ["Different email scenarios", "Urgency-level routing", "Structured AI output mapping", "Execution history and Sheets records"],
+    testScenarios: [{ scenario: "Different email scenarios", input: "", expectedResult: "", outcome: "" }, { scenario: "Urgency-level routing", input: "", expectedResult: "", outcome: "" }, { scenario: "Structured AI output mapping", input: "", expectedResult: "", outcome: "" }, { scenario: "Execution history and Sheets records", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Structure the AI output before routing", "Alert Slack only for high-priority cases", "Record every assessed message for review"],
     flow: ["Gmail", "Data Preparation", "AI Analysis", "Priority Decision", "Slack Alert", "Google Sheets"],
     tools: ["n8n", "Gmail", "AI model", "Slack", "Google Sheets"],
@@ -52,7 +68,10 @@ export const projects: Project[] = [
     system: "An n8n workflow that receives campaign details from Google Sheets, processes the brief with Groq, validates structured output with parsers, and delivers the completed content package through Gmail.",
     value: "Turns a repetitive multi-step content preparation process into one connected automated workflow.",
     reliability: "Used fixed schemas, separate generation and parsing stages, sample campaign briefs, execution-history reviews, and corrected field-mapping issues during testing.",
-    tested: ["Sample campaign briefs", "Generation-to-parser handoff", "Field mapping across outputs", "Gmail package delivery"],
+    testScenarios: [{ scenario: "Sample campaign briefs", input: "", expectedResult: "", outcome: "" }, { scenario: "Generation-to-parser handoff", input: "", expectedResult: "", outcome: "" }, { scenario: "Field mapping across outputs", input: "", expectedResult: "", outcome: "" }, { scenario: "Gmail package delivery", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Separate generation from parsing", "Use fixed output schemas", "Deliver one consolidated content package"],
     flow: ["Google Sheets", "AI Generation", "Content Parsing", "Marketing Package Parsing", "Gmail Delivery"],
     tools: ["n8n", "Groq", "Google Sheets", "Gmail", "Structured Output Parsers"],
@@ -71,7 +90,10 @@ export const projects: Project[] = [
     system: "A scheduled n8n workflow that retrieves Gmail messages, uses AI-assisted assessment to interpret the content, and records structured information in Google Sheets.",
     value: "Demonstrates a foundation for automated email assessment, organization, tracking, and future routing workflows.",
     reliability: "Tested different email types, missing subject lines, incomplete body content, and field mappings while reviewing workflow executions to verify captured outputs.",
-    tested: ["Different email types", "Missing subject lines", "Incomplete message bodies", "Google Sheets field mapping"],
+    testScenarios: [{ scenario: "Different email types", input: "", expectedResult: "", outcome: "" }, { scenario: "Missing subject lines", input: "", expectedResult: "", outcome: "" }, { scenario: "Incomplete message bodies", input: "", expectedResult: "", outcome: "" }, { scenario: "Google Sheets field mapping", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Run on a defined schedule", "Capture structured assessment data", "Keep records available for later routing"],
     flow: ["Schedule Trigger", "Gmail", "AI Assessment", "Google Sheets"],
     tools: ["n8n", "Gmail", "OpenAI", "Google Sheets"],
@@ -90,7 +112,10 @@ export const projects: Project[] = [
     system: "A GoHighLevel lead-capture and qualification workflow that creates pipeline opportunities, routes leads by job urgency, updates qualification status, assigns follow-up tasks, and alerts the team about high-priority enquiries.",
     value: "Creates a clear lead journey from form submission through prioritization and follow-up while reducing repetitive CRM actions.",
     reliability: "Checked trigger behavior, custom-field conditions, pipeline movement, contact updates, task creation, and branch logic using test contacts before activation.",
-    tested: ["Trigger behavior", "Custom-field conditions", "Pipeline movement", "Task creation and team alerts"],
+    testScenarios: [{ scenario: "Trigger behavior", input: "", expectedResult: "", outcome: "" }, { scenario: "Custom-field conditions", input: "", expectedResult: "", outcome: "" }, { scenario: "Pipeline movement", input: "", expectedResult: "", outcome: "" }, { scenario: "Task creation and team alerts", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Route leads by stated job urgency", "Create the opportunity early in the flow", "Use explicit tasks and team alerts for handoff"],
     flow: ["Form Submitted", "Tag Lead", "Create Opportunity", "Assign Owner", "Check Job Urgency", "Route Priority", "Create Task", "Notify Team"],
     tools: ["GoHighLevel", "Pipelines", "Workflows", "Forms", "Custom Fields", "Email/SMS Automation"],
@@ -109,7 +134,10 @@ export const projects: Project[] = [
     system: "Branded GoHighLevel landing pages and funnel structures connected to forms, calendars, CRM records, and workflow automations where applicable.",
     value: "Connects customer-facing lead capture with the operational workflow that follows.",
     reliability: "Checked desktop/mobile responsiveness, form submissions, redirects, booking flows, CRM record creation, and workflow enrollment where applicable.",
-    tested: ["Desktop and mobile layouts", "Form submissions and redirects", "Booking flow", "CRM creation and workflow enrollment"],
+    testScenarios: [{ scenario: "Desktop and mobile layouts", input: "", expectedResult: "", outcome: "" }, { scenario: "Form submissions and redirects", input: "", expectedResult: "", outcome: "" }, { scenario: "Booking flow", input: "", expectedResult: "", outcome: "" }, { scenario: "CRM creation and workflow enrollment", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Connect front-end capture to CRM records", "Keep booking and follow-up in one system", "Validate responsive behavior before handoff"],
     flow: ["Landing Page", "Form", "CRM Record", "Calendar Booking", "Workflow Enrollment"],
     tools: ["GoHighLevel", "Landing Pages", "Forms", "Calendars", "Funnels", "CRM Workflows"],
@@ -128,7 +156,10 @@ export const projects: Project[] = [
     system: "A voice-first n8n workflow that receives roofing call data from Retell AI, uses Groq to extract structured lead information, applies deterministic urgency and intent scoring, upserts the contact and opportunity in GoHighLevel, books through Google Calendar, and routes the next action. Emergencies create a five-minute task, qualified inquiries a 15-minute follow-up, and nurture leads a one-day follow-up. Google Sheets records the outcome for auditability.",
     value: "Turns roofing calls into structured, prioritized CRM actions—so urgent leaks are handled quickly, qualified leads are booked, and every follow-up is traceable.",
     reliability: "Uses a fixed extraction schema, deterministic scoring rules, contact upsert logic, explicit routing branches, and a logged audit trail with CRM record IDs. Emergency, qualified, and nurture scenarios were tested to confirm that each path creates the intended next action.",
-    tested: ["Emergency scenario", "Qualified inquiry scenario", "Nurture scenario", "CRM IDs and audit records"],
+    testScenarios: [{ scenario: "Emergency scenario", input: "", expectedResult: "", outcome: "" }, { scenario: "Qualified inquiry scenario", input: "", expectedResult: "", outcome: "" }, { scenario: "Nurture scenario", input: "", expectedResult: "", outcome: "" }, { scenario: "CRM IDs and audit records", input: "", expectedResult: "", outcome: "" }],
+    demoVideoUrl: "",
+    sampleRun: { input: "", extractedOutput: "", result: "" },
+    workflowJsonUrl: "",
     decisions: ["Use deterministic urgency rules", "Upsert contacts to reduce duplicates", "Log every routed outcome to Google Sheets"],
     flow: ["Call", "Understand", "Prioritize", "Record", "Book", "Follow Up"],
     tools: ["n8n", "Retell AI", "Groq", "GoHighLevel", "Google Calendar", "Google Sheets", "Webhooks"],
@@ -138,4 +169,9 @@ export const projects: Project[] = [
 
 export function getProject(slug: string) {
   return projects.find((project) => project.slug === slug);
+}
+
+/** Scope labels distinguish scenario-tested demos from independent implementations. */
+export function getBuildNote(project: Project): "Demo built with sample data" | "Independent build" {
+  return project.scope === "BUILT TO CLIENT-READY STANDARD" ? "Demo built with sample data" : "Independent build";
 }
