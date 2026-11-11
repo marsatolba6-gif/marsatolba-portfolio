@@ -219,7 +219,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         <section className="case-cta">
           <p>HAVE A PROCESS THAT NEEDS A CLEARER SYSTEM?</p>
-          <h2>Let's build what<br />moves work forward.</h2>
+          <h2>Let&apos;s build what<br />moves work forward.</h2>
           <AnalyticsLink href="/#contact" eventName="Contact CTA Clicked" eventProperties={{ source: "case_footer", project: project.slug }}>START A CONVERSATION ↗</AnalyticsLink>
         </section>
 
