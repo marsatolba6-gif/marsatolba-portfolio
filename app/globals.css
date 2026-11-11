@@ -2453,3 +2453,11 @@ section[id] { scroll-margin-top: 72px; }
   .about-flight-char { display: none !important; }
   .hero-link-row a span { transition: none; }
 }
+
+/* Explicit table backgrounds guarantee contrast in every rendering context. */
+.case-evidence .case-test-table,
+.case-evidence .case-test-table :is(thead, tbody, tr, th, td) {
+  background-color: #050505;
+}
+.case-evidence .case-test-table thead th { color: #efefef; }
+.case-evidence .case-test-table tbody :is(th, td) { color: #eeeeee; }
