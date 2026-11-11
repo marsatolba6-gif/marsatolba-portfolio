@@ -88,7 +88,7 @@ export default function ScanStage({ project, src, index, onExpand }: ScanStagePr
       aria-label={`${project.name} system scan ${index + 1}`}
     >
       <div className="scan-image-layer">
-        <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 900px) 100vw, 72vw" />
+        <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1050px" loading="lazy" />
       </div>
       <div className="scan-map" aria-hidden="true">
         <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>
