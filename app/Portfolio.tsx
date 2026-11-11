@@ -774,7 +774,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
           <div className="contact-layout reveal">
-            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let's build what<br />moves work forward.</h2><ContactForm />{webhookReady && <p className="form-workflow-note">This form runs through an n8n workflow.</p>}</div>
+            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let&apos;s build what<br />moves work forward.</h2><ContactForm />{webhookReady && <p className="form-workflow-note">This form runs through an n8n workflow.</p>}</div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               {SITE_CONFIG.bookingUrl.trim() && <a href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer"><span>BOOK A CONVERSATION</span>Schedule a call ↗</a>}
