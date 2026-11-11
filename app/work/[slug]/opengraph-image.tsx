@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "../../projects";
-import { SITE_CONFIG } from "../../site-config";
 
 export const runtime = "nodejs";
 export const alt = "Mars Atolba — AI Automation Specialist, case study";
