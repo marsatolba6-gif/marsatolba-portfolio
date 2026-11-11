@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: {
-    default: `${SITE_CONFIG.name} — ${SITE_CONFIG.jobTitle}`,
+    default: SITE_CONFIG.name,
     template: `%s — ${SITE_CONFIG.name}`,
   },
   description: SITE_CONFIG.description,
@@ -24,7 +24,6 @@ export const metadata: Metadata = {
   authors: [{ name: SITE_CONFIG.personName }],
   creator: SITE_CONFIG.personName,
   category: "technology",
-  keywords: ["Mars Atolba", "AI Automation Specialist", "n8n automation", "GoHighLevel", "CRM automation", "AI workflows", "business systems"],
   alternates: { canonical: `${SITE_CONFIG.url}/` },
   robots: {
     index: true,
@@ -38,17 +37,17 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Mars Atolba — AI Automation Specialist",
+    title: SITE_CONFIG.name,
     description: "Reliable n8n workflows, GoHighLevel CRM systems, AI automation, APIs, and connected business systems.",
     type: "website",
     siteName: SITE_CONFIG.name,
     locale: "en_US",
     url: `${SITE_CONFIG.url}/`,
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Automate with Mars — AI Automation Specialist" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: SITE_CONFIG.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mars Atolba — AI Automation Specialist",
+    title: SITE_CONFIG.name,
     description: "Reliable n8n workflows, GoHighLevel CRM systems, AI automation, APIs, and connected business systems.",
     images: ["/og.png"],
   },
@@ -86,7 +85,7 @@ const structuredData = {
       "@type": "ProfilePage",
       "@id": `${SITE_CONFIG.url}/#profile-page`,
       url: `${SITE_CONFIG.url}/`,
-      name: "Mars Atolba — AI Automation Specialist",
+      name: SITE_CONFIG.name,
       mainEntity: { "@id": `${SITE_CONFIG.url}/#person` },
       isPartOf: { "@id": `${SITE_CONFIG.url}/#website` },
       inLanguage: "en",
@@ -100,7 +99,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         {children}
-        <Analytics />
+        {process.env.VERCEL === "1" && <Analytics />}
       </body>
     </html>
   );

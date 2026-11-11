@@ -1,9 +1,9 @@
 export const INTRO_TIMING = {
-  nameRevealAt: 120,
-  loadStart: 240,
-  progressDuration: 560,
-  collapsePause: 40,
-  exitDelay: 240,
+  nameRevealAt: 60,
+  loadStart: 100,
+  progressDuration: 450,
+  collapsePause: 10,
+  exitDelay: 60,
 } as const;
 
 export const INTRO_ROTATION_TERMS = ["AUTOMATION", "GHL", "n8n", "WORKFLOWS"] as const;
@@ -53,3 +53,12 @@ export const STACK_TOOLS = [
   "SLACK",
 ] as const;
 
+
+/** These are descriptive skills, not logos or additional platform claims. */
+export const STACK_EXTRAS = [
+  ["OAuth + TOKEN REFRESH", "OAuth and token-refresh handling in custom API integrations."],
+  ["GOOGLE APPS SCRIPT", "Spreadsheet and Google Workspace workflow scripting."],
+  ["APPSHEET", "No-code apps that connect operational data and workflows."],
+  ["META ADS MANAGER", "Lead-generation campaigns feeding GoHighLevel funnels."],
+  ["TRELLO + N8N", "Connecting task coordination with n8n automation."],
+] as const;

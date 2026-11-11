@@ -1,0 +1,70 @@
+name: Portfolio validation and mobile Lighthouse
+on:
+  push:
+    branches: [portfolio-proof-conversion-a11y-20261111]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Production build
+        run: npm run build
+      - name: Start locally served production build
+        run: |
+          npm run start -- --port 3000 > /tmp/portfolio-server.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl --fail --silent http://localhost:3000/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/portfolio-server.log
+          exit 1
+      - name: Install Lighthouse
+        run: npm install --no-save --no-package-lock lighthouse@12.8.2
+      - name: Mobile Lighthouse before and after
+        shell: bash
+        run: |
+          mkdir -p lighthouse
+          for spec in "before-home|https://automateiv.vercel.app/" "before-roofflow|https://automateiv.vercel.app/work/roofflow-voice-ai" "after-home|http://localhost:3000/" "after-roofflow|http://localhost:3000/work/roofflow-voice-ai"; do
+            label="${spec%%|*}"
+            url="${spec#*|}"
+            echo "AUDITING $label — $url"
+            npx lighthouse "$url" --only-categories=performance,accessibility,best-practices,seo --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path="lighthouse/${label}.json" --quiet || echo "Lighthouse failed for $label"
+          done
+          node - <<'NODE'
+          const fs = require('fs');
+          for (const label of ['before-home','before-roofflow','after-home','after-roofflow']) {
+            const path = 'lighthouse/'+label+'.json';
+            if (!fs.existsSync(path)) { console.log(label+': NOT AVAILABLE'); continue; }
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const categories = report.categories;
+            const result = Object.fromEntries(['performance','accessibility','best-practices','seo'].map(k=>[k,categories[k]?.score == null ? 'N/A' : Math.round(categories[k].score*100)]));
+            console.log(label+': '+JSON.stringify(result));
+          }
+          NODE
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: portfolio-mobile-lighthouse
+          path: lighthouse/*.json
+          if-no-files-found: ignore
