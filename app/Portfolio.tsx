@@ -18,6 +18,7 @@ import {
   NAVIGATION_ITEMS,
   PROCESS_STEPS,
   STACK_TOOLS,
+  STACK_EXTRAS,
 } from "./portfolio-content";
 import { getProject, projects, type Project } from "./projects";
 import { SITE_CONFIG } from "./site-config";
@@ -26,7 +27,7 @@ const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false 
 const CURRENT_YEAR = new Date().getFullYear();
 const featuredProjects = FEATURED_PROJECT_SLUGS.map(getProject).filter((project): project is Project => Boolean(project));
 
-export default function Portfolio() {
+export default function Portfolio({ webhookReady = false }: { webhookReady?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [introPhase, setIntroPhase] = useState<"mark" | "name" | "loading" | "collapse">("mark");
@@ -104,6 +105,7 @@ export default function Portfolio() {
       }, 0);
       return () => window.clearTimeout(reducedTimer);
     }
+    const capTimer = window.setTimeout(() => setIntroVisible(false), 900);
     const started = performance.now();
     let animation = 0;
     let collapseTimer = 0;
@@ -131,12 +133,13 @@ export default function Portfolio() {
       window.clearTimeout(loadTimer);
       window.clearTimeout(collapseTimer);
       window.clearTimeout(exitTimer);
+      window.clearTimeout(capTimer);
     };
   }, []);
 
   useEffect(() => {
     const flow = manifestoFlowRef.current;
-    if (!flow) return;
+    if (!flow || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const stage = flow.querySelector<HTMLElement>(".manifesto-stage");
     const lines = [...flow.querySelectorAll<HTMLElement>(".manifesto-line > span")];
     const quote = flow.querySelector<HTMLElement>(".manifesto-quote");
@@ -220,7 +223,7 @@ export default function Portfolio() {
 
   useEffect(() => {
     const section = aboutRef.current;
-    if (!section) return;
+    if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const flow = section.querySelector<HTMLElement>(".about-flight-flow");
     const stage = section.querySelector<HTMLElement>(".about-flight-stage");
     const targets = [...section.querySelectorAll<HTMLElement>(".about-target-char[data-char-id]")];
@@ -376,12 +379,18 @@ export default function Portfolio() {
   }, []);
 
   useEffect(() => {
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("in")),
       { threshold: 0.1 },
     );
-    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add("in");
+      observer.observe(el);
+    });
+    document.documentElement.classList.add("js-motion");
+    return () => { observer.disconnect(); document.documentElement.classList.remove("js-motion"); };
   }, []);
 
   useEffect(() => {
@@ -488,6 +497,7 @@ export default function Portfolio() {
   return (
     <>
       <a className="skip-link" href="#work">Skip to selected work</a>
+      <noscript><style>{".intro { display: none !important; }"}</style></noscript>
       <div className={`intro ${introVisible ? "" : "is-gone"}`} aria-hidden="true">
         <div className={`intro-lockup is-${introPhase}`}>
           <div className="intro-wordmark" aria-label="Mars">
@@ -519,7 +529,7 @@ export default function Portfolio() {
         </button>
       </header>
 
-      <nav ref={menuRef} id="site-menu" className={`site-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
+      <nav ref={menuRef} id="site-menu" className={`site-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} inert={!menuOpen}>
         <div className="site-menu-inner">
           <p className="eyebrow inverse">NAVIGATION / {CURRENT_YEAR}</p>
           {NAVIGATION_ITEMS.map(([num, label, href]) => (
@@ -547,11 +557,15 @@ export default function Portfolio() {
             <span>PHILIPPINES / REMOTE</span>
           </div>
         </section>
+        <nav className="hero-link-row" aria-label="Get in touch or view resume">
+          <a href="#contact" onClick={() => track("Hero CTA Clicked", { destination: "contact" })}>Work with me <span aria-hidden="true">↗</span></a>
+          <a href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "hero" })}>View resume <span aria-hidden="true">↗</span></a>
+        </nav>
 
         <section className="proof-preview theme-dark" data-theme="dark" aria-labelledby="proof-preview-title">
           <header className="proof-preview-head">
             <div>
-              <p className="eyebrow inverse">SELECTED SYSTEM PROOF</p>
+              <p className="eyebrow inverse">SELECTED SYSTEMS</p>
               <h2 id="proof-preview-title">BUILT.<br />TESTED.<br />MAPPED.</h2>
             </div>
             <p>Independent systems documented through workflow logic, scenario testing, reliability decisions, and clear operational handoffs.</p>
@@ -561,7 +575,7 @@ export default function Portfolio() {
               <Link className="proof-preview-card" href={`/work/${project.slug}`} key={project.slug} onClick={() => track("Case Study Opened", { project: project.slug, source: "proof_preview" })}>
                 <span>{project.num} / {project.category}</span>
                 <h3>{project.shortName}</h3>
-                <p>{project.tested[0]} · {project.tested[1]}</p>
+                <p>{project.testScenarios[0]?.scenario} · {project.testScenarios[1]?.scenario}</p>
                 <strong>READ CASE STUDY ↗</strong>
               </Link>
             ))}
@@ -570,29 +584,6 @@ export default function Portfolio() {
             <a href="#work" onClick={() => track("Proof CTA Clicked", { destination: "work" })}>VIEW ALL SIX SYSTEMS ↓</a>
             <a href="#contact" onClick={() => track("Contact CTA Clicked", { source: "proof_preview" })}>START A CONVERSATION ↗</a>
           </footer>
-        </section>
-
-        <section ref={manifestoFlowRef} className="manifesto-flow theme-dark" data-theme="dark" aria-label="Personal manifesto">
-          <div className="manifesto-stage">
-            <div className="manifesto-meta">
-              <span>MARS / PERSONAL MANIFESTO</span>
-              <span>PURPOSE → WISDOM → EXCELLENCE</span>
-            </div>
-            <blockquote className="manifesto-quote" aria-label={MANIFESTO_QUOTE}>
-              {MANIFESTO_LINES.map((line) => (
-                <span className="manifesto-line" key={line} aria-hidden="true"><span>{line}</span></span>
-              ))}
-            </blockquote>
-            <div className="manifesto-signature-slot">
-              <svg className="manifesto-signature-mark" viewBox="0 0 210 145" role="img" aria-label="Angular handwritten signature mark">
-                <path className="manifesto-signature-stroke" pathLength="1" d="M29 72 L188 26" />
-                <path className="manifesto-signature-stroke" pathLength="1" d="M51 125 L101 52 L136 19" />
-                <path className="manifesto-signature-stroke" pathLength="1" d="M71 98 L105 64 L102 71 L124 54 L96 109 L188 26" />
-              </svg>
-            </div>
-            <span className="manifesto-scroll">SCROLL TO REVEAL ↓</span>
-            <span className="manifesto-index" aria-hidden="true">IV</span>
-          </div>
         </section>
 
         <section ref={aboutRef} id="about" className="about-assembly theme-dark" data-theme="dark">
@@ -633,7 +624,9 @@ export default function Portfolio() {
                   alt="Mars Atolba, AI Automation Specialist"
                   width={150}
                   height={150}
-                  className="about-flight-photo"
+                   sizes="(max-width: 520px) 110px, 150px"
+                   loading="lazy"
+                   className="about-flight-photo"
                 />
                 <p>I began in people-focused operations, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
               <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
@@ -649,16 +642,10 @@ export default function Portfolio() {
                 <path className="journey-line-base" pathLength="1" d="M-70 420 C70 420 90 420 180 420 C285 420 275 180 390 180 C515 180 500 490 640 490 C780 490 790 230 920 230 C1050 230 1080 420 1210 420 C1330 420 1350 300 1510 300" />
                 <path className="journey-line-signal" pathLength="1" d="M-70 420 C70 420 90 420 180 420 C285 420 275 180 390 180 C515 180 500 490 640 490 C780 490 790 230 920 230 C1050 230 1080 420 1210 420 C1330 420 1350 300 1510 300" />
               </svg>
-              {[
-                ["01", "UNDERSTAND", "12.5%", "64.6%"],
-                ["02", "MAP", "27%", "27.7%"],
-                ["03", "DESIGN", "44.4%", "75.4%"],
-                ["04", "BUILD", "63.9%", "35.4%"],
-                ["05", "TEST", "84%", "64.6%"],
-                ["06", "IMPROVE", "96%", "46.2%"],
-              ].map(([num, label, left, top]) => (
-                <span className="journey-node" style={{ left, top }} key={num}><i>{num}</i><strong>{label}</strong></span>
-              ))}
+              {PROCESS_STEPS.map(([num, label], index) => {
+                const [left, top] = [["12.5%", "64.6%"], ["30%", "27.7%"], ["49%", "75.4%"], ["69%", "35.4%"], ["91%", "64.6%"]][index];
+                return <span className="journey-node" style={{ left, top }} key={num}><i>{num}</i><strong>{label}</strong></span>;
+              })}
             </div>
             <div className="about-belief-copy reveal">
               <span>PROCESS BEFORE PLATFORM</span>
@@ -703,12 +690,35 @@ export default function Portfolio() {
               </div>
               <aside className={`work-hover-preview${workPreviewVisible ? " is-visible" : ""}`} aria-live="polite" aria-label={`${previewProject.name} preview`}>
                 <div className="work-hover-media">
-                  {previewProject.image ? <Image key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} fill sizes="(max-width: 900px) 68vw, 34vw" /> : <SystemArt num={previewProject.num} />}
+                  {previewProject.image ? <Image key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} fill sizes="(max-width: 900px) 70vw, 520px" loading="lazy" /> : <SystemArt num={previewProject.num} />}
                   <span className="work-preview-scan"><i />MARS / SYSTEM {previewProject.num}</span>
                 </div>
                 <div className="work-hover-meta"><span>{previewProject.shortName}</span><span>CLICK TO OPEN ↗</span></div>
               </aside>
             </div>
+          </div>
+        </section>
+
+        <section ref={manifestoFlowRef} className="manifesto-flow theme-dark" data-theme="dark" aria-label="Personal manifesto">
+          <div className="manifesto-stage">
+            <div className="manifesto-meta">
+              <span>MARS / PERSONAL MANIFESTO</span>
+              <span>PURPOSE → WISDOM → EXCELLENCE</span>
+            </div>
+            <blockquote className="manifesto-quote" aria-label={MANIFESTO_QUOTE}>
+              {MANIFESTO_LINES.map((line) => (
+                <span className="manifesto-line" key={line} aria-hidden="true"><span>{line}</span></span>
+              ))}
+            </blockquote>
+            <div className="manifesto-signature-slot">
+              <svg className="manifesto-signature-mark" viewBox="0 0 210 145" role="img" aria-label="Angular handwritten signature mark">
+                <path className="manifesto-signature-stroke" pathLength="1" d="M29 72 L188 26" />
+                <path className="manifesto-signature-stroke" pathLength="1" d="M51 125 L101 52 L136 19" />
+                <path className="manifesto-signature-stroke" pathLength="1" d="M71 98 L105 64 L102 71 L124 54 L96 109 L188 26" />
+              </svg>
+            </div>
+            <span className="manifesto-scroll">SCROLL TO REVEAL ↓</span>
+            <span className="manifesto-index" aria-hidden="true">IV</span>
           </div>
         </section>
 
@@ -740,7 +750,7 @@ export default function Portfolio() {
         </section>
 
         <section id="stack" className="stack theme-light" data-theme="light">
-          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>TOOLS EVOLVE.<br />CLEAR THINKING ENDURES.</h2></div>
+          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>Tools evolve.<br />Clear thinking endures.</h2></div>
           <div className="marquee" aria-label="Core tools"><div className="marquee-track">{[0, 1].map((set) => <div className="marquee-set" key={set}>{STACK_TOOLS.map((tool, index) => <Fragment key={tool}>{index > 0 && <i>+</i>}<span>{tool}</span></Fragment>)}</div>)}</div></div>
           <div className="stack-grid reveal">
             <article><span>AI & LLM WORK</span><p>LLM workflow design, prompt systems, structured outputs, validation, and human-reviewed AI assistance.</p></article>
@@ -748,12 +758,15 @@ export default function Portfolio() {
             <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Gmail, Google Sheets, Slack, and Google Workspace.</p></article>
             <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel pipelines, funnels, calendars, forms, and intentional email and SMS journeys.</p></article>
           </div>
+          <div className="stack-extra-lines reveal" aria-label="Additional skills">
+            {STACK_EXTRAS.map(([title, description]) => <article key={title}><strong>{title}</strong><p>{description}</p></article>)}
+          </div>
         </section>
 
         <section className="principles theme-light" data-theme="light">
           <div className="principles-visual reveal" aria-hidden="true">
             <div className="method-title"><span>MARS / METHOD</span><strong>FROM FRICTION<br />TO FLOW.</strong></div>
-            <div className="method-track"><i /><span>01 / DISCOVER</span><span>02 / MAP</span><span>03 / BUILD</span><span>04 / TEST</span><span>05 / IMPROVE</span></div>
+            <div className="method-track"><i />{PROCESS_STEPS.map(([num, title]) => <span key={num}>{num} / {title}</span>)}</div>
             <div className="method-signal"><span>PROCESS FIRST</span><span>HUMAN IN THE LOOP</span><span>MEASURED OUTCOME</span></div>
           </div>
           <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Rooted in the business.<br />Intentional with AI.<br />Built to be understood.</h2><div className="principle-list"><span>RELIABILITY BY DESIGN</span><span>COMMUNICATION WITH CLARITY</span><span>SYSTEMS PEOPLE CAN OWN</span><span>CONTINUOUS REFINEMENT</span></div></div>
@@ -761,17 +774,20 @@ export default function Portfolio() {
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
           <div className="contact-layout reveal">
-            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>LET&apos;S BUILD WHAT<br />MOVES WORK FORWARD.</h2><ContactForm /></div>
+            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let's build what<br />moves work forward.</h2><ContactForm />{webhookReady && <p className="form-workflow-note">This form runs through an n8n workflow.</p>}</div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
+              {SITE_CONFIG.bookingUrl.trim() && <a href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer"><span>BOOK A CONVERSATION</span>Schedule a call ↗</a>}
+              <p><span>TYPICAL REPLY TIME</span>{SITE_CONFIG.typicalReplyTime}</p>
+              <div className="contact-next-steps"><strong>WHAT HAPPENS NEXT</strong><ol>{SITE_CONFIG.contactNextSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol></div>
               <a href={`mailto:${SITE_CONFIG.email}`}><span>EMAIL</span>{SITE_CONFIG.email} ↗</a>
               <a href={SITE_CONFIG.linkedIn} target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "contact" })}>VIEW RESUME ↗</a></div>
             </aside>
           </div>
-          <div className="footer-word" aria-label="Elevate Automate Excel"><span>ELEVATE.</span><span>AUTOMATE.</span><span>EXCEL.</span></div>
-          <div className="footer-bottom"><span>© {CURRENT_YEAR} MARS ATOLBA</span><span>AI AUTOMATION SPECIALIST</span><span>BUILT FOR CLARITY + MOTION</span></div>
+          <div className="footer-word" aria-label="Elevate. Automate. Excel."><span>ELEVATE.</span><span>AUTOMATE.</span><span>EXCEL.</span></div>
+          <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines</span><span>{webhookReady ? "This form runs through an n8n workflow." : "Direct enquiries: " + SITE_CONFIG.email}</span></div>
         </section>
       </main>
 
@@ -824,7 +840,7 @@ export default function Portfolio() {
         </div>
       )}
 
-      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><div className="lightbox-media"><Image src={lightbox} alt="Expanded project workflow screenshot" fill sizes="100vw" /></div></div>}
+      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><div className="lightbox-media"><Image src={lightbox} alt="Expanded project workflow screenshot" fill sizes="(max-width: 700px) 100vw, 1440px" loading="lazy" /></div></div>}
     </>
   );
 }
