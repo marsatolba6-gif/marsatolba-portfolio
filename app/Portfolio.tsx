@@ -105,7 +105,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
       }, 0);
       return () => window.clearTimeout(reducedTimer);
     }
-    const capTimer = window.setTimeout(() => setIntroVisible(false), 900);
+    const capTimer = window.setTimeout(() => setIntroVisible(false), 660);
     const started = performance.now();
     let animation = 0;
     let collapseTimer = 0;
