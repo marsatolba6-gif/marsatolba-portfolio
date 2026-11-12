@@ -12,10 +12,10 @@
     "build:vercel": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "predev": "node scripts/prepare-hd-assets.mjs",
-    "predev:vercel": "node scripts/prepare-hd-assets.mjs",
-    "prebuild": "node scripts/prepare-hd-assets.mjs",
-    "prebuild:vercel": "node scripts/prepare-hd-assets.mjs"
+    "predev": "node scripts/prepare-hd-assets.mjs && node scripts/prepare-social-thumbnail.mjs",
+    "predev:vercel": "node scripts/prepare-hd-assets.mjs && node scripts/prepare-social-thumbnail.mjs",
+    "prebuild": "node scripts/prepare-hd-assets.mjs && node scripts/prepare-social-thumbnail.mjs",
+    "prebuild:vercel": "node scripts/prepare-hd-assets.mjs && node scripts/prepare-social-thumbnail.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "2.0.1",
