@@ -5,8 +5,8 @@ export const SITE_CONFIG = {
   personName: "Mars Atolba",
   jobTitle: "AI Automation Specialist",
   email: "marsatolba6@gmail.com",
-  bookingUrl: "", // GoHighLevel or Calendly URL; hidden until provided.
-  typicalReplyTime: "Response window to be confirmed", // Replace with your actual commitment.
+  bookingUrl: "https://calendly.com/marsatolba6/30min", // 30-minute introduction call.
+  typicalReplyTime: "Typically within a few hours, often sooner.",
   contactNextSteps: [
     "Share the process and outcome you want to improve.",
     "I review the requirements and clarify the scope.",

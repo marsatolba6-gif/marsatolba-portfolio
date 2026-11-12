@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [portfolio-proof-conversion-a11y-20261111]
+    branches: [main, project-evidence-and-booking-20261112]
   workflow_dispatch:
 
 permissions:

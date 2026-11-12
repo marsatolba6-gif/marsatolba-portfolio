@@ -2461,3 +2461,17 @@ section[id] { scroll-margin-top: 72px; }
 }
 .case-evidence .case-test-table thead th { color: #efefef; }
 .case-evidence .case-test-table tbody :is(th, td) { color: #eeeeee; }
+
+/* Plain-language evidence note without changing the case-study visual system. */
+.case-evidence .case-evidence-context {
+  max-width: 780px;
+  margin: 18px 0 0;
+  color: #d6d6d6;
+  font-size: clamp(12px, 1.1vw, 15px);
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+.contact-email-fallback { padding: clamp(28px,4vw,56px) 0; }
+.contact-email-note { max-width: 610px; margin: 0 0 32px; font-size: clamp(15px,1.7vw,20px); line-height: 1.5; color: #e1e1e1; }
+.contact-email-fallback .contact-submit { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; }
