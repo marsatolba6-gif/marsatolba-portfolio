@@ -2461,3 +2461,13 @@ section[id] { scroll-margin-top: 72px; }
 }
 .case-evidence .case-test-table thead th { color: #efefef; }
 .case-evidence .case-test-table tbody :is(th, td) { color: #eeeeee; }
+
+/* Plain-language evidence note without changing the case-study visual system. */
+.case-evidence .case-evidence-context {
+  max-width: 780px;
+  margin: 18px 0 0;
+  color: #d6d6d6;
+  font-size: clamp(12px, 1.1vw, 15px);
+  line-height: 1.6;
+  letter-spacing: 0;
+}
