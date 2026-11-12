@@ -1,0 +1,59 @@
+name: Verify production n8n contact integration
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Confirm form is enabled, then submit one clearly marked integration test
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="https://automateiv.vercel.app"
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --location --max-time 20 \
+                  "${site}/?integration-check=1" > /tmp/live-home.html \
+               && grep -Fq 'name="_honey"' /tmp/live-home.html \
+               && grep -Fq 'name="email"' /tmp/live-home.html \
+               && grep -Fq 'This form runs through an n8n workflow.' /tmp/live-home.html; then
+              echo "SUCCESS: Live homepage renders the contact form with its honeypot."
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "::error::Live website still renders the email-only fallback; production deployment may not include N8N_CONTACT_WEBHOOK_URL."
+              exit 1
+            fi
+            echo "Contact form not yet visible; deployment propagation check ${attempt}/30."
+            sleep 10
+          done
+          cat > /tmp/contact-integration-test.json <<'JSON'
+          {
+            "name": "Portfolio Form Integration Test",
+            "email": "marsatolba6@gmail.com",
+            "company": "Automate with Mars — Internal Test",
+            "projectType": "Other",
+            "message": "[INTEGRATION TEST] Verifying that the live portfolio contact form securely forwards one test enquiry into the existing n8n workflow. No customer enquiry; please ignore or delete this test.",
+            "_honey": ""
+          }
+          JSON
+          response=$(curl --silent --show-error --location --max-time 25 \
+            -H "Content-Type: application/json" \
+            --data-binary @/tmp/contact-integration-test.json \
+            --write-out '\n%{http_code}' \
+            "${site}/api/contact")
+          status="${response##*$'\n'}"
+          body="${response%$'\n'*}"
+          echo "Production /api/contact HTTP status: ${status}"
+          echo "Website API response: ${body}"
+          if [ "$status" != "200" ]; then
+            echo "::error::Contact form API could not deliver the integration test to n8n."
+            exit 1
+          fi
+          echo "SUCCESS: Site accepted and forwarded the single integration test to n8n."
