@@ -5,6 +5,7 @@ import AnalyticsLink from "../../AnalyticsLink";
 import { getBuildNote, getProject, projects } from "../../projects";
 import { SITE_CONFIG } from "../../site-config";
 import { getSharpImageSrc } from "../../image-quality";
+import { PROCESS_STEPS } from "../../portfolio-content";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -137,7 +138,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-story" aria-labelledby="case-story-title">
           <header>
             <p>MARS / SYSTEM STORY</p>
-            <h2 id="case-story-title">From friction<br />to flow.</h2>
+            <h2 id="case-story-title">From Friction<br />to Flow.</h2>
+            <p className="case-process-vocabulary">OUR PROCESS / {PROCESS_STEPS.map(([, title]) => title).join(" · ")}</p>
           </header>
           <div className="case-story-grid">
             {[

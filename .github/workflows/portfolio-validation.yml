@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'contact-delivery-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'portfolio-copy-*', 'contact-delivery-*']
   workflow_dispatch:
 
 permissions:
@@ -31,6 +31,8 @@ jobs:
         run: node scripts/verify-contact-contract.mjs
       - name: Verify contact timeout and successful delivery behavior
         run: node scripts/verify-contact-delivery.mjs
+      - name: Verify branding, process and skill content
+        run: node scripts/verify-portfolio-copy.mjs
       - name: Production build
         run: npm run build
       - name: Verify minimalist social preview generated at exact dimensions
