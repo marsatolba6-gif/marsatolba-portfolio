@@ -2475,3 +2475,73 @@ section[id] { scroll-margin-top: 72px; }
 .contact-email-fallback { padding: clamp(28px,4vw,56px) 0; }
 .contact-email-note { max-width: 610px; margin: 0 0 32px; font-size: clamp(15px,1.7vw,20px); line-height: 1.5; color: #e1e1e1; }
 .contact-email-fallback .contact-submit { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; }
+
+
+/* Lossless workflow media: preserve the existing layouts and scan interaction. */
+.case-image img,
+.dialog-gallery.scan-gallery .scan-image-layer img,
+.work-hover-media img,
+.lightbox-media img {
+  image-rendering: auto;
+}
+.scan-stage.is-scanning .scan-image-layer img {
+  transform: none;
+  filter: none;
+}
+.work-hover-media:hover img,
+.work-hover-media:focus-visible img {
+  transform: none;
+}
+.case-gallery figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.case-gallery figcaption a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-bottom: 1px solid currentColor;
+  color: #242424;
+  font-weight: 600;
+}
+.case-gallery figcaption a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+.lightbox-controls {
+  position: absolute;
+  z-index: 5;
+  top: clamp(12px,2vw,24px);
+  left: clamp(16px,4vw,60px);
+  right: clamp(16px,4vw,60px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  pointer-events: none;
+}
+.lightbox-controls :is(a,button) {
+  position: relative;
+  inset: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  background: #050505;
+  border: 1px solid rgba(255,255,255,.65);
+  color: #fff;
+  font: 600 10px/1.25 var(--font-geist-mono), monospace;
+  letter-spacing: .08em;
+  pointer-events: auto;
+}
+.lightbox-controls :is(a,button):focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+@media (max-width: 500px) {
+  .lightbox-controls { gap: 10px; }
+  .lightbox-controls :is(a,button) { font-size: 8px; padding: 10px; }
+}
