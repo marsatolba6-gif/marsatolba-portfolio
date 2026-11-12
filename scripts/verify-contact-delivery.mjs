@@ -25,7 +25,7 @@ const customRequire = (name) => {
 };
 const sandbox = {
   module: mockModule, exports: mockModule.exports, require: customRequire,
-  Map, Date, URL, JSON, Object, AbortSignal, process: { env },
+  Map, Date, URL, JSON, Object, Error, AbortSignal, process: { env },
   fetch: async (_target, request) => {
     calls.push(request);
     if (behavior === "timeout") throw Object.assign(new Error("Webhook response timeout"), { name: "TimeoutError" });
