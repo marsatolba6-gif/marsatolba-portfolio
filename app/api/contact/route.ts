@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isProjectType } from "../../contact-project-types";
 
 /**
  * Lightweight per-instance rate limiting. A distributed store is required for
@@ -63,6 +64,9 @@ export async function POST(request: NextRequest) {
   const company = clean(fields.company, 150);
   const projectType = clean(fields.projectType, 80);
   const message = clean(fields.message, 3000);
+  if (!isProjectType(projectType)) {
+    return response({ message: "Please select a valid service from the list." }, 400);
+  }
   if (!name || name.length > 120 || !email || email.length > 254 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
       !message || message.length > 3000 || company.length > 150 || projectType.length > 80) {

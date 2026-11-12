@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*']
   workflow_dispatch:
 
 permissions:
@@ -27,6 +27,8 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npx tsc --noEmit
+      - name: Verify contact dropdown, strict allowlist and n8n payload
+        run: node scripts/verify-contact-contract.mjs
       - name: Production build
         run: npm run build
       - name: Verify minimalist social preview generated at exact dimensions
