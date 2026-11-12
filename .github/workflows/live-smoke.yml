@@ -25,7 +25,7 @@ jobs:
               && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
               && grep -Fq "Typically within a few hours, often sooner." /tmp/home.html \
               && grep -Fq "marsatolba6@gmail.com" /tmp/home.html \
-              && grep -Fq "/og-monogram.png" /tmp/home.html; then
+              && grep -Fq "/og-original-mark.png" /tmp/home.html; then
               echo "Homepage verified: booking link, reply window and existing email visible."
               break
             fi
@@ -66,9 +66,9 @@ jobs:
           grep -Fq "VIEW ORIGINAL FILE" /tmp/ghl.html
           echo "High-resolution case gallery and original file links verified."
           curl --fail --silent --show-error --location --max-time 20 \
-            "${site}/og-monogram.png" --output /tmp/live-monogram.png
+            "${site}/og-original-mark.png" --output /tmp/live-monogram.png
           file /tmp/live-monogram.png | grep -Fq "PNG image data, 1200 x 630"
           # Confirm the APPROVED soft-white thumbnail, not the previous beige version.
-          node -e 'const fs=require("fs"),zlib=require("zlib");const b=fs.readFileSync("/tmp/live-monogram.png");const type=b[25];if(type!==2&&type!==6)process.exit(1);let p=8,parts=[];while(p<b.length){let n=b.readUInt32BE(p),t=b.toString("ascii",p+4,p+8);if(t==="IDAT")parts.push(b.subarray(p+8,p+8+n));p+=n+12;}const pixels=zlib.inflateSync(Buffer.concat(parts));if([pixels[1],pixels[2],pixels[3]].join(",")!=="250,250,250"){console.error("Old thumbnail is still cached");process.exit(1);}'
-          echo "Approved white monogram thumbnail verified."
+          node -e 'const fs=require("fs"),zlib=require("zlib");const b=fs.readFileSync("/tmp/live-monogram.png");const type=b[25];if(type!==2&&type!==6)process.exit(1);let p=8,parts=[];while(p<b.length){let n=b.readUInt32BE(p),t=b.toString("ascii",p+4,p+8);if(t==="IDAT")parts.push(b.subarray(p+8,p+8+n));p+=n+12;}const pixels=zlib.inflateSync(Buffer.concat(parts));if([pixels[1],pixels[2],pixels[3]].join(",")!=="237,235,230"){console.error("Old thumbnail is still cached");process.exit(1);}'
+          echo "Original uploaded PDF logo social thumbnail verified."
           echo "Live smoke test passed."

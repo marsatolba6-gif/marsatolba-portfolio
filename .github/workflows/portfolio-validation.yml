@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*']
   workflow_dispatch:
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
           import { readFile } from "node:fs/promises";
           import { createHash } from "node:crypto";
           import sharp from "sharp";
-          const newImage = await readFile("public/og-monogram.png");
+          const newImage = await readFile("public/og-original-mark.png");
           const legacyPath = await readFile("public/og.png");
           const meta = await sharp(newImage).metadata();
           if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
@@ -45,10 +45,20 @@ jobs:
             throw new Error("Home OG thumbnails must use the same monogram artwork");
           }
           const pixel = await sharp(newImage).extract({left: 0, top: 0, width: 1, height: 1}).raw().toBuffer();
-          if (pixel[0] !== 250 || pixel[1] !== 250 || pixel[2] !== 250) {
+          if (pixel[0] !== 237 || pixel[1] !== 235 || pixel[2] !== 230) {
             throw new Error("Incorrect thumbnail background color");
           }
-          console.log("Minimalist monogram thumbnails generated and verified.");
+          const originalPath = (await readFile("public/social-monogram.svg", "utf8"));
+          if (!originalPath.includes("M.8328552 0H.6000061") || !originalPath.includes("M.2128601 .7142792")) {
+            throw new Error("Source PDF glyph paths are missing from SVG.");
+          }
+          const region = await sharp(newImage).extract({left: 475, top: 210, width: 250, height: 200}).raw().toBuffer({resolveWithObject: true});
+          let black = 0;
+          for (let i = 0; i < region.data.length; i += region.info.channels) {
+            if (region.data[i] < 75 && region.data[i+1] < 75 && region.data[i+2] < 75) black++;
+          }
+          if (black < 1000) throw new Error("Original black M monogram did not render.");
+          console.log("Original PDF-vector thumbnail generated and verified.");
           NODE
       - name: Verify unchanged originals and generated lossless HD assets
         run: |
