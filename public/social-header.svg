@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="social-title">
+  <title id="social-title">Mars Atolba — AI Automation Specialist</title>
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <!-- Faithful enlargement of the existing website header lockup: M° + brand copy. -->
+  <g font-family="Arial, Helvetica, sans-serif" fill="#080808">
+    <text x="209" y="355" font-size="155" font-weight="900" letter-spacing="-9">M°</text>
+    <text x="475" y="293" font-size="60" font-weight="700" letter-spacing="3.6">MARS ATOLBA</text>
+    <text x="475" y="346" font-size="27" font-weight="400" letter-spacing="3.2" fill="#626262">AI AUTOMATION SPECIALIST</text>
+  </g>
+</svg>

@@ -5,11 +5,12 @@ import { track } from "@vercel/analytics";
 import { SITE_CONFIG } from "../site-config";
 import { PROJECT_TYPES } from "../contact-project-types";
 
-type FormStatus = "idle" | "sending" | "success" | "error";
+type FormStatus = "idle" | "sending" | "success" | "unconfirmed" | "error";
 
 export default function ContactForm({ available = false }: { available?: boolean }) {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [deliveryMessage, setDeliveryMessage] = useState("");
   const [copied, setCopied] = useState(false);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -18,6 +19,7 @@ export default function ContactForm({ available = false }: { available?: boolean
     const values = new FormData(form);
     setStatus("sending");
     setErrorMessage("");
+    setDeliveryMessage("");
 
     const projectType = String(values.get("projectType") || "");
     const payload = {
@@ -37,6 +39,16 @@ export default function ContactForm({ available = false }: { available?: boolean
       });
       const result = await response.json() as { message?: string };
       if (!response.ok) throw new Error(result.message || "Message could not be sent.");
+      // HTTP 202 means n8n has not acknowledged completion in time. The
+      // enquiry may already have reached email, so avoid a false failure and
+      // discourage duplicate submissions without claiming confirmed delivery.
+      if (response.status === 202) {
+        form.reset();
+        setDeliveryMessage(result.message || "Confirmation is delayed. Please don't resubmit this enquiry.");
+        setStatus("unconfirmed");
+        track("Contact Confirmation Delayed", { project_type: projectType || "Not specified" });
+        return;
+      }
       form.reset();
       setStatus("success");
       track("Contact Form Submitted", { project_type: projectType || "Not specified" });
@@ -84,6 +96,7 @@ export default function ContactForm({ available = false }: { available?: boolean
         <button className="contact-submit" type="submit" disabled={status === "sending"}>{status === "sending" ? "SENDING…" : "DISCUSS A SYSTEM"}<span>↗</span></button>
         <p className={`form-status is-${status}`} role="status" aria-live="polite" aria-atomic="true">
           {status === "success" && "Message sent. Thank you — I'll review your enquiry and reply by email."}
+          {status === "unconfirmed" && <>{deliveryMessage} <a href={`mailto:${SITE_CONFIG.email}`}>Email directly if needed</a>.</>}
           {status === "error" && <>{errorMessage} <a href={`mailto:${SITE_CONFIG.email}`}>Email me directly</a> or <button type="button" onClick={copyEmail}>{copied ? "EMAIL COPIED" : "COPY EMAIL"}</button>.</>}
         </p>
       </div>

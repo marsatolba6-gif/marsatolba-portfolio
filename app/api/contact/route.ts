@@ -12,7 +12,9 @@ const attempts = new Map<string, { count: number; resetAt: number }>();
 export const runtime = "nodejs";
 export const maxDuration = 10;
 
-const response = (body: { message: string }, status: number) =>
+type ContactResponse = { message: string; delivery?: "confirmed" | "unconfirmed" };
+
+const response = (body: ContactResponse, status: number) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
 function clean(value: unknown, maximum: number): string {
@@ -94,7 +96,16 @@ export async function POST(request: NextRequest) {
     });
     if (!upstream.ok) throw new Error("Webhook rejected message");
     return response({ message: "Message received. Thank you." }, 200);
-  } catch {
+  } catch (error) {
+    // n8n can process and email the enquiry even if it takes longer than our
+    // confirmation window. Do not tell the visitor to resend a potentially
+    // delivered enquiry; never claim that final delivery was confirmed.
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      return response({
+        message: "We've received your enquiry, but confirmation is taking longer than expected. Please don't submit it again. If you haven't heard back within a few hours, email me directly.",
+        delivery: "unconfirmed",
+      }, 202);
+    }
     return response({ message: "Could not send the message. Please email directly instead." }, 502);
   }
 }
