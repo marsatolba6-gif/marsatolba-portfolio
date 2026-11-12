@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*']
   workflow_dispatch:
 
 permissions:
@@ -29,6 +29,27 @@ jobs:
         run: npx tsc --noEmit
       - name: Production build
         run: npm run build
+      - name: Verify minimalist social preview generated at exact dimensions
+        run: |
+          node --input-type=module - <<'NODE'
+          import { readFile } from "node:fs/promises";
+          import { createHash } from "node:crypto";
+          import sharp from "sharp";
+          const newImage = await readFile("public/og-monogram.png");
+          const legacyPath = await readFile("public/og.png");
+          const meta = await sharp(newImage).metadata();
+          if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
+            throw new Error("Open Graph image is not a 1200x630 PNG");
+          }
+          if (createHash("sha256").update(newImage).digest("hex") !== createHash("sha256").update(legacyPath).digest("hex")) {
+            throw new Error("Home OG thumbnails must use the same monogram artwork");
+          }
+          const pixel = await sharp(newImage).extract({left: 0, top: 0, width: 1, height: 1}).raw().toBuffer();
+          if (pixel[0] !== 245 || pixel[1] !== 245 || pixel[2] !== 244) {
+            throw new Error("Incorrect thumbnail background color");
+          }
+          console.log("Minimalist monogram thumbnails generated and verified.");
+          NODE
       - name: Verify unchanged originals and generated lossless HD assets
         run: |
           node --input-type=module - <<'NODE'
