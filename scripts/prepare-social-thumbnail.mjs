@@ -8,7 +8,7 @@ import { resolve, join } from "node:path";
 import sharp from "sharp";
 
 const root = resolve(import.meta.dirname, "..");
-const source = await readFile(join(root, "public/social-monogram.svg"));
+const source = await readFile(join(root, "public/social-header.svg"));
 
 const png = await sharp(source, { limitInputPixels: 12_000_000 })
   .png({ compressionLevel: 9, palette: false, effort: 8 })
@@ -19,8 +19,7 @@ if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
 }
 
 await Promise.all([
-  writeFile(join(root, "public/og-original-mark.png"), png),
-  writeFile(join(root, "public/og-monogram.png"), png),
+  writeFile(join(root, "public/og-header-mark.png"), png),
   writeFile(join(root, "public/og.png"), png),
 ]);
-console.log(`Generated original M’ PDF logo social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);
+console.log(`Generated existing M° header branding social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);
