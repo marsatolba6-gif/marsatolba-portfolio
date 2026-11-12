@@ -22,7 +22,10 @@ jobs:
               && grep -Fq "SELECTED SYSTEMS" /tmp/home.html \
               && grep -Fq "Work with me" /tmp/home.html \
               && grep -Fq "View resume" /tmp/home.html; then
-              echo "Homepage verified: selected systems and new contact/resume CTAs visible."
+              grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html
+          grep -Fq "Typically within a few hours, often sooner." /tmp/home.html
+          grep -Fq "marsatolba6@gmail.com" /tmp/home.html
+          echo "Homepage verified: booking link, reply window and existing email visible."
               break
             fi
             if [ "$attempt" -eq 24 ]; then
@@ -37,7 +40,9 @@ jobs:
             "${site}/work/roofflow-voice-ai" > /tmp/roofflow.html
           grep -Fq "Demo built with sample data" /tmp/roofflow.html
           grep -Fq "Not documented" /tmp/roofflow.html
-          echo "RoofFlow case study verified: build label and evidence table visible."
+          grep -Fq "Create a GoHighLevel follow-up task due within 5 minutes." /tmp/roofflow.html
+          grep -Fq "Where run-level evidence is unavailable" /tmp/roofflow.html
+          echo "RoofFlow case study verified: project-specific evidence rows and disclaimer visible."
 
           status=$(curl --silent --show-error --location --max-time 30 \
             --output /tmp/social-image.bin --write-out '%{http_code} %{content_type}' \
