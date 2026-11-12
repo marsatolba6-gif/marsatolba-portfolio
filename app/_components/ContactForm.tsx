@@ -6,7 +6,7 @@ import { SITE_CONFIG } from "../site-config";
 
 type FormStatus = "idle" | "sending" | "success" | "error";
 
-export default function ContactForm() {
+export default function ContactForm({ available = false }: { available?: boolean }) {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -54,6 +54,15 @@ export default function ContactForm() {
       window.location.href = `mailto:${SITE_CONFIG.email}`;
     }
   };
+
+  if (!available) {
+    return (
+      <div className="contact-form contact-email-fallback">
+        <p className="contact-email-note">The contact form is being connected. For now, please email me your project details directly.</p>
+        <a className="contact-submit" href={`mailto:${SITE_CONFIG.email}?subject=Portfolio%20enquiry`}>EMAIL ME DIRECTLY <span>↗</span></a>
+      </div>
+    );
+  }
 
   return (
     <form className="contact-form" action="/api/contact" method="POST" onSubmit={submit}>
