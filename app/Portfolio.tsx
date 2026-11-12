@@ -22,6 +22,7 @@ import {
 } from "./portfolio-content";
 import { getProject, projects, type Project } from "./projects";
 import { SITE_CONFIG } from "./site-config";
+import { getSharpImageSrc } from "./image-quality";
 
 const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false });
 const CURRENT_YEAR = new Date().getFullYear();
@@ -482,8 +483,17 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
         return;
       }
       if (event.key === "Tab") {
-        event.preventDefault();
-        dialog?.querySelector<HTMLElement>("button")?.focus();
+        const controls = [...(dialog?.querySelectorAll<HTMLElement>('button, a[href]') ?? [])];
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -624,6 +634,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
                   alt="Mars Atolba, AI Automation Specialist"
                   width={150}
                   height={150}
+                   quality={95}
                    sizes="(max-width: 520px) 110px, 150px"
                    loading="lazy"
                    className="about-flight-photo"
@@ -690,7 +701,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
               </div>
               <aside className={`work-hover-preview${workPreviewVisible ? " is-visible" : ""}`} aria-live="polite" aria-label={`${previewProject.name} preview`}>
                 <div className="work-hover-media">
-                  {previewProject.image ? <Image key={previewProject.image} src={previewProject.image} alt={`${previewProject.name} workflow screenshot`} fill sizes="(max-width: 900px) 70vw, 520px" loading="lazy" /> : <SystemArt num={previewProject.num} />}
+                  {previewProject.image ? <Image key={previewProject.image} src={getSharpImageSrc(previewProject.image)} alt={`${previewProject.name} workflow screenshot`} fill unoptimized sizes="(max-width: 900px) 70vw, 520px" loading="lazy" /> : <SystemArt num={previewProject.num} />}
                   <span className="work-preview-scan"><i />MARS / SYSTEM {previewProject.num}</span>
                 </div>
                 <div className="work-hover-meta"><span>{previewProject.shortName}</span><span>CLICK TO OPEN ↗</span></div>
@@ -840,7 +851,17 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
         </div>
       )}
 
-      {lightbox && <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot"><button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button><div className="lightbox-media"><Image src={lightbox} alt="Expanded project workflow screenshot" fill sizes="(max-width: 700px) 100vw, 1440px" loading="lazy" /></div></div>}
+      {lightbox && (
+        <div ref={lightboxRef} className="lightbox" role="dialog" aria-modal="true" aria-label="Expanded project screenshot">
+          <div className="lightbox-controls">
+            <a href={lightbox} target="_blank" rel="noopener noreferrer">VIEW ORIGINAL FILE ↗</a>
+            <button type="button" onClick={closeLightbox} autoFocus>CLOSE ×</button>
+          </div>
+          <div className="lightbox-media">
+            <Image src={getSharpImageSrc(lightbox)} alt="Expanded project workflow screenshot" fill unoptimized sizes="(max-width: 700px) 100vw, 1440px" loading="eager" />
+          </div>
+        </div>
+      )}
     </>
   );
 }
