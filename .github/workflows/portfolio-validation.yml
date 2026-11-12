@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*']
   workflow_dispatch:
 
 permissions:
@@ -45,7 +45,7 @@ jobs:
             throw new Error("Home OG thumbnails must use the same monogram artwork");
           }
           const pixel = await sharp(newImage).extract({left: 0, top: 0, width: 1, height: 1}).raw().toBuffer();
-          if (pixel[0] !== 245 || pixel[1] !== 245 || pixel[2] !== 244) {
+          if (pixel[0] !== 250 || pixel[1] !== 250 || pixel[2] !== 250) {
             throw new Error("Incorrect thumbnail background color");
           }
           console.log("Minimalist monogram thumbnails generated and verified.");
