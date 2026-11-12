@@ -1,0 +1,48 @@
+name: Verify live portfolio
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check live domain serves merged portfolio
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="https://automateiv.vercel.app"
+          for attempt in $(seq 1 24); do
+            if curl --fail --silent --show-error --location --max-time 20 "${site}/" > /tmp/home.html \
+              && grep -Fq "SELECTED SYSTEMS" /tmp/home.html \
+              && grep -Fq "Work with me" /tmp/home.html \
+              && grep -Fq "View resume" /tmp/home.html; then
+              echo "Homepage verified: selected systems and new contact/resume CTAs visible."
+              break
+            fi
+            if [ "$attempt" -eq 24 ]; then
+              echo "::error::Live domain did not serve the expected updated homepage."
+              exit 1
+            fi
+            echo "Homepage has not propagated; retry ${attempt}/24"
+            sleep 10
+          done
+
+          curl --fail --silent --show-error --location --max-time 20 \
+            "${site}/work/roofflow-voice-ai" > /tmp/roofflow.html
+          grep -Fq "Demo built with sample data" /tmp/roofflow.html
+          grep -Fq "Not documented" /tmp/roofflow.html
+          echo "RoofFlow case study verified: build label and evidence table visible."
+
+          status=$(curl --silent --show-error --location --max-time 30 \
+            --output /tmp/social-image.bin --write-out '%{http_code} %{content_type}' \
+            "${site}/work/roofflow-voice-ai/opengraph-image")
+          echo "OG image response: $status"
+          [[ "$status" == "200 image/png"* ]]
+          file /tmp/social-image.bin
+          echo "Live smoke test passed."
