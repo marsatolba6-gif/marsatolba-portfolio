@@ -33,12 +33,13 @@ export const NAVIGATION_ITEMS = [
   ["06", "CONTACT", "#contact"],
 ] as const;
 
+/** The only process framework used across About, Process, Method and case studies. */
 export const PROCESS_STEPS = [
-  ["01", "UNDERSTAND", "Begin with the people, the purpose, and the outcome. Find the handoffs, delays, and repetitive work shaping the process."],
-  ["02", "DESIGN", "Turn the process into a clear system of triggers, decisions, data, responsibilities, exceptions, and measurable outcomes."],
+  ["01", "DISCOVER", "Begin with the people, the purpose, and the outcome. Find the handoffs, delays, and repetitive work shaping the process."],
+  ["02", "MAP", "Turn the process into a clear system of triggers, decisions, data, responsibilities, exceptions, and measurable outcomes."],
   ["03", "BUILD", "Choose only what the system needs, then connect automation, AI, CRM, APIs, and business applications into one dependable flow."],
   ["04", "TEST", "Challenge every branch, field, response, delay, and edge case so the workflow performs beyond the ideal scenario."],
-  ["05", "REFINE", "Document the logic, review performance, and improve the system as the business, people, and priorities evolve."],
+  ["05", "IMPROVE", "Document the logic, review performance, and improve the system as the business, people, and priorities evolve."],
 ] as const;
 
 export const STACK_TOOLS = [
@@ -51,14 +52,23 @@ export const STACK_TOOLS = [
   "WEBHOOKS",
   "GOOGLE SHEETS",
   "SLACK",
+  "OAUTH",
+  "APPS SCRIPT",
+  "APPSHEET",
+  "META ADS",
+  "TRELLO",
 ] as const;
 
 
-/** These are descriptive skills, not logos or additional platform claims. */
-export const STACK_EXTRAS = [
-  ["OAuth + TOKEN REFRESH", "OAuth and token-refresh handling in custom API integrations."],
-  ["GOOGLE APPS SCRIPT", "Spreadsheet and Google Workspace workflow scripting."],
-  ["APPSHEET", "No-code apps that connect operational data and workflows."],
-  ["META ADS MANAGER", "Lead-generation campaigns feeding GoHighLevel funnels."],
-  ["TRELLO + N8N", "Connecting task coordination with n8n automation."],
-] as const;
+/** Requested descriptive skills, shown inside their existing Stack cards. */
+export const STACK_DETAILS = {
+  integrations: [
+    "OAuth and token-refresh handling in custom API integrations",
+    "Google Apps Script",
+    "Trello connected to n8n workflows",
+  ],
+  crm: [
+    "Meta Ads Manager campaigns feeding GoHighLevel funnels and lead capture",
+    "AppSheet apps for internal business processes",
+  ],
+} as const;
