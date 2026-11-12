@@ -24,7 +24,8 @@ jobs:
               && grep -Fq "View resume" /tmp/home.html \
               && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
               && grep -Fq "Typically within a few hours, often sooner." /tmp/home.html \
-              && grep -Fq "marsatolba6@gmail.com" /tmp/home.html; then
+              && grep -Fq "marsatolba6@gmail.com" /tmp/home.html \
+              && grep -Fq "/og-monogram.png" /tmp/home.html; then
               echo "Homepage verified: booking link, reply window and existing email visible."
               break
             fi
@@ -64,4 +65,8 @@ jobs:
           grep -Fq "/assets/hd/ghl-lead-conversion-1@2x.png" /tmp/ghl.html
           grep -Fq "VIEW ORIGINAL FILE" /tmp/ghl.html
           echo "High-resolution case gallery and original file links verified."
+          curl --fail --silent --show-error --location --max-time 20 \
+            "${site}/og-monogram.png" --output /tmp/live-monogram.png
+          file /tmp/live-monogram.png | grep -Fq "PNG image data, 1200 x 630"
+          echo "Minimalist home social preview verified."
           echo "Live smoke test passed."
