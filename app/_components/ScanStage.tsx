@@ -3,6 +3,7 @@
 import { PointerEvent as ReactPointerEvent, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { Project } from "../projects";
+import { getSharpImageSrc } from "../image-quality";
 
 const SCAN_MARKER_POSITIONS = [
   { left: "16%", top: "24%" },
@@ -88,7 +89,7 @@ export default function ScanStage({ project, src, index, onExpand }: ScanStagePr
       aria-label={`${project.name} system scan ${index + 1}`}
     >
       <div className="scan-image-layer">
-        <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1050px" loading="lazy" />
+        <Image src={getSharpImageSrc(src)} alt={`${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1050px" loading="lazy" />
       </div>
       <div className="scan-map" aria-hidden="true">
         <div className="scan-map-head"><span>MARS / SYSTEM SCAN</span><span>VIEW {String(index + 1).padStart(2, "0")}</span></div>

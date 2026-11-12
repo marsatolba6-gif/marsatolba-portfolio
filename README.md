@@ -49,3 +49,12 @@ Elevate. Automate. Excel.
 ## Verification
 
 Run `npm ci`, `npm run lint`, `npx tsc --noEmit`, and `npm run build`. A GitHub Actions workflow also runs these checks and collects mobile Lighthouse reports for home and RoofFlow (baseline live URL versus the locally served updated build). Reports are environment-dependent and should not be treated as controlled performance experiments.
+
+
+## Image fidelity and HD workflow screenshots
+
+- The original screenshots under `public/assets/` are **never overwritten**. Their text and workflow nodes remain the source of truth.
+- `image-hd-manifest.json` lists small GoHighLevel images and RoofFlow that need a higher-resolution display copy. `scripts/prepare-hd-assets.mjs` generates **lossless 2× PNG copies** using conventional Lanczos3 interpolation and gentle edge sharpening before `npm run dev`, `npm run build`, or Vercel's `npm run build:vercel`.
+- Workflow images bypass Next.js lossy image re-encoding, while the headshot retains responsive image optimization at high quality. Below-the-fold screenshots remain lazy-loaded.
+- Every project case study and full-screen viewer includes a **View original file** action so a recruiter can inspect the untouched source pixels.
+- Enlarging a low-resolution screenshot cannot recover missing text or detail. For genuinely higher-quality captures, replace the original with a full-size export from n8n/GoHighLevel, then rebuild. The scripted HD copies are faithful enlargements, not generative redraws.

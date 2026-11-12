@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import AnalyticsLink from "../../AnalyticsLink";
 import { getBuildNote, getProject, projects } from "../../projects";
 import { SITE_CONFIG } from "../../site-config";
+import { getSharpImageSrc } from "../../image-quality";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -125,9 +126,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {gallery.map((src, index) => (
               <figure key={src}>
                 <div className="case-image">
-                  <Image src={src} alt={`${project.name} workflow view ${index + 1}`} fill sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
+                  <Image src={getSharpImageSrc(src)} alt={`${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
                 </div>
-                <figcaption>VIEW {String(index + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")} · SANITIZED PORTFOLIO VIEW</figcaption>
+                <figcaption>VIEW {String(index + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")} · SANITIZED PORTFOLIO VIEW <a href={src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.name} image ${index + 1} at original resolution`}>VIEW ORIGINAL FILE ↗</a></figcaption>
               </figure>
             ))}
           </section>
