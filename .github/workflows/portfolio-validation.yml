@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'contact-delivery-*'
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'contact-delivery-*']
   workflow_dispatch:
 
 permissions:
