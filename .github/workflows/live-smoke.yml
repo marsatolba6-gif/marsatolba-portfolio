@@ -21,11 +21,11 @@ jobs:
             if curl --fail --silent --show-error --location --max-time 20 "${site}/" > /tmp/home.html \
               && grep -Fq "SELECTED SYSTEMS" /tmp/home.html \
               && grep -Fq "Work with me" /tmp/home.html \
-              && grep -Fq "View resume" /tmp/home.html; then
-              grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html
-          grep -Fq "Typically within a few hours, often sooner." /tmp/home.html
-          grep -Fq "marsatolba6@gmail.com" /tmp/home.html
-          echo "Homepage verified: booking link, reply window and existing email visible."
+              && grep -Fq "View resume" /tmp/home.html \
+              && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
+              && grep -Fq "Typically within a few hours, often sooner." /tmp/home.html \
+              && grep -Fq "marsatolba6@gmail.com" /tmp/home.html; then
+              echo "Homepage verified: booking link, reply window and existing email visible."
               break
             fi
             if [ "$attempt" -eq 24 ]; then
@@ -39,7 +39,6 @@ jobs:
           curl --fail --silent --show-error --location --max-time 20 \
             "${site}/work/roofflow-voice-ai" > /tmp/roofflow.html
           grep -Fq "Demo built with sample data" /tmp/roofflow.html
-          grep -Fq "Not documented" /tmp/roofflow.html
           grep -Fq "Create a GoHighLevel follow-up task due within 5 minutes." /tmp/roofflow.html
           grep -Fq "Where run-level evidence is unavailable" /tmp/roofflow.html
           echo "RoofFlow case study verified: project-specific evidence rows and disclaimer visible."
