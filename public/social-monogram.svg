@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="og-title">
+  <title id="og-title">Mars Atolba — AI Automation Specialist</title>
+  <rect width="1200" height="630" fill="#F5F5F4"/>
+  <g fill="#111111">
+    <path d="M 470 321 V 129 H 506 L 600 260 L 694 129 H 730 V 321 H 692 V 185 L 600 310 L 508 185 V 321 Z"/>
+    <circle cx="745" cy="138" r="16" fill="none" stroke="#111111" stroke-width="7"/>
+  </g>
+  <text x="600" y="427" text-anchor="middle" fill="#151515" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="39" letter-spacing="7.5">MARS ATOLBA</text>
+  <text x="600" y="472" text-anchor="middle" fill="#656565" font-family="Arial, Helvetica, sans-serif" font-weight="500" font-size="17" letter-spacing="5.2">AI AUTOMATION SPECIALIST</text>
+</svg>
