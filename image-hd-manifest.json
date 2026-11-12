@@ -1,0 +1,36 @@
+{
+  "assets": [
+    {
+      "source": "/assets/ghl-lead-conversion-1.png",
+      "display": "/assets/hd/ghl-lead-conversion-1@2x.png"
+    },
+    {
+      "source": "/assets/ghl-lead-conversion-2.png",
+      "display": "/assets/hd/ghl-lead-conversion-2@2x.png"
+    },
+    {
+      "source": "/assets/ghl-lead-conversion-3.png",
+      "display": "/assets/hd/ghl-lead-conversion-3@2x.png"
+    },
+    {
+      "source": "/assets/ghl-priority-branches.png",
+      "display": "/assets/hd/ghl-priority-branches@2x.png"
+    },
+    {
+      "source": "/assets/ghl-workflow-1.png",
+      "display": "/assets/hd/ghl-workflow-1@2x.png"
+    },
+    {
+      "source": "/assets/ghl-workflow-2.png",
+      "display": "/assets/hd/ghl-workflow-2@2x.png"
+    },
+    {
+      "source": "/assets/ghl-workflow-overview.png",
+      "display": "/assets/hd/ghl-workflow-overview@2x.png"
+    },
+    {
+      "source": "/assets/roofflow-voice-ai-workflow.svg",
+      "display": "/assets/hd/roofflow-voice-ai-workflow@2x.png"
+    }
+  ]
+}
