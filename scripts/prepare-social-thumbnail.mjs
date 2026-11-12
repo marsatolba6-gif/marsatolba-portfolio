@@ -19,7 +19,8 @@ if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
 }
 
 await Promise.all([
+  writeFile(join(root, "public/og-original-mark.png"), png),
   writeFile(join(root, "public/og-monogram.png"), png),
   writeFile(join(root, "public/og.png"), png),
 ]);
-console.log(`Generated minimal Option 03 social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);
+console.log(`Generated original M’ PDF logo social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);
