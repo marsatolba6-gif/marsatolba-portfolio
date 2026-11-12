@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { track } from "@vercel/analytics";
 import { SITE_CONFIG } from "../site-config";
+import { PROJECT_TYPES } from "../contact-project-types";
 
 type FormStatus = "idle" | "sending" | "success" | "error";
 
@@ -76,7 +77,7 @@ export default function ContactForm({ available = false }: { available?: boolean
       </div>
       <div className="form-row">
         <label><span>COMPANY / TEAM</span><input name="company" type="text" autoComplete="organization" maxLength={150} placeholder="Optional" /></label>
-        <label><span>WHAT ARE WE BUILDING?</span><select name="projectType" defaultValue=""><option value="" disabled>Select a system</option><option>AI Workflow</option><option>n8n Automation</option><option>GoHighLevel System</option><option>Workflow Optimization</option><option>Ongoing Automation Support</option><option>Other</option></select></label>
+        <label><span>WHAT ARE WE BUILDING? *</span><select name="projectType" defaultValue="" required><option value="" disabled>Select a system</option>{PROJECT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}</select></label>
       </div>
       <label className="message-field"><span>WHAT PROCESS WOULD YOU LIKE TO IMPROVE? *</span><textarea name="message" required maxLength={3000} rows={5} placeholder="Share the process, bottleneck, or outcome you have in mind." /></label>
       <div className="form-submit">
