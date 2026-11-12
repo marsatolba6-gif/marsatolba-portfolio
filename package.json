@@ -11,7 +11,11 @@
     "build": "next build",
     "build:vercel": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "predev": "node scripts/prepare-hd-assets.mjs",
+    "predev:vercel": "node scripts/prepare-hd-assets.mjs",
+    "prebuild": "node scripts/prepare-hd-assets.mjs",
+    "prebuild:vercel": "node scripts/prepare-hd-assets.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "2.0.1",
