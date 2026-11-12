@@ -18,7 +18,7 @@ import {
   NAVIGATION_ITEMS,
   PROCESS_STEPS,
   STACK_TOOLS,
-  STACK_EXTRAS,
+  STACK_DETAILS,
 } from "./portfolio-content";
 import { getProject, projects, type Project } from "./projects";
 import { SITE_CONFIG } from "./site-config";
@@ -563,12 +563,13 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
           </h1>
           <div className="hero-footer">
             <span>AI WORKFLOWS / N8N / GOHIGHLEVEL</span>
-            <span>ELEVATE. AUTOMATE. EXCEL</span>
+            <span>Elevate. Automate. Excel.</span>
             <span>PHILIPPINES / REMOTE</span>
           </div>
         </section>
-        <nav className="hero-link-row" aria-label="Get in touch or view resume">
-          <a href="#contact" onClick={() => track("Hero CTA Clicked", { destination: "contact" })}>Work with me <span aria-hidden="true">↗</span></a>
+        <nav className="hero-link-row" aria-label="Start a conversation, book a call, or view resume">
+          <a href="#contact" onClick={() => track("Hero CTA Clicked", { destination: "contact" })}>Start a conversation <span aria-hidden="true">↗</span></a>
+          {SITE_CONFIG.bookingUrl.trim() && <a href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("Booking Opened", { source: "hero" })}>Book a call <span aria-hidden="true">↗</span></a>}
           <a href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "hero" })}>View resume <span aria-hidden="true">↗</span></a>
         </nav>
 
@@ -742,7 +743,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
           <div className="process-layout">
             <div className="process-intro reveal">
               <p className="eyebrow">03 / PROCESS</p>
-              <h2>Understand the work.<br />Design the flow.<br />Build for what comes next.</h2>
+              <h2>From Friction<br />to Flow.</h2>
               <div className="process-quote"><p>“The goal is not to automate more. It is to create a better way of working.”</p><span>Technology earns its place when it removes friction, supports people, and makes the outcome more reliable.</span></div>
             </div>
             <div className="process-steps">
@@ -761,35 +762,31 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
         </section>
 
         <section id="stack" className="stack theme-light" data-theme="light">
-          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>Tools evolve.<br />Clear thinking endures.</h2></div>
+          <div className="stack-head reveal"><p className="eyebrow">05 / STACK</p><h2>Technical<br />stack.</h2></div>
           <div className="marquee" aria-label="Core tools"><div className="marquee-track">{[0, 1].map((set) => <div className="marquee-set" key={set}>{STACK_TOOLS.map((tool, index) => <Fragment key={tool}>{index > 0 && <i>+</i>}<span>{tool}</span></Fragment>)}</div>)}</div></div>
           <div className="stack-grid reveal">
             <article><span>AI & LLM WORK</span><p>LLM workflow design, prompt systems, structured outputs, validation, and human-reviewed AI assistance.</p></article>
             <article><span>AUTOMATION</span><p>n8n orchestration, decision logic, data transformation, error handling, testing, and monitoring.</p></article>
-            <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Gmail, Google Sheets, Slack, and Google Workspace.</p></article>
-            <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel pipelines, funnels, calendars, forms, and intentional email and SMS journeys.</p></article>
-          </div>
-          <div className="stack-extra-lines reveal" aria-label="Additional skills">
-            {STACK_EXTRAS.map(([title, description]) => <article key={title}><strong>{title}</strong><p>{description}</p></article>)}
+            <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Gmail, Google Sheets, Slack, and Google Workspace.</p><ul className="stack-card-details">{STACK_DETAILS.integrations.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>
+            <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel pipelines, funnels, calendars, forms, and intentional email and SMS journeys.</p><ul className="stack-card-details">{STACK_DETAILS.crm.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>
           </div>
         </section>
 
         <section className="principles theme-light" data-theme="light">
           <div className="principles-visual reveal" aria-hidden="true">
-            <div className="method-title"><span>MARS / METHOD</span><strong>FROM FRICTION<br />TO FLOW.</strong></div>
+            <div className="method-title"><span>MARS / METHOD</span><strong>From Friction<br />to Flow.</strong></div>
             <div className="method-track"><i />{PROCESS_STEPS.map(([num, title]) => <span key={num}>{num} / {title}</span>)}</div>
             <div className="method-signal"><span>PROCESS FIRST</span><span>HUMAN IN THE LOOP</span><span>MEASURED OUTCOME</span></div>
           </div>
-          <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Rooted in the business.<br />Intentional with AI.<br />Built to be understood.</h2><div className="principle-list"><span>RELIABILITY BY DESIGN</span><span>COMMUNICATION WITH CLARITY</span><span>SYSTEMS PEOPLE CAN OWN</span><span>CONTINUOUS REFINEMENT</span></div></div>
+          <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Working<br />principles.</h2><div className="principle-list"><span>RELIABILITY BY DESIGN</span><span>COMMUNICATION WITH CLARITY</span><span>SYSTEMS PEOPLE CAN OWN</span><span>CONTINUOUS REFINEMENT</span></div></div>
         </section>
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
           <div className="contact-layout reveal">
-            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let&apos;s build what<br />moves work forward.</h2><ContactForm available={webhookReady} /></div>
+            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let&apos;s build what<br />moves work forward.</h2><ContactForm available={webhookReady} />{SITE_CONFIG.bookingUrl.trim() && <a className="contact-booking-link" href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("Booking Opened", { source: "contact" })}>BOOK A 30-MINUTE CALL <span aria-hidden="true">↗</span></a>}</div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
-              {SITE_CONFIG.bookingUrl.trim() && <a href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer"><span>BOOK A CONVERSATION</span>Schedule a call ↗</a>}
-              <p><span>TYPICAL REPLY TIME</span>{SITE_CONFIG.typicalReplyTime}</p>
+              {SITE_CONFIG.typicalReplyTime.trim() && <p><span>TYPICAL REPLY TIME</span>{SITE_CONFIG.typicalReplyTime}</p>}
               <div className="contact-next-steps"><strong>WHAT HAPPENS NEXT</strong><ol>{SITE_CONFIG.contactNextSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol></div>
               <a href={`mailto:${SITE_CONFIG.email}`}><span>EMAIL</span>{SITE_CONFIG.email} ↗</a>
               <a href={SITE_CONFIG.linkedIn} target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
@@ -797,7 +794,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "contact" })}>VIEW RESUME ↗</a></div>
             </aside>
           </div>
-          <div className="footer-word" aria-label="Elevate. Automate. Excel."><span>ELEVATE.</span><span>AUTOMATE.</span><span>EXCEL.</span></div>
+          <div className="footer-word" aria-label="Elevate. Automate. Excel."><span>Elevate.</span><span>Automate.</span><span>Excel.</span></div>
           <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines</span><span>{webhookReady ? "This form runs through an n8n workflow." : "Direct enquiries: " + SITE_CONFIG.email}</span></div>
         </section>
       </main>
