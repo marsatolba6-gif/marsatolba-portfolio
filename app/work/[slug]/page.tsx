@@ -181,6 +181,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-evidence" aria-label="Testing and reliability evidence">
           <article>
             <p>WHAT WAS TESTED</p>
+            <p className="case-evidence-context">These checks reflect the documented system and portfolio captures. Where run-level evidence is unavailable, that limitation is stated in the outcome.</p>
             <div className="case-test-scroll"><table className="case-test-table">
               <caption className="sr-only">Documented test scenarios. Empty evidence fields are not claimed as verified results.</caption>
               <thead><tr><th scope="col">Scenario</th><th scope="col">Input</th><th scope="col">Expected result</th><th scope="col">Outcome</th></tr></thead>
