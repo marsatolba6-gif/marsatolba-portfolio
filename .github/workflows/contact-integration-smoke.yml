@@ -1,7 +1,5 @@
 name: Verify production n8n contact integration
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
