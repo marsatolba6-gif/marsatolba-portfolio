@@ -49,4 +49,19 @@ jobs:
           echo "OG image response: $status"
           [[ "$status" == "200 image/png"* ]]
           file /tmp/social-image.bin
+          # Verify generated HD assets are available on the production domain.
+          for spec in "ghl-lead-conversion-1@2x.png|1114 x 1252" "roofflow-voice-ai-workflow@2x.png|2364 x 1156"; do
+            name="${spec%%|*}"
+            resolution="${spec#*|}"
+            curl --fail --silent --show-error --location --max-time 20 \
+              "${site}/assets/hd/${name}" --output "/tmp/${name}"
+            file "/tmp/${name}" | grep -Fq "PNG image data, ${resolution}"
+            echo "HD asset available: ${name} (${resolution})"
+          done
+
+          curl --fail --silent --show-error --location --max-time 20 \
+            "${site}/work/gohighlevel-workflows" > /tmp/ghl.html
+          grep -Fq "/assets/hd/ghl-lead-conversion-1@2x.png" /tmp/ghl.html
+          grep -Fq "VIEW ORIGINAL FILE" /tmp/ghl.html
+          echo "High-resolution case gallery and original file links verified."
           echo "Live smoke test passed."
