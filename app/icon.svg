@@ -1,6 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Automate with Mars">
-  <rect width="64" height="64" rx="10" fill="#050505"/>
-  <path d="M13 46V18l19 22 19-22v28" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/>
-  <circle cx="53" cy="12" r="3.5" fill="none" stroke="#fff" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Mars Atolba M’ monogram">
+  <rect width="512" height="512" fill="#edebe6"/>
+  <!-- Square favicon from the exact M’ glyph outlines and warm background
+       of the approved, uploaded one-page logo PDF. No redesign. -->
+  <defs>
+    <path id="original-m" d="M.8328552 0H.6000061V.2871399L.48571778 .07714844H.3942871L.27856446 .2871399V0H.04714966V.7142792H.25428773L.44000245 .34143067 .62571719 .7142792H.8328552V0Z"/>
+    <path id="original-apostrophe" d="M.2128601 .7142792V.5542908L.1471405 .44285584H.03857422L.08999634 .5542908H.041427614V.7142792H.2128601Z"/>
+  </defs>
+  <g fill="#000000" transform="translate(256 256) scale(1.4) translate(-385 -296)">
+    <use href="#original-m" transform="matrix(222.03221,0,0,-222.03221,263.43653,375.33207)"/>
+    <use href="#original-apostrophe" transform="matrix(222.03221,0,0,-222.03221,448.83338,375.33207)"/>
+  </g>
 </svg>
-
