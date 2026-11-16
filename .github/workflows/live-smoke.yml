@@ -20,7 +20,7 @@ jobs:
           for attempt in $(seq 1 24); do
             if curl --fail --silent --show-error --location --max-time 20 "${site}/" > /tmp/home.html \
               && grep -Fq "SELECTED SYSTEMS" /tmp/home.html \
-              && grep -Fq "Work with me" /tmp/home.html \
+              && grep -Fq "Start a conversation" /tmp/home.html \
               && grep -Fq "View resume" /tmp/home.html \
               && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
               && grep -Fq "Typically within a few hours, often sooner." /tmp/home.html \
@@ -71,4 +71,33 @@ jobs:
           # Confirm the APPROVED soft-white thumbnail, not the previous beige version.
           node -e 'const fs=require("fs"),zlib=require("zlib");const b=fs.readFileSync("/tmp/live-monogram.png");const type=b[25];if(type!==2&&type!==6)process.exit(1);let p=8,parts=[];while(p<b.length){let n=b.readUInt32BE(p),t=b.toString("ascii",p+4,p+8);if(t==="IDAT")parts.push(b.subarray(p+8,p+8+n));p+=n+12;}const pixels=zlib.inflateSync(Buffer.concat(parts));if([pixels[1],pixels[2],pixels[3]].join(",")!=="237,235,230"){console.error("Old thumbnail is still cached");process.exit(1);}'
           echo "Uploaded PDF M’ logo social thumbnail verified."
+
+          # The browser favicon and all mobile icons must also use the approved PDF.
+          for attempt in $(seq 1 24); do
+            if curl --fail --silent --show-error --location --max-time 20 \
+                 "${site}/icon.svg" > /tmp/live-icon.svg \
+              && grep -Fq 'fill="#edebe6"' /tmp/live-icon.svg \
+              && grep -Fq 'M.8328552 0H.6000061' /tmp/live-icon.svg \
+              && curl --fail --silent --show-error --location --max-time 20 \
+                 "${site}/favicon.ico" > /tmp/live-favicon.ico \
+              && curl --fail --silent --show-error --location --max-time 20 \
+                 "${site}/apple-icon.png" > /tmp/live-apple-icon.png \
+              && curl --fail --silent --show-error --location --max-time 20 \
+                 "${site}/icon-192.png" > /tmp/live-pwa192.png \
+              && curl --fail --silent --show-error --location --max-time 20 \
+                 "${site}/icon-512.png" > /tmp/live-pwa512.png \
+              && file /tmp/live-favicon.ico | grep -Fq 'MS Windows icon resource' \
+              && file /tmp/live-apple-icon.png | grep -Fq 'PNG image data, 180 x 180' \
+              && file /tmp/live-pwa192.png | grep -Fq 'PNG image data, 192 x 192' \
+              && file /tmp/live-pwa512.png | grep -Fq 'PNG image data, 512 x 512'; then
+              echo "All browser, Apple, and mobile M’ icons verified on public domain."
+              break
+            fi
+            if [ "$attempt" -eq 24 ]; then
+              echo "::error::Updated PDF-based favicons are not yet visible on the public site."
+              exit 1
+            fi
+            echo "Favicon deployment not fully propagated; check ${attempt}/24"
+            sleep 10
+          done
           echo "Live smoke test passed."

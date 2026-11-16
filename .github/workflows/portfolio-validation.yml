@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'portfolio-copy-*', 'contact-delivery-*', 'restore-pdf-original-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'portfolio-copy-*', 'contact-delivery-*', 'restore-pdf-original-*', 'favicon-match-*']
   workflow_dispatch:
 
 permissions:
@@ -71,6 +71,8 @@ jobs:
           if (black < 1000) throw new Error("Original black M monogram did not render.");
           console.log("Uploaded PDF black M’ logo and warm off-white background verified.");
           NODE
+      - name: Verify PDF-derived browser, Apple, and PWA icons
+        run: node scripts/verify-visual-identity.mjs
       - name: Verify unchanged originals and generated lossless HD assets
         run: |
           node --input-type=module - <<'NODE'
