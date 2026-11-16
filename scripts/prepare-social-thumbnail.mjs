@@ -8,7 +8,9 @@ import { resolve, join } from "node:path";
 import sharp from "sharp";
 
 const root = resolve(import.meta.dirname, "..");
-const source = await readFile(join(root, "public/social-header.svg"));
+// This is the exact M’ vector shape and #edebe6 background extracted from
+// the user's uploaded Canva PDF. No text or additional artwork is added.
+const source = await readFile(join(root, "public/social-monogram.svg"));
 
 const png = await sharp(source, { limitInputPixels: 12_000_000 })
   .png({ compressionLevel: 9, palette: false, effort: 8 })
@@ -19,7 +21,7 @@ if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
 }
 
 await Promise.all([
-  writeFile(join(root, "public/og-header-mark.png"), png),
+  writeFile(join(root, "public/og-pdf-monogram.png"), png),
   writeFile(join(root, "public/og.png"), png),
 ]);
-console.log(`Generated existing M° header branding social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);
+console.log(`Generated exact uploaded-PDF M’ social preview (1200x630, ${Math.round(png.byteLength / 1024)} KiB)`);

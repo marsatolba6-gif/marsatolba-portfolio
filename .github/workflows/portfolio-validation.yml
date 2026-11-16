@@ -1,7 +1,7 @@
 name: Portfolio validation and mobile Lighthouse
 on:
   push:
-    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'portfolio-copy-*', 'contact-delivery-*']
+    branches: [main, 'portfolio-*', 'social-monogram-*', 'use-approved-*', 'use-exact-*', 'contact-projecttype-*', 'portfolio-copy-*', 'contact-delivery-*', 'restore-pdf-original-*']
   workflow_dispatch:
 
 permissions:
@@ -41,7 +41,7 @@ jobs:
           import { readFile } from "node:fs/promises";
           import { createHash } from "node:crypto";
           import sharp from "sharp";
-          const newImage = await readFile("public/og-header-mark.png");
+          const newImage = await readFile("public/og-pdf-monogram.png");
           const legacyPath = await readFile("public/og.png");
           const meta = await sharp(newImage).metadata();
           if (meta.format !== "png" || meta.width !== 1200 || meta.height !== 630) {
@@ -51,12 +51,17 @@ jobs:
             throw new Error("Home OG thumbnails must use the same monogram artwork");
           }
           const pixel = await sharp(newImage).extract({left: 0, top: 0, width: 1, height: 1}).raw().toBuffer();
-          if (pixel[0] !== 255 || pixel[1] !== 255 || pixel[2] !== 255) {
+          if (pixel[0] !== 237 || pixel[1] !== 235 || pixel[2] !== 230) {
             throw new Error("Incorrect thumbnail background color");
           }
-          const headerArtwork = (await readFile("public/social-header.svg", "utf8"));
-          for (const word of ["M°", "MARS ATOLBA", "AI AUTOMATION SPECIALIST"]) {
-            if (!headerArtwork.includes(word)) throw new Error(`Header branding missing from OG image: ${word}`);
+          const uploadedPdfArtwork = (await readFile("public/social-monogram.svg", "utf8"));
+          if (!uploadedPdfArtwork.includes('fill="#edebe6"')
+            || !uploadedPdfArtwork.includes('M.8328552 0H.6000061')
+            || !uploadedPdfArtwork.includes('M.2128601 .7142792')) {
+            throw new Error("The original PDF's warm off-white background or exact vector glyphs are missing.");
+          }
+          if (uploadedPdfArtwork.includes("MARS ATOLBA") || uploadedPdfArtwork.includes("AI AUTOMATION SPECIALIST")) {
+            throw new Error("Do not add text that was not present in the uploaded PDF.");
           }
           const region = await sharp(newImage).extract({left: 475, top: 210, width: 250, height: 200}).raw().toBuffer({resolveWithObject: true});
           let black = 0;
@@ -64,7 +69,7 @@ jobs:
             if (region.data[i] < 75 && region.data[i+1] < 75 && region.data[i+2] < 75) black++;
           }
           if (black < 1000) throw new Error("Original black M monogram did not render.");
-          console.log("Original website header M° lockup thumbnail generated and verified.");
+          console.log("Uploaded PDF black M’ logo and warm off-white background verified.");
           NODE
       - name: Verify unchanged originals and generated lossless HD assets
         run: |
