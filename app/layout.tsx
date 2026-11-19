@@ -4,6 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SITE_CONFIG } from "./site-config";
 import "./globals.css";
 
+const SEO_TITLE = "Mars Atolba | AI Automation Specialist (n8n & GoHighLevel)";
+const SEO_DESCRIPTION = "AI Automation Specialist in the Philippines helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.";
+
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 export const viewport: Viewport = {
@@ -16,10 +19,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: {
-    default: SITE_CONFIG.name,
+    default: SEO_TITLE,
     template: `%s — ${SITE_CONFIG.name}`,
   },
-  description: SITE_CONFIG.description,
+  description: SEO_DESCRIPTION,
   applicationName: SITE_CONFIG.name,
   authors: [{ name: SITE_CONFIG.personName }],
   creator: SITE_CONFIG.personName,
@@ -37,8 +40,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: SITE_CONFIG.name,
-    description: "Reliable n8n workflows, GoHighLevel CRM systems, AI automation, APIs, and connected business systems.",
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
     type: "website",
     siteName: SITE_CONFIG.name,
     locale: "en_US",
@@ -47,8 +50,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_CONFIG.name,
-    description: "Reliable n8n workflows, GoHighLevel CRM systems, AI automation, APIs, and connected business systems.",
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
     images: ["/og-pdf-monogram.png"],
   },
 };
@@ -57,11 +60,11 @@ const personSchema = {
   "@type": "Person",
   "@id": `${SITE_CONFIG.url}/#person`,
   name: SITE_CONFIG.personName,
-  url: `${SITE_CONFIG.url}/`,
+  url: SITE_CONFIG.url,
   jobTitle: SITE_CONFIG.jobTitle,
-  description: "AI Automation Specialist focused on n8n workflows, GoHighLevel CRM systems, API integrations, and connected business automation.",
-  sameAs: [SITE_CONFIG.linkedIn],
-  knowsAbout: ["AI automation", "n8n", "GoHighLevel", "CRM automation", "APIs", "webhooks", "business systems"],
+  description: "AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.",
+  sameAs: [SITE_CONFIG.linkedIn, "https://github.com/marsatolba6-gif"],
+  knowsAbout: ["n8n", "GoHighLevel", "AI automation", "AI voice agents", "workflow automation", "lead follow-up automation"],
   address: {
     "@type": "PostalAddress",
     addressCountry: "PH",
