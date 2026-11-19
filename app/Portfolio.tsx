@@ -640,7 +640,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
                    loading="lazy"
                    className="about-flight-photo"
                 />
-                <p>I'm Mars Atolba, an AI Automation Specialist in the Philippines. I started in operations, so I build n8n and GoHighLevel workflows around the handoffs, delays, and repetitive work that slow teams down.</p>
+                <p>I&apos;m Mars Atolba, an AI Automation Specialist in the Philippines. I started in operations, so I build n8n and GoHighLevel workflows around the handoffs, delays, and repetitive work that slow teams down.</p>
               <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
               </div>
               <span className="about-flight-scroll">SCROLL / ASSEMBLE ↓</span>
