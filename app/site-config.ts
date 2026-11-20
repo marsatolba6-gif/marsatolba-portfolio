@@ -6,7 +6,7 @@ export const SITE_CONFIG = {
   jobTitle: "AI Automation Specialist",
   email: "marsatolba6@gmail.com",
   bookingUrl: "https://calendly.com/marsatolba6/30min", // 30-minute introduction call.
-  typicalReplyTime: "Typically within a few hours, often sooner.",
+  typicalReplyTime: "",
   contactNextSteps: [
     "Share the process and outcome you want to improve.",
     "I review the requirements and clarify the scope.",
