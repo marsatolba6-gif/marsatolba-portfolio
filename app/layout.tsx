@@ -64,7 +64,7 @@ const personSchema = {
   jobTitle: SITE_CONFIG.jobTitle,
   description: "AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.",
   sameAs: [SITE_CONFIG.linkedIn, "https://github.com/marsatolba6-gif"],
-  knowsAbout: ["n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI", "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar", "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager", "Basic JavaScript"],
+  knowsAbout: ["n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI", "Webhooks", "REST APIs", "OAuth", "Gmail", "Google Sheets", "Google Calendar", "Google Apps Script", "AppSheet", "Slack", "Trello", "Meta Ads Manager", "Supabase (via n8n)", "Basic JavaScript"],
   address: {
     "@type": "PostalAddress",
     addressCountry: "PH",
