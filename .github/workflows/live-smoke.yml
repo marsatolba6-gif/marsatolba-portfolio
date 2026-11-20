@@ -23,10 +23,10 @@ jobs:
               && grep -Fq "Start a conversation" /tmp/home.html \
               && grep -Fq "View resume" /tmp/home.html \
               && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
-              && grep -Fq "Typically within a few hours, often sooner." /tmp/home.html \
+              && grep -Fq "github.com/marsatolba6-gif" /tmp/home.html \
               && grep -Fq "marsatolba6@gmail.com" /tmp/home.html \
               && grep -Fq "/og-pdf-monogram.png" /tmp/home.html; then
-              echo "Homepage verified: booking link, reply window and existing email visible."
+              echo "Homepage verified: booking link, GitHub link and existing email visible."
               break
             fi
             if [ "$attempt" -eq 24 ]; then
@@ -40,9 +40,10 @@ jobs:
           curl --fail --silent --show-error --location --max-time 20 \
             "${site}/work/roofflow-voice-ai" > /tmp/roofflow.html
           grep -Fq "Demo built with sample data" /tmp/roofflow.html
-          grep -Fq "Create a GoHighLevel follow-up task due within 5 minutes." /tmp/roofflow.html
-          grep -Fq "Where run-level evidence is unavailable" /tmp/roofflow.html
-          echo "RoofFlow case study verified: project-specific evidence rows and disclaimer visible."
+          grep -Fq "An inbound AI voice receptionist and lead qualification automation, built as a voice-first n8n workflow." /tmp/roofflow.html
+          grep -Fq "Emergency within 5 minutes, Qualified within 15 minutes, Nurture within 1 day" /tmp/roofflow.html
+          grep -Fq "The Emergency, Qualified, and Nurture routes were scenario-tested." /tmp/roofflow.html
+          echo "RoofFlow case study verified: current system copy, follow-up routes and testing statement visible."
 
           status=$(curl --silent --show-error --location --max-time 30 \
             --output /tmp/social-image.bin --write-out '%{http_code} %{content_type}' \
