@@ -5,7 +5,7 @@ import { SITE_CONFIG } from "./site-config";
 import "./globals.css";
 
 const SEO_TITLE = "Mars Atolba | AI Automation Specialist (n8n & GoHighLevel)";
-const SEO_DESCRIPTION = "AI Automation Specialist in the Philippines helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.";
+const SEO_DESCRIPTION = "AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -64,7 +64,7 @@ const personSchema = {
   jobTitle: SITE_CONFIG.jobTitle,
   description: "AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.",
   sameAs: [SITE_CONFIG.linkedIn, "https://github.com/marsatolba6-gif"],
-  knowsAbout: ["n8n", "GoHighLevel", "AI automation", "AI voice agents", "workflow automation", "lead follow-up automation"],
+  knowsAbout: ["n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI", "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar", "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager", "Basic JavaScript"],
   address: {
     "@type": "PostalAddress",
     addressCountry: "PH",
