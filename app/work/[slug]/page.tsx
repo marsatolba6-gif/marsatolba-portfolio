@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   if (!project) return {};
 
   const url = `${SITE_CONFIG.url}/work/${project.slug}`;
-  const description = project.value;
+  const description = project.slug === "roofflow-voice-ai"
+    ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
+    : project.value;
   const image = `${url}/opengraph-image`;
 
   return {
@@ -86,7 +88,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     "@id": `${url}#case-study`,
     name: project.name,
     url,
-    description: project.system,
+    description: project.slug === "roofflow-voice-ai"
+      ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
+      : project.system,
     creator: { "@id": `${SITE_CONFIG.url}/#person` },
     about: project.category,
     keywords: project.tools.join(", "),
@@ -139,7 +143,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <header>
             <p>MARS / SYSTEM STORY</p>
             <h2 id="case-story-title">From Friction<br />to Flow.</h2>
-            <p className="case-process-vocabulary">OUR PROCESS / {PROCESS_STEPS.map(([, title]) => title).join(" · ")}</p>
+            <p className="case-process-vocabulary">MY PROCESS / {PROCESS_STEPS.map(([, title]) => title).join(" · ")}</p>
           </header>
           <div className="case-story-grid">
             {[
@@ -148,7 +152,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               ...(project.practicalValueDetail?.trim() && project.practicalValueDetail.trim() !== project.value.trim()
                 ? [["03", "PRACTICAL VALUE", project.practicalValueDetail]]
                 : []),
-              ["04", "RELIABILITY", project.reliability],
+              [
+                project.practicalValueDetail?.trim() && project.practicalValueDetail.trim() !== project.value.trim()
+                  ? "04"
+                  : "03",
+                "RELIABILITY",
+                project.reliability,
+              ],
             ].map(([num, label, copy]) => (
               <article key={num}>
                 <span>{num}</span>
