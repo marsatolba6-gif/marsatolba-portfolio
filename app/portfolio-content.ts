@@ -50,12 +50,12 @@ export const STACK_TOOLS = [
 /** Requested descriptive skills, shown inside their existing Stack cards. */
 export const STACK_DETAILS = {
   integrations: [
-    "OAuth and token-refresh handling in custom API integrations",
+    "OAuth",
     "Google Apps Script",
-    "Trello connected to n8n workflows",
+    "Trello connected with n8n",
   ],
   crm: [
-    "Meta Ads Manager campaigns feeding GoHighLevel funnels and lead capture",
-    "AppSheet apps for internal business processes",
+    "Meta Ads Manager",
+    "AppSheet",
   ],
 } as const;
