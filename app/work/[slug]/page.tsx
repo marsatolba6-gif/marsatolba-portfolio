@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
   const url = `${SITE_CONFIG.url}/work/${project.slug}`;
   const description = project.slug === "roofflow-voice-ai"
-    ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
+    ? "RoofFlow Voice AI is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
     : project.value;
   const image = `${url}/opengraph-image`;
 
@@ -89,7 +89,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     name: project.name,
     url,
     description: project.slug === "roofflow-voice-ai"
-      ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
+      ? "RoofFlow Voice AI is an inbound AI voice receptionist and lead qualification automation for roofing businesses."
       : project.system,
     creator: { "@id": `${SITE_CONFIG.url}/#person` },
     about: project.category,
@@ -131,7 +131,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {gallery.map((src, index) => (
               <figure key={src}>
                 <div className="case-image">
-                  <Image src={getSharpImageSrc(src)} alt={project.slug === "roofflow-voice-ai" ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses." : `${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
+                  <Image src={getSharpImageSrc(src)} alt={project.slug === "roofflow-voice-ai" ? "RoofFlow Voice AI is an inbound AI voice receptionist and lead qualification automation for roofing businesses." : `${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
                 </div>
                 <figcaption>VIEW {String(index + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")} · SANITIZED PORTFOLIO VIEW <a href={src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.name} image ${index + 1} at original resolution`}>VIEW ORIGINAL FILE ↗</a></figcaption>
               </figure>
