@@ -554,7 +554,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
         <section ref={heroRef} className="hero theme-light" data-theme="light">
           <HeroFluidCanvas />
           <div className="hero-meta">
-            <p>I build AI, CRM, and n8n systems that capture leads, reduce repetitive work, and keep follow-up moving for service businesses and operations teams.</p>
+            <p>AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.</p>
             <a href="#work" className="pill" onClick={() => track("Hero CTA Clicked", { destination: "work" })}>VIEW WORK ↘</a>
           </div>
           <h1 className="hero-title">
@@ -640,7 +640,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
                    loading="lazy"
                    className="about-flight-photo"
                 />
-                <p>I began in people-focused operations, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
+                <p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p>
               <span>MARS, FROM OPERATIONS TO SYSTEMS</span>
               </div>
               <span className="about-flight-scroll">SCROLL / ASSEMBLE ↓</span>
@@ -662,7 +662,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
             <div className="about-belief-copy reveal">
               <span>PROCESS BEFORE PLATFORM</span>
               <h3>I START WITH<br />THE PROCESS.</h3>
-              <p>Before I choose a tool, I understand the people, decisions, and outcomes behind the work. Then I shape the clearest system to carry it forward—reliably, thoughtfully, and with room to grow.</p>
+              <p>Before automating anything, I ask where the team is losing time, where leads or tasks are falling through, and which steps should be automated and which simply need a better process. I build systems that are clear, practical, and maintainable.</p>
               <div className="about-belief-rule" aria-hidden="true"><i /><b>MARS / WORKING METHOD</b><i /></div>
             </div>
           </div>
@@ -755,9 +755,9 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
         <section id="experience" className="experience theme-dark" data-theme="dark">
           <div className="experience-head reveal"><p className="eyebrow inverse">04 / EXPERIENCE</p><h2>FROM OPERATIONS<br />TO SYSTEMS.</h2></div>
           <div className="timeline">
-            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>Design and build reliable AI, CRM, and workflow systems that reduce friction, connect teams and tools, and turn operational intent into repeatable execution. Currently taking on early client projects, with a portfolio built on rigorously tested independent systems.</p></article>
-            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Built and tested end-to-end automation systems, strengthening my practice in orchestration, API integration, routing logic, structured AI outputs, and resilient workflow design.</p></article>
-            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations & Customer Success</h3><p>Operations & Support</p></div><p>Managed communication, documentation, reporting, follow-ups, and day-to-day problem solving—experience that taught me to design systems around the realities of people and operations.</p></article>
+            <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.</p></article>
+            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Independent projects using n8n, GoHighLevel, AI workflows, APIs, and webhooks.</p></article>
+            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations and Customer Success</h3><p>Operations and Customer Success</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
           </div>
         </section>
 
@@ -767,7 +767,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
           <div className="stack-grid reveal">
             <article><span>AI & LLM WORK</span><p>LLM workflow design, prompt systems, structured outputs, validation, and human-reviewed AI assistance.</p></article>
             <article><span>AUTOMATION</span><p>n8n orchestration, decision logic, data transformation, error handling, testing, and monitoring.</p></article>
-            <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Gmail, Google Sheets, Slack, and Google Workspace.</p><ul className="stack-card-details">{STACK_DETAILS.integrations.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>
+            <article><span>INTEGRATIONS</span><p>Connected data and actions across APIs, webhooks, Google Sheets, and Google Calendar.</p><ul className="stack-card-details">{STACK_DETAILS.integrations.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>
             <article><span>CRM & BUSINESS SYSTEMS</span><p>GoHighLevel pipelines, funnels, calendars, forms, and intentional email and SMS journeys.</p><ul className="stack-card-details">{STACK_DETAILS.crm.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>
           </div>
         </section>
@@ -840,7 +840,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
                   </section>
                   <div className="dialog-flow">{activeProject.flow.map((item, index) => <span key={item}>{index > 0 && <i>→</i>}{item}</span>)}</div>
                   <div className="dialog-tools">{activeProject.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
-                  <p className="case-study-note">Each case study documents the process, workflow logic, reliability checks, and tested scenarios. Sanitized walkthroughs are available on request.</p>
+                  <p className="case-study-note">The Emergency, Qualified, and Nurture routes were scenario-tested. Run-level execution records and raw data are not published, to protect customer information.</p>
                 </div>
               </div>
             </div>
