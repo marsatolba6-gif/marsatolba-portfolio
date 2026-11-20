@@ -41,15 +41,18 @@ assert.match(content, /"AND MULTIPLY THROUGH"/);
 assert.match(content, /"EXCELLENCE\."/);
 
 const allowed = [
-  "OAuth and token-refresh handling in custom API integrations",
-  "Google Apps Script",
-  "Trello connected to n8n workflows",
-  "Meta Ads Manager campaigns feeding GoHighLevel funnels and lead capture",
-  "AppSheet apps for internal business processes",
+  "n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI",
+  "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar",
+  "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager",
 ];
-for (const skill of allowed) assert.ok(content.includes(skill), "Missing approved skill: " + skill);
-for (const tool of ["OAUTH", "APPS SCRIPT", "APPSHEET", "META ADS", "TRELLO"])
-  assert.ok(content.includes('"' + tool + '"'), "Missing marquee label: " + tool);
+const toolBlock = content.match(/export const STACK_TOOLS = \[([\s\S]*?)\] as const;/);
+assert.ok(toolBlock, "Canonical skills must be present");
+const toolLabels = [...toolBlock[1].matchAll(/"([^"]+)"/g)].map(x => x[1]);
+assert.deepEqual(toolLabels, allowed, "Only approved tools may appear in the stack");
+for (const skill of ["OAuth", "Google Apps Script", "Trello connected with n8n", "Meta Ads Manager", "AppSheet"])
+  assert.ok(content.includes('"' + skill + '"'), "Missing approved skill: " + skill);
+assert.ok(!toolLabels.includes("Slack"), "Unsupported tool must not be claimed");
+assert.match(content, /FEATURED_PROJECT_SLUGS = \[\s*"roofflow-voice-ai",?\s*\]/);
 assert.match(home, /STACK_DETAILS\.integrations\.map/);
 assert.match(home, /STACK_DETAILS\.crm\.map/);
 assert.ok(!home.includes("stack-extra-lines"), "Do not add standalone stack cards");
