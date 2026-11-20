@@ -42,16 +42,17 @@ assert.match(content, /"EXCELLENCE\."/);
 
 const allowed = [
   "n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI",
-  "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar",
-  "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager",
+  "Webhooks", "REST APIs", "OAuth", "Gmail", "Google Sheets", "Google Calendar",
+  "Google Apps Script", "AppSheet", "Slack", "Trello", "Meta Ads Manager",
+  "Supabase (via n8n)", "JavaScript (basic, mainly within n8n)",
 ];
 const toolBlock = content.match(/export const STACK_TOOLS = \[([\s\S]*?)\] as const;/);
 assert.ok(toolBlock, "Canonical skills must be present");
 const toolLabels = [...toolBlock[1].matchAll(/"([^"]+)"/g)].map(x => x[1]);
 assert.deepEqual(toolLabels, allowed, "Only approved tools may appear in the stack");
-for (const skill of ["OAuth", "Google Apps Script", "Trello connected with n8n", "Meta Ads Manager", "AppSheet"])
+for (const skill of ["OAuth", "Google Apps Script", "Trello connected with n8n", "Meta Ads Manager", "AppSheet", "Slack", "Supabase (via n8n)", "Gmail"])
   assert.ok(content.includes('"' + skill + '"'), "Missing approved skill: " + skill);
-assert.ok(!toolLabels.includes("Slack"), "Unsupported tool must not be claimed");
+assert.ok(toolLabels.includes("Slack") && toolLabels.includes("Supabase (via n8n)"), "Current resume skills must be represented");
 assert.match(content, /FEATURED_PROJECT_SLUGS = \[\s*"roofflow-voice-ai",?\s*\]/);
 assert.match(home, /STACK_DETAILS\.integrations\.map/);
 assert.match(home, /STACK_DETAILS\.crm\.map/);
