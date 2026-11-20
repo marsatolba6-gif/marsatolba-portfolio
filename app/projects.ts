@@ -188,7 +188,7 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Fixed extraction schema", "Deterministic urgency rules", "Contact upsert to reduce duplicates", "Explicit routing branches", "Every routed outcome logged to Google Sheets"],
-    flow: ["Inbound Call", "Understand", "Prioritize", "Record", "Book", "Follow Up"],
+    flow: ["Call", "Understand", "Prioritize", "Record", "Book", "Follow Up"],
     tools: ["Retell AI (inbound voice AI)", "n8n (webhook, orchestration, urgency scoring)", "Groq (structured extraction)", "GoHighLevel (CRM, pipeline, follow-up tasks)", "Google Calendar (availability and booking)", "Google Sheets (audit log)", "Webhooks"],
   },
 
