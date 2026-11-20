@@ -170,8 +170,8 @@ export const projects: Project[] = [
   {
     num: "06",
     slug: "roofflow-voice-ai",
-    name: "RoofFlow",
-    shortName: "RoofFlow",
+    name: "RoofFlow Voice AI",
+    shortName: "RoofFlow Voice AI",
     category: "VOICE AI / CRM AUTOMATION",
     scope: "BUILT TO CLIENT-READY STANDARD",
     layout: "wide",
