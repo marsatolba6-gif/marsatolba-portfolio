@@ -14,6 +14,6 @@ export const SITE_CONFIG = {
   ],
   linkedIn: "https://www.linkedin.com/in/automatewithmars/",
   description:
-    "Mars Atolba is an AI Automation Specialist building reliable n8n workflows, GoHighLevel CRM systems, API integrations, and connected business automation.",
+    "AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.",
 } as const;
 
