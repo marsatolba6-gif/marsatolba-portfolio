@@ -42,8 +42,9 @@ export const PROCESS_STEPS = [
 
 export const STACK_TOOLS = [
   "n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI",
-  "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar",
-  "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager",
+  "Webhooks", "REST APIs", "OAuth", "Gmail", "Google Sheets", "Google Calendar",
+  "Google Apps Script", "AppSheet", "Slack", "Trello", "Meta Ads Manager",
+  "Supabase (via n8n)", "JavaScript (basic, mainly within n8n)",
 ] as const;
 
 
@@ -53,9 +54,12 @@ export const STACK_DETAILS = {
     "OAuth",
     "Google Apps Script",
     "Trello connected with n8n",
+    "Slack",
+    "Supabase (via n8n)",
   ],
   crm: [
     "Meta Ads Manager",
     "AppSheet",
+    "Gmail",
   ],
 } as const;
