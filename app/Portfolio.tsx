@@ -757,7 +757,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
           <div className="timeline">
             <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.</p></article>
             <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Independent projects using n8n, GoHighLevel, AI workflows, APIs, and webhooks.</p></article>
-            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations and Customer Success</h3><p>Operations and Customer Success</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
+            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations and Customer Success</h3><p>Local Businesses</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
           </div>
         </section>
 
@@ -790,6 +790,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
               <div className="contact-next-steps"><strong>WHAT HAPPENS NEXT</strong><ol>{SITE_CONFIG.contactNextSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol></div>
               <a href={`mailto:${SITE_CONFIG.email}`}><span>EMAIL</span>{SITE_CONFIG.email} ↗</a>
               <a href={SITE_CONFIG.linkedIn} target="_blank" rel="noreferrer" onClick={() => track("LinkedIn Opened", { source: "contact" })}><span>LINKEDIN</span>linkedin.com/in/automatewithmars ↗</a>
+              <a href="https://github.com/marsatolba6-gif" target="_blank" rel="noreferrer" onClick={() => track("GitHub Opened", { source: "contact" })}><span>GITHUB</span>github.com/marsatolba6-gif ↗</a>
               <p><span>LOCATION</span>Remote / Philippines<br />Available for global teams</p>
               <div className="contact-actions"><a className="pill pill-inverse" href="/assets/Mars-Atolba-Resume.pdf" target="_blank" rel="noreferrer" onClick={() => track("Resume Opened", { source: "contact" })}>VIEW RESUME ↗</a></div>
             </aside>
