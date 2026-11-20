@@ -219,6 +219,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-tools" aria-label="Tools used">
           <p>TOOLS USED</p>
           <div>{project.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
+          {project.slug === "roofflow-voice-ai" && (
+            <a href="https://github.com/marsatolba6-gif/roofflow-ai-voice-lead-automation" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+          )}
         </section>
 
         <section className="case-cta">
