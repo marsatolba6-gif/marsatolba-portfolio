@@ -841,7 +841,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
                   </section>
                   <div className="dialog-flow">{activeProject.flow.map((item, index) => <span key={item}>{index > 0 && <i>→</i>}{item}</span>)}</div>
                   <div className="dialog-tools">{activeProject.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
-                  <p className="case-study-note">The Emergency, Qualified, and Nurture routes were scenario-tested. Run-level execution records and raw data are not published, to protect customer information.</p>
+                  {activeProject.slug === "roofflow-voice-ai" && <p className="case-study-note">The Emergency, Qualified, and Nurture routes were scenario-tested. Run-level execution records and raw data are not published, to protect customer information.</p>}
                 </div>
               </div>
             </div>
