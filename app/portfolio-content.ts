@@ -20,8 +20,6 @@ export const MANIFESTO_QUOTE = MANIFESTO_LINES.join(" ");
 export const ABOUT_ROLE_LINES = ["AN AI AUTOMATION", "SPECIALIST."] as const;
 export const FEATURED_PROJECT_SLUGS = [
   "roofflow-voice-ai",
-  "gohighlevel-workflows",
-  "ai-customer-support-automation",
 ] as const;
 
 export const NAVIGATION_ITEMS = [
@@ -43,20 +41,9 @@ export const PROCESS_STEPS = [
 ] as const;
 
 export const STACK_TOOLS = [
-  "N8N",
-  "GOHIGHLEVEL",
-  "RETELL AI",
-  "OPENAI",
-  "GROQ",
-  "APIs",
-  "WEBHOOKS",
-  "GOOGLE SHEETS",
-  "SLACK",
-  "OAUTH",
-  "APPS SCRIPT",
-  "APPSHEET",
-  "META ADS",
-  "TRELLO",
+  "n8n", "GoHighLevel", "AI workflows", "Retell AI", "Groq", "OpenAI",
+  "Webhooks", "APIs", "OAuth", "Google Sheets", "Google Calendar",
+  "Google Apps Script", "AppSheet", "Trello", "Meta Ads Manager",
 ] as const;
 
 
