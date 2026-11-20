@@ -127,7 +127,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {gallery.map((src, index) => (
               <figure key={src}>
                 <div className="case-image">
-                  <Image src={getSharpImageSrc(src)} alt={`${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
+                  <Image src={getSharpImageSrc(src)} alt={project.slug === "roofflow-voice-ai" ? "RoofFlow is an inbound AI voice receptionist and lead qualification automation for roofing businesses." : `${project.name} workflow view ${index + 1}`} fill unoptimized sizes="(max-width: 600px) 100vw, (max-width: 1100px) 90vw, 1100px" loading="lazy" />
                 </div>
                 <figcaption>VIEW {String(index + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")} · SANITIZED PORTFOLIO VIEW <a href={src} target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.name} image ${index + 1} at original resolution`}>VIEW ORIGINAL FILE ↗</a></figcaption>
               </figure>
@@ -184,7 +184,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-evidence" aria-label="Testing and reliability evidence">
           <article>
             <p>WHAT WAS TESTED</p>
-            <p className="case-evidence-context">These checks reflect the documented system and portfolio captures. Where run-level evidence is unavailable, that limitation is stated in the outcome.</p>
+            <p className="case-evidence-context">{project.slug === "roofflow-voice-ai" ? "The Emergency, Qualified, and Nurture routes were scenario-tested. Run-level execution records and raw data are not published, to protect customer information." : "These checks reflect the documented system and portfolio captures. Where run-level evidence is unavailable, that limitation is stated in the outcome."}</p>
             <div className="case-test-scroll"><table className="case-test-table">
               <caption className="sr-only">Documented test scenarios. Empty evidence fields are not claimed as verified results.</caption>
               <thead><tr><th scope="col">Scenario</th><th scope="col">Input</th><th scope="col">Expected result</th><th scope="col">Outcome</th></tr></thead>
