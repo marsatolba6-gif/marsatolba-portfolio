@@ -757,7 +757,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
           <div className="timeline">
             <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.</p></article>
             <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Independent projects using n8n, GoHighLevel, AI workflows, APIs, and webhooks.</p></article>
-            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations &amp; Customer Success</h3><p>Local Businesses</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
+            <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations &amp; Customer Success</h3><p>Local Businesses and Personal Ventures</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
           </div>
         </section>
 
