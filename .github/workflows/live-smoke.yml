@@ -22,6 +22,7 @@ jobs:
               && grep -Fq "SELECTED SYSTEMS" /tmp/home.html \
               && grep -Fq "Start a conversation" /tmp/home.html \
               && grep -Fq "View resume" /tmp/home.html \
+              && grep -Fq "Local Businesses and Personal Ventures" /tmp/home.html \
               && grep -Fq "https://calendly.com/marsatolba6/30min" /tmp/home.html \
               && grep -Fq "github.com/marsatolba6-gif" /tmp/home.html \
               && grep -Fq "marsatolba6@gmail.com" /tmp/home.html \
