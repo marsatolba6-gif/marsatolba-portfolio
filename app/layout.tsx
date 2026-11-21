@@ -18,6 +18,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
+  verification: {
+    google: "7b8515dd3c291335.html",
+  },
   title: {
     default: SEO_TITLE,
     template: `%s — ${SITE_CONFIG.name}`,
