@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SITE_CONFIG } from "../site-config";
 
 const intro =
@@ -52,11 +53,11 @@ export default function AboutPage() {
   return (
     <>
       <header className="case-topbar">
-        <a href="/">← HOME</a>
+        <Link href="/">← HOME</Link>
         <span>ABOUT</span>
-        <a href="/work/roofflow-voice-ai">
+        <Link href="/work/roofflow-voice-ai">
           ROOFFLOW VOICE AI ↗
-        </a>
+        </Link>
       </header>
 
       <main className="case-page">
@@ -142,9 +143,9 @@ export default function AboutPage() {
           <header>
             <p>FEATURED PROJECT</p>
             <h2 id="featured-project">
-              <a href="/work/roofflow-voice-ai">
+              <Link href="/work/roofflow-voice-ai">
                 RoofFlow Voice AI
-              </a>
+              </Link>
             </h2>
           </header>
           <div className="case-story-grid">
