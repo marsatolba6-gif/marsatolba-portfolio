@@ -796,7 +796,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
             </aside>
           </div>
           <div className="footer-word" aria-label="Elevate. Automate. Excel."><span>Elevate.</span><span>Automate.</span><span>Excel.</span></div>
-          <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines</span><span>{webhookReady ? "This form runs through an n8n workflow." : "Direct enquiries: " + SITE_CONFIG.email}</span></div>
+          <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines · <a href="/about">ABOUT ↗</a></span><span>{webhookReady ? "This form runs through an n8n workflow." : "Direct enquiries: " + SITE_CONFIG.email}</span></div>
         </section>
       </main>
 
