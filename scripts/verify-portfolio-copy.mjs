@@ -61,7 +61,7 @@ assert.ok(!home.includes("stack-extra-lines"), "Do not add standalone stack card
 assert.equal([...config.matchAll(/bookingUrl:/g)].length, 1, "Keep one booking URL source");
 assert.match(config, /https:\/\/calendly\.com\/marsatolba6\/30min/);
 assert.equal([...home.matchAll(/SITE_CONFIG\.bookingUrl\.trim\(\)/g)].length, 2, "Exactly hero and contact booking CTA");
-assert.match(home, /<ContactForm available=\{webhookReady\} \/>\{SITE_CONFIG\.bookingUrl/);
+assert.ok(home.includes("<ContactForm />{SITE_CONFIG.bookingUrl"), "Keep the contact form beside the booking CTA");
 assert.match(home, /SITE_CONFIG\.typicalReplyTime\.trim\(\)/);
 assert.match(home, /SITE_CONFIG\.contactNextSteps\.map/);
 console.log("Portfolio branding, framework, contact and approved stack contract verified.");
