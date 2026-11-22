@@ -28,7 +28,7 @@ const HeroFluidCanvas = dynamic(() => import("./HeroFluidCanvas"), { ssr: false 
 const CURRENT_YEAR = new Date().getFullYear();
 const featuredProjects = FEATURED_PROJECT_SLUGS.map(getProject).filter((project): project is Project => Boolean(project));
 
-export default function Portfolio({ webhookReady = false }: { webhookReady?: boolean }) {
+export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [introPhase, setIntroPhase] = useState<"mark" | "name" | "loading" | "collapse">("mark");
@@ -783,7 +783,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
           <div className="contact-layout reveal">
-            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let&apos;s build what<br />moves work forward.</h2><ContactForm available={webhookReady} />{SITE_CONFIG.bookingUrl.trim() && <a className="contact-booking-link" href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("Booking Opened", { source: "contact" })}>BOOK A 30-MINUTE CALL <span aria-hidden="true">↗</span></a>}</div>
+            <div className="contact-primary"><p className="eyebrow inverse">06 / CONTACT</p><h2>Let&apos;s build what<br />moves work forward.</h2><ContactForm />{SITE_CONFIG.bookingUrl.trim() && <a className="contact-booking-link" href={SITE_CONFIG.bookingUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("Booking Opened", { source: "contact" })}>BOOK A 30-MINUTE CALL <span aria-hidden="true">↗</span></a>}</div>
             <aside className="contact-details" aria-label="Contact details">
               <p className="contact-details-label">DIRECT CONTACT</p>
               {SITE_CONFIG.typicalReplyTime.trim() && <p><span>TYPICAL REPLY TIME</span>{SITE_CONFIG.typicalReplyTime}</p>}
@@ -796,7 +796,7 @@ export default function Portfolio({ webhookReady = false }: { webhookReady?: boo
             </aside>
           </div>
           <div className="footer-word" aria-label="Elevate. Automate. Excel."><span>Elevate.</span><span>Automate.</span><span>Excel.</span></div>
-          <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines · <a href="/about">ABOUT ↗</a></span><span>{webhookReady ? "This form runs through an n8n workflow." : "Direct enquiries: " + SITE_CONFIG.email}</span></div>
+          <div className="footer-bottom"><span>© {CURRENT_YEAR} {SITE_CONFIG.name}</span><span>Remote / Philippines · <a href="/about">ABOUT ↗</a></span><span>This form is delivered through FormSubmit.</span></div>
         </section>
       </main>
 

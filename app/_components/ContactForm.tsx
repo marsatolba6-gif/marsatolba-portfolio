@@ -4,10 +4,14 @@ import { FormEvent, useState } from "react";
 import { track } from "@vercel/analytics";
 import { SITE_CONFIG } from "../site-config";
 import { PROJECT_TYPES } from "../contact-project-types";
+import { getFormSubmitError, isFormSubmitSuccess } from "../formsubmit-response";
+
+const FORM_SUBMIT_ENDPOINT = `https://formsubmit.co/${SITE_CONFIG.email}`;
+const FORM_SUBMIT_AJAX_ENDPOINT = `https://formsubmit.co/ajax/${SITE_CONFIG.email}`;
 
 type FormStatus = "idle" | "sending" | "success" | "unconfirmed" | "error";
 
-export default function ContactForm({ available = false }: { available?: boolean }) {
+export default function ContactForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState("");
@@ -29,32 +33,35 @@ export default function ContactForm({ available = false }: { available?: boolean
       projectType,
       message: String(values.get("message") || ""),
       _honey: String(values.get("_honey") || ""),
+      _subject: "New Portfolio Enquiry — Discuss a System",
+      _template: "table",
     };
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch(FORM_SUBMIT_AJAX_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = await response.json() as { message?: string };
-      if (!response.ok) throw new Error(result.message || "Message could not be sent.");
-      // HTTP 202 means n8n has not acknowledged completion in time. The
-      // enquiry may already have reached email, so avoid a false failure and
-      // discourage duplicate submissions without claiming confirmed delivery.
-      if (response.status === 202) {
-        form.reset();
-        setDeliveryMessage(result.message || "Confirmation is delayed. Please don't resubmit this enquiry.");
-        setStatus("unconfirmed");
-        track("Contact Confirmation Delayed", { project_type: projectType || "Not specified" });
+      const result: unknown = await response.json();
+
+      // FormSubmit can respond with HTTP 200 when a submission is rejected.
+      // Only its explicit success value confirms acceptance.
+      if (!response.ok || !isFormSubmitSuccess(result)) {
+        setErrorMessage(getFormSubmitError(result));
+        setStatus("error");
         return;
       }
+
       form.reset();
       setStatus("success");
-      track("Contact Form Submitted", { project_type: projectType || "Not specified" });
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Message could not be sent.");
-      setStatus("error");
+      track("Contact Form Submitted", { project_type: projectType || "Not specified", provider: "formsubmit" });
+    } catch {
+      // A dropped connection or non-JSON reply does not prove delivery failed.
+      // Preserve the entered form so the visitor can contact us another way.
+      setDeliveryMessage("I couldn't confirm whether FormSubmit received your message. Please avoid submitting it again immediately.");
+      setStatus("unconfirmed");
+      track("Contact Confirmation Delayed", { project_type: projectType || "Not specified", provider: "formsubmit" });
     }
   };
 
@@ -68,17 +75,8 @@ export default function ContactForm({ available = false }: { available?: boolean
     }
   };
 
-  if (!available) {
-    return (
-      <div className="contact-form contact-email-fallback">
-        <p className="contact-email-note">The contact form is being connected. For now, please email me your project details directly.</p>
-        <a className="contact-submit" href={`mailto:${SITE_CONFIG.email}?subject=Portfolio%20enquiry`}>EMAIL ME DIRECTLY <span>↗</span></a>
-      </div>
-    );
-  }
-
   return (
-    <form className="contact-form" action="/api/contact" method="POST" onSubmit={submit}>
+    <form className="contact-form" action={FORM_SUBMIT_ENDPOINT} method="POST" onSubmit={submit}>
       <div className="form-honey" aria-hidden="true">
         <label htmlFor="contact-website">Leave this field blank</label>
         <input id="contact-website" type="text" name="_honey" tabIndex={-1} autoComplete="off" />
@@ -100,7 +98,7 @@ export default function ContactForm({ available = false }: { available?: boolean
           {status === "error" && <>{errorMessage} <a href={`mailto:${SITE_CONFIG.email}`}>Email me directly</a> or <button type="button" onClick={copyEmail}>{copied ? "EMAIL COPIED" : "COPY EMAIL"}</button>.</>}
         </p>
       </div>
-      <p className="form-privacy">Your details are used only to respond to this enquiry. They are not added to a mailing list.</p>
+      <p className="form-privacy">FormSubmit delivers your enquiry to my email. Your details are used only to respond and are not added to a mailing list.</p>
       <noscript><p className="form-privacy">JavaScript is not required to read this page. For the easiest way to reach me, email <a href={`mailto:${SITE_CONFIG.email}`}>{SITE_CONFIG.email}</a>.</p></noscript>
     </form>
   );

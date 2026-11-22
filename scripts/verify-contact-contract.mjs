@@ -24,16 +24,28 @@ for (const invalid of ["", "Any", "AI workflow", "Other service", null, 42, [], 
 }
 
 const form = await readFile("app/_components/ContactForm.tsx", "utf8");
-assert.match(form, /name="projectType" defaultValue="" required/);
-assert.match(form, /PROJECT_TYPES\.map/);
-assert.match(form, /projectType,\s*message:/);
-assert.match(form, /fetch\("\/api\/contact"/);
+assert.ok(form.includes('name="projectType" defaultValue="" required'));
+assert.ok(form.includes("PROJECT_TYPES.map"));
+for (const field of ["name", "email", "company", "projectType", "message", "_honey"]) {
+  assert.ok(form.includes(`name="${field}"`), `Missing form field: ${field}`);
+}
+for (const expected of [
+  "action={FORM_SUBMIT_ENDPOINT}",
+  'https://formsubmit.co/ajax/${SITE_CONFIG.email}',
+  "fetch(FORM_SUBMIT_AJAX_ENDPOINT",
+  "JSON.stringify(payload)",
+  '_subject: "New Portfolio Enquiry — Discuss a System"',
+  '_template: "table"',
+]) assert.ok(form.includes(expected), `Missing FormSubmit integration: ${expected}`);
+for (const obsolete of ["N8N_CONTACT_WEBHOOK_URL", "/api/contact"]) {
+  assert.equal(form.includes(obsolete), false, `Old contact integration remains: ${obsolete}`);
+}
+const homepage = await readFile("app/page.tsx", "utf8");
+assert.ok(homepage.includes("<Portfolio />"));
+assert.equal(homepage.includes("N8N_CONTACT_WEBHOOK_URL"), false);
+const portfolio = await readFile("app/Portfolio.tsx", "utf8");
+assert.ok(portfolio.includes("<ContactForm />"));
+assert.ok(portfolio.includes("This form is delivered through FormSubmit."));
+assert.equal(portfolio.includes("webhookReady"), false);
 
-const route = await readFile("app/api/contact/route.ts", "utf8");
-assert.match(route, /if \(!isProjectType\(projectType\)\)/);
-assert.match(route, /return response\(\{ message: "Please select a valid service from the list\." \}, 400\)/);
-assert.match(route, /body: JSON\.stringify\(\{ name, email, company, projectType, message, source: "automateiv portfolio", submittedAt: new Date\(\)\.toISOString\(\) \}\)/);
-assert.match(route, /const webhook = process\.env\.N8N_CONTACT_WEBHOOK_URL/);
-assert.match(route, /if \(clean\(fields\._honey, 100\)\)/);
-
-console.log("Contact form options, strict validation and n8n payload contract verified.");
+console.log("Contact form fields, FormSubmit endpoint, fallback and service choices verified.");

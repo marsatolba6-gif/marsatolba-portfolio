@@ -27,9 +27,9 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npx tsc --noEmit
-      - name: Verify contact dropdown, strict allowlist and n8n payload
+      - name: Verify contact fields and FormSubmit endpoint
         run: node scripts/verify-contact-contract.mjs
-      - name: Verify contact timeout and successful delivery behavior
+      - name: Verify FormSubmit acknowledgment and error behavior
         run: node scripts/verify-contact-delivery.mjs
       - name: Verify branding, process and skill content
         run: node scripts/verify-portfolio-copy.mjs
