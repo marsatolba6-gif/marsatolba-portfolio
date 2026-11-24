@@ -2579,3 +2579,43 @@ section[id] { scroll-margin-top: 72px; }
   .hero-link-row { justify-content: flex-start; column-gap: 24px; row-gap: 4px; }
   .hero-link-row a { font-size: 10px; }
 }
+
+/* Engagement options use the Working principles typography and borders. */
+.ways-to-work { min-height: auto; }
+.ways-to-work .principle-list { margin: 0; padding: 0; list-style: none; }
+.ways-to-work .principle-list li { width: 100%; padding: 8px 10px; border: 1px solid var(--line); }
+.ways-to-work .principle-list li,
+.ways-to-work p { font-size: 12px; line-height: 1.55; }
+
+.project-demo-tag { display: block; }
+.case-scope { min-width: 0; text-align: right; }
+.case-story-note h3 { grid-column: 2; }
+
+@media (max-width: 900px) {
+  .work-list-main .work-list-scope { display: block; grid-column: 2; }
+}
+
+.topbar-controls { display: contents; }
+.desktop-header-links { display: none; }
+
+@media (min-width: 901px) {
+  .topbar-controls {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .desktop-header-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: 24px;
+    font-size: 10px;
+    letter-spacing: .18em;
+  }
+
+  .desktop-header-links a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+}

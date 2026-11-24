@@ -1,3 +1,5 @@
+export const PROJECT_SCOPE = "INDEPENDENT BUILD · CLIENT-READY STANDARD";
+
 export type TestScenario = {
   scenario: string;
   input?: string;
@@ -11,7 +13,8 @@ export type Project = {
   name: string;
   shortName: string;
   category: string;
-  scope: string;
+  demoTag?: "DEMO · SAMPLE DATA";
+  buildNote?: "Demo built with sample data";
   layout: "portrait" | "landscape" | "wide";
   image?: string;
   gallery?: string[];
@@ -27,6 +30,8 @@ export type Project = {
   /** Only show when it adds information beyond the hero summary. */
   practicalValueDetail?: string;
   decisions: string[];
+  designDecision?: string;
+  whatILearned?: string;
   flow: string[];
   tools: string[];
 };
@@ -38,7 +43,7 @@ export const projects: Project[] = [
     name: "AI-Powered Customer Support Automation",
     shortName: "AI Customer Support",
     category: "AI OPERATIONS",
-    scope: "BUILT TO CLIENT-READY STANDARD",
+    buildNote: "Demo built with sample data",
     layout: "portrait",
     image: "/assets/ai-customer-support-automation.png",
     gallery: ["/assets/ai-customer-support-automation.png"],
@@ -56,6 +61,8 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Structure the AI output before routing", "Alert Slack only for high-priority cases", "Record every assessed message for review"],
+    designDecision: "Keep AI assessment structured enough for deterministic downstream routing instead of relying on free-form model responses.",
+    whatILearned: "AI classification becomes more useful in automation when the output is structured clearly enough for downstream workflow logic to act on it.",
     flow: ["Gmail", "Data Preparation", "AI Analysis", "Priority Decision", "Slack Alert", "Google Sheets"],
     tools: ["n8n", "Gmail", "AI model", "Slack", "Google Sheets"],
   },
@@ -65,7 +72,6 @@ export const projects: Project[] = [
     name: "AI Marketing Content Engine",
     shortName: "Marketing Content Engine",
     category: "AI MARKETING AUTOMATION",
-    scope: "INDEPENDENT BUILD",
     layout: "landscape",
     image: "/assets/ai-content-pipeline-final.png",
     gallery: ["/assets/ai-content-pipeline-final.png", "/assets/ai-content-pipeline-merge.png", "/assets/ai-content-pipeline-error-fix.png"],
@@ -83,6 +89,8 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Separate generation from parsing", "Use fixed output schemas", "Deliver one consolidated content package"],
+    designDecision: "Separate AI generation from output parsing so generated responses can be structured and validated before downstream delivery.",
+    whatILearned: "Structured output parsers make AI-generated content easier to pass through downstream automation, but field mapping still needs deliberate testing.",
     flow: ["Google Sheets", "AI Generation", "Content Parsing", "Marketing Package Parsing", "Gmail Delivery"],
     tools: ["n8n", "Groq", "Google Sheets", "Gmail", "Structured Output Parsers"],
   },
@@ -92,7 +100,6 @@ export const projects: Project[] = [
     name: "AI Email Assistant",
     shortName: "AI Email Assistant",
     category: "AI WORKFLOW",
-    scope: "INDEPENDENT BUILD",
     layout: "portrait",
     image: "/assets/ai-email-assistant.png",
     gallery: ["/assets/ai-email-assistant.png", "/assets/gmail-read-assess-automation.png"],
@@ -110,6 +117,8 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Run on a defined schedule", "Capture structured assessment data", "Keep records available for later routing"],
+    designDecision: "Keep message retrieval, AI assessment, and tracking as separate steps so each stage can be tested and troubleshot independently.",
+    whatILearned: "Separating email retrieval from assessment and logging makes the workflow easier to inspect when a message or field does not behave as expected.",
     flow: ["Schedule Trigger", "Gmail", "AI Assessment", "Google Sheets"],
     tools: ["n8n", "Gmail", "OpenAI", "Google Sheets"],
   },
@@ -119,7 +128,7 @@ export const projects: Project[] = [
     name: "GoHighLevel Workflows",
     shortName: "GoHighLevel Workflows",
     category: "CRM AUTOMATION",
-    scope: "BUILT TO CLIENT-READY STANDARD",
+    buildNote: "Demo built with sample data",
     layout: "wide",
     image: "/assets/ghl-lead-conversion-1.png",
     gallery: ["/assets/ghl-lead-conversion-1.png", "/assets/ghl-lead-conversion-2.png", "/assets/ghl-lead-conversion-3.png", "/assets/ghl-workflow-1.png", "/assets/ghl-workflow-2.png", "/assets/ghl-workflow-overview.png", "/assets/ghl-priority-branches.png"],
@@ -137,6 +146,8 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Route leads by stated job urgency", "Create the opportunity early in the flow", "Use explicit tasks and team alerts for handoff"],
+    designDecision: "Structure the workflow around the customer journey so timing, communication, and pipeline movement stay connected instead of being managed as separate tasks.",
+    whatILearned: "Small configuration details such as timing settings can change the behavior of an entire automation, so end-to-end QA matters before launch.",
     flow: ["Form Submitted", "Tag Lead", "Create Opportunity", "Assign Owner", "Check Job Urgency", "Route Priority", "Create Task", "Notify Team"],
     tools: ["GoHighLevel", "Pipelines", "Workflows", "Forms", "Custom Fields", "Email/SMS Automation"],
   },
@@ -146,7 +157,6 @@ export const projects: Project[] = [
     name: "GoHighLevel Landing Pages & Funnels",
     shortName: "Landing Pages & Funnels",
     category: "BUSINESS SYSTEMS",
-    scope: "GOHIGHLEVEL IMPLEMENTATION",
     layout: "landscape",
     image: "/assets/ghl-landing-page-1.webp",
     gallery: ["/assets/ghl-landing-page-1.webp", "/assets/ghl-landing-page-2.png"],
@@ -164,6 +174,8 @@ export const projects: Project[] = [
     sampleRun: { input: "", extractedOutput: "", result: "" },
     workflowJsonUrl: "",
     decisions: ["Connect front-end capture to CRM records", "Keep booking and follow-up in one system", "Validate responsive behavior before handoff"],
+    designDecision: "Treat the page as the front end of a larger customer journey rather than as a standalone design asset.",
+    whatILearned: "Funnels become more useful when the conversion action is connected cleanly to the CRM, booking, and follow-up process behind it.",
     flow: ["Landing Page", "Form", "CRM Record", "Calendar Booking", "Workflow Enrollment"],
     tools: ["GoHighLevel", "Landing Pages", "Forms", "Calendars", "Funnels", "CRM Workflows"],
   },
@@ -173,7 +185,8 @@ export const projects: Project[] = [
     name: "RoofFlow Voice AI",
     shortName: "RoofFlow Voice AI",
     category: "VOICE AI / CRM AUTOMATION",
-    scope: "BUILT TO CLIENT-READY STANDARD",
+    demoTag: "DEMO · SAMPLE DATA",
+    buildNote: "Demo built with sample data",
     layout: "wide",
     image: "/assets/roofflow-voice-ai-workflow.svg",
     gallery: ["/assets/roofflow-voice-ai-workflow.svg"],
@@ -196,9 +209,4 @@ export const projects: Project[] = [
 
 export function getProject(slug: string) {
   return projects.find((project) => project.slug === slug);
-}
-
-/** Scope labels distinguish scenario-tested demos from independent implementations. */
-export function getBuildNote(project: Project): "Demo built with sample data" | "Independent build" {
-  return project.scope === "BUILT TO CLIENT-READY STANDARD" ? "Demo built with sample data" : "Independent build";
 }

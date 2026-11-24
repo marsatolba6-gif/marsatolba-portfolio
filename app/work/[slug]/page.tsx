@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import AnalyticsLink from "../../AnalyticsLink";
-import { getBuildNote, getProject, projects } from "../../projects";
+import { getProject, projects, PROJECT_SCOPE } from "../../projects";
 import { SITE_CONFIG } from "../../site-config";
 import { getSharpImageSrc } from "../../image-quality";
 import { PROCESS_STEPS } from "../../portfolio-content";
@@ -112,10 +112,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <section className="case-hero">
           <div className="case-kicker">
             <span>{project.category}</span>
-            <span>{project.scope}</span>
+            <span className="case-scope">
+              {PROJECT_SCOPE}
+              {project.demoTag && <span className="project-demo-tag">{project.demoTag}</span>}
+            </span>
           </div>
           <h1>{project.name}</h1>
-          <p className="case-build-note">{getBuildNote(project)}</p>
+          {project.buildNote && <p className="case-build-note">{project.buildNote}</p>}
           <div className="case-hero-summary">
             <p>{project.value}</p>
             <dl>
@@ -162,6 +165,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             ].map(([num, label, copy]) => (
               <article key={num}>
                 <span>{num}</span>
+                <h3>{label}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
+            {([
+              ["Design decision", project.designDecision],
+              ["What I learned", project.whatILearned],
+            ] as const).map(([label, copy]) => copy && (
+              <article className="case-story-note" key={label}>
                 <h3>{label}</h3>
                 <p>{copy}</p>
               </article>

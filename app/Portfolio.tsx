@@ -20,7 +20,7 @@ import {
   STACK_TOOLS,
   STACK_DETAILS,
 } from "./portfolio-content";
-import { getProject, projects, type Project } from "./projects";
+import { getProject, projects, PROJECT_SCOPE, type Project } from "./projects";
 import { SITE_CONFIG } from "./site-config";
 import { getSharpImageSrc } from "./image-quality";
 
@@ -534,9 +534,15 @@ export default function Portfolio() {
           <span className="brand-mark">M°</span>
           <span className="brand-copy">Mars Atolba<br /><em>AI Automation Specialist</em></span>
         </a>
-        <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-controls="site-menu" onClick={() => setMenuOpen(true)}>
-          <span>MENU</span><span className="menu-icon">+</span>
-        </button>
+        <div className="topbar-controls">
+          <nav className="desktop-header-links" aria-label="Quick links">
+            <a href="#work">Work</a>
+            <a href="#contact">Contact</a>
+          </nav>
+          <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-controls="site-menu" onClick={() => setMenuOpen(true)}>
+            <span>MENU</span><span className="menu-icon">+</span>
+          </button>
+        </div>
       </header>
 
       <nav ref={menuRef} id="site-menu" className={`site-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen} inert={!menuOpen}>
@@ -693,7 +699,10 @@ export default function Portfolio() {
                     >
                       <span className="work-list-num">{project.num}</span>
                       <span className="work-list-title"><strong>{project.name}</strong><em>{project.category}</em></span>
-                      <span className="work-list-scope">{project.scope}</span>
+                      <span className="work-list-scope">
+                        {PROJECT_SCOPE}
+                        {project.demoTag && <span className="project-demo-tag">{project.demoTag}</span>}
+                      </span>
                       <span className="work-list-arrow">QUICK VIEW</span>
                     </button>
                     <Link className="work-list-case" href={`/work/${project.slug}`} aria-label={`Read full case study: ${project.name}`} onClick={() => track("Case Study Opened", { project: project.slug, source: "work_index" })}>CASE ↗</Link>
@@ -756,7 +765,7 @@ export default function Portfolio() {
           <div className="experience-head reveal"><p className="eyebrow inverse">04 / EXPERIENCE</p><h2>FROM OPERATIONS<br />TO SYSTEMS.</h2></div>
           <div className="timeline">
             <article className="timeline-row reveal"><div><span>CURRENT</span><span>MARCH 2025 — PRESENT</span></div><div><h3>AI Automation Specialist</h3><p>Independent / Freelance</p></div><p>AI Automation Specialist helping agencies and service businesses automate operations and lead follow-up with n8n, GoHighLevel, and AI workflows.</p></article>
-            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Independent projects using n8n, GoHighLevel, AI workflows, APIs, and webhooks.</p></article>
+            <article className="timeline-row reveal"><div><span>INDEPENDENT PROJECTS</span><span>SEPTEMBER 2024 — MARCH 2025</span></div><div><h3>AI Automation Developer</h3><p>Independent Projects</p></div><p>Independent projects using n8n, GoHighLevel, AI workflows, APIs, and webhooks. This stage represents independent project development rather than continuous paid client employment.</p></article>
             <article className="timeline-row reveal"><div><span>PREVIOUS</span><span>AUGUST 2021 — AUGUST 2024</span></div><div><h3>Operations &amp; Customer Success</h3><p>Local Businesses and Personal Ventures</p></div><p>I began in people-focused operations and customer success, where I learned to see the hidden handoffs, delays, and repetitive work shaping every customer and team experience.</p></article>
           </div>
         </section>
@@ -779,6 +788,22 @@ export default function Portfolio() {
             <div className="method-signal"><span>PROCESS FIRST</span><span>HUMAN IN THE LOOP</span><span>MEASURED OUTCOME</span></div>
           </div>
           <div className="principles-copy reveal"><p className="eyebrow">HOW I WORK</p><h2>Working<br />principles.</h2><div className="principle-list"><span>RELIABILITY BY DESIGN</span><span>COMMUNICATION WITH CLARITY</span><span>SYSTEMS PEOPLE CAN OWN</span><span>CONTINUOUS REFINEMENT</span></div></div>
+        </section>
+
+        <section className="principles ways-to-work theme-light" data-theme="light" aria-labelledby="ways-to-work-title">
+          <div className="principles-copy reveal">
+            <h2 id="ways-to-work-title">Ways to work together</h2>
+          </div>
+          <div className="reveal">
+            <ul className="principle-list">
+              <li><strong>Project-based automation:</strong> AI workflows, automation systems, GoHighLevel implementations, and integrations built around a defined business process.</li>
+              <li><strong>Workflow optimization:</strong> Troubleshooting, workflow cleanup, testing, field-mapping corrections, and automation improvements.</li>
+              <li><strong>Ongoing automation support:</strong> Maintenance, troubleshooting, improvements, and continued workflow development for growing systems.</li>
+              <li><strong>Custom systems:</strong> More involved automation projects connecting AI, APIs, business logic, CRM tools, and multiple platforms.</li>
+            </ul>
+            <p>Every engagement is scoped around the process, complexity, integrations, and business requirements.</p>
+            <a className="pill" href="#contact">Discuss your project</a>
+          </div>
         </section>
 
         <section id="contact" className="contact theme-dark" data-theme="dark">
@@ -809,13 +834,13 @@ export default function Portfolio() {
               <div><button type="button" onClick={() => showAdjacentProject(-1)}>PREV</button><button type="button" onClick={() => showAdjacentProject(1)}>NEXT</button></div>
             </nav>
             <div className="dialog-content">
-              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{activeProject.scope}</p><Link className="dialog-case-link" href={`/work/${activeProject.slug}`} onClick={() => track("Case Study Opened", { project: activeProject.slug, source: "quick_view" })}>OPEN SHAREABLE CASE STUDY ↗</Link></div><h2 id="project-title">{activeProject.name}</h2></div>
+              <div className="dialog-head"><div><p className="dialog-kicker">{activeProject.num} / {activeProject.category}<br />{PROJECT_SCOPE}{activeProject.demoTag && <span className="project-demo-tag">{activeProject.demoTag}</span>}</p><Link className="dialog-case-link" href={`/work/${activeProject.slug}`} onClick={() => track("Case Study Opened", { project: activeProject.slug, source: "quick_view" })}>OPEN SHAREABLE CASE STUDY ↗</Link></div><h2 id="project-title">{activeProject.name}</h2></div>
               <div className="dialog-system-layout">
                 <aside className="project-proof-rail" aria-label="Project proof rail">
                   <div className="proof-status"><i /><span>TESTED BUILD</span></div>
                   <dl>
                     <div><dt>TYPE</dt><dd>{activeProject.category}</dd></div>
-                    <div><dt>SCOPE</dt><dd>{activeProject.scope}</dd></div>
+                    <div><dt>SCOPE</dt><dd>{PROJECT_SCOPE}</dd></div>
                     <div><dt>STAGES</dt><dd>{String(activeProject.flow.length).padStart(2, "0")}</dd></div>
                     <div><dt>TOOLS</dt><dd>{String(activeProject.tools.length).padStart(2, "0")}</dd></div>
                     <div><dt>QA</dt><dd>SCENARIO TESTED</dd></div>
